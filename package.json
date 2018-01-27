@@ -1,0 +1,28 @@
+{
+  "name": "peon",
+  "version": "1.0.0",
+  "description": "Automation tool",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/uka17/peon.git"
+  },
+  "author": "Maj. Tom Johnson",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/uka17/peon/issues"
+  },
+  "homepage": "https://github.com/uka17/peon#readme",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "mongodb": "^3.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^1.14.11"
+  }
+}
