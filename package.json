@@ -4,7 +4,7 @@
   "description": "Automation tool",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "./node_modules/.bin/mocha",
     "dev": "nodemon server.js --inspect"
   },
   "repository": {
@@ -23,6 +23,9 @@
     "mongodb": "^3.0.1"
   },
   "devDependencies": {
-    "nodemon": "^1.14.11"
+    "chai": "^4.1.2",
+    "mocha": "^5.0.0",
+    "nodemon": "^1.14.11",
+    "request": "^2.83.0"
   }
 }
