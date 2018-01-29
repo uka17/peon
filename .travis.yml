@@ -1,7 +1,7 @@
 language: node_js
 node_js: node
 script:
-- node server.js
+- node server.js &
 services:
 - mongodb
 before_script: 
