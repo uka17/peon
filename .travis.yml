@@ -3,7 +3,7 @@ node_js: node
 services:
 - mongodb
 before_script: 
-- mongo < start.js
+- mongo peon start.js
 - chmod 0777 ./node_modules/.bin/mocha
   
   
