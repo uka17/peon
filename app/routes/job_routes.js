@@ -44,10 +44,6 @@ module.exports = function(app, client) {
   app.post('/jobs/:id', (req, res) => {
     res.sendStatus(405);
   });
-  app.put('/jobs', (req, res) => {
-    //res.send(res.result.nModified + " item(s) updated");
-    //bulk jobs update
-  });
   app.put('/jobs/:id', (req, res) => {
     //update job by _id
     const where = { '_id': new mongo.ObjectID(req.params.id) };
@@ -60,12 +56,13 @@ module.exports = function(app, client) {
       if (err) {
         res.status(501).send({error: "Not able to process"});
       } else {
-        res.status(200).send({itemsDeleted: result.result.nModified})
+        res.status(200).send({itemsUpdated: result.result.n})
       } 
     });
   });
   app.delete('/jobs/:id', (req, res) => {
     //delete job by _id
+    res.type('application/json');
     const where = { '_id': new mongo.ObjectID(req.params.id) };
     client.db('peon').collection('job').deleteOne(where, (err, result) => {
       if (err) {
