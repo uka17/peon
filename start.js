@@ -1,1 +1,0 @@
-db.job.insert({"name":"test job"});

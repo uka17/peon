@@ -1,14 +1,7 @@
 var assert  = require('chai').assert;
 var request = require('request');
 var id;
-/*
-const MongoClient = require('mongodb').MongoClient;
-const db = require('../config/db');
-const port = 8080;
-MongoClient.connect(db.url, (err, client) => {
-    client.db('peon').collection('job').insert({name: "start"});         
-  })
-*/
+
 describe('Job', function() {
     it('Create job', function(done) {
         request.post({
