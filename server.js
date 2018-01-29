@@ -8,8 +8,7 @@ const port = 8080;
 
 app.use(bodyParser.json());
 MongoClient.connect(db.url, (err, client) => {
-    if (err) return console.log(err)
-    client.db('peon').collection('job').insert({name: "start"});
+    if (err) return console.log(err)    
     const rout = require('./app/routes/index');    
     rout(app, client);
     app.listen(port, () => {

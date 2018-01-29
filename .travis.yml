@@ -1,9 +1,12 @@
 language: node_js
 node_js: node
+script:
+- node server.js
 services:
 - mongodb
 before_script: 
 - mongo peon start.js
 - chmod 0777 ./node_modules/.bin/mocha
+- npm run dev
   
   
