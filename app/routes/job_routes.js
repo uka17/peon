@@ -3,6 +3,16 @@ var mongo = require('mongodb');
 const user = "test";
 
 module.exports = function(app, client) {
+  app.get('/jobs/count', (req, res) => {
+    //get jobs count
+    client.db('peon').collection('job').count({}, function(err, count) {
+      if (err) {
+        res.status(501).send({error: "Not able to process"});
+      } else {        
+        res.status(200).send({count: count});
+      } 
+    });
+  });
   app.get('/jobs', (req, res) => {
     //get all jobs
     const where = {  };
@@ -13,7 +23,7 @@ module.exports = function(app, client) {
         res.status(200).send(result);
       } 
     });
-});
+  });
   app.get('/jobs/:id', (req, res) => {
     //get job by id
     const where = { '_id': new mongo.ObjectID(req.params.id) };
