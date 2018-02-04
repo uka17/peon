@@ -25,9 +25,10 @@ module.exports = function(app, dbclient) {
       } 
     });
   });
-  app.get('/jobs/:id', (req, res) => {
+  app.get('/jobs/:id', (req, res) => {    
     //get job by id
     const where = { '_id': new mongo.ObjectID(req.params.id) };
+    murror.checkErrorList();
     dbclient.db('peon').collection('job').findOne(where, (err, item) => {
       if (err) {
         res.status(500).send({error: "Not able to process"});
@@ -43,9 +44,9 @@ module.exports = function(app, dbclient) {
       if(!(typeof job.name === "string"))
         murror.addError("Parameter 'name' should be string");
       if(!(typeof job.description === "string"))
-        murror.addError("Parameter 'description' should be string");        
+        murror.addError("Parameter 'description' should be a string");        
       if(!(typeof job.enabled === "boolean"))
-        murror.addError("Parameter 'enabled' should be boolean");            
+        murror.addError("Parameter 'enabled' should be a boolean");            
       job.createdOn = Date.now();     
       job.createdBy = user;       
       job.modifiedOn = Date.now();    
@@ -61,7 +62,7 @@ module.exports = function(app, dbclient) {
       });
     }
     catch(e) {
-      res.status(500).send(e.message);
+      res.status(500).send({error: e.message });
     }
   });
   app.post('/jobs/:id', (req, res) => {
