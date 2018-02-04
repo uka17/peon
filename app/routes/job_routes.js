@@ -1,13 +1,14 @@
 // routes/job_routes.js
 var mongo = require('mongodb');
+var murror = require('../tools/murror');
 const user = "test";
 
-module.exports = function(app, client) {
+module.exports = function(app, dbclient) {
   app.get('/jobs/count', (req, res) => {
     //get jobs count
-    client.db('peon').collection('job').count({}, function(err, count) {
+    dbclient.db('peon').collection('job').count({}, function(err, count) {
       if (err) {
-        res.status(501).send({error: "Not able to process"});
+        res.status(500).send({error: "Not able to process"});
       } else {        
         res.status(200).send({count: count});
       } 
@@ -16,9 +17,9 @@ module.exports = function(app, client) {
   app.get('/jobs', (req, res) => {
     //get all jobs
     const where = {  };
-    client.db('peon').collection('job').find(where).toArray(function(err, result) {
+    dbclient.db('peon').collection('job').find(where).toArray(function(err, result) {
       if (err) {
-        res.status(501).send({error: "Not able to process"});
+        res.status(500).send({error: "Not able to process"});
       } else {        
         res.status(200).send(result);
       } 
@@ -27,9 +28,9 @@ module.exports = function(app, client) {
   app.get('/jobs/:id', (req, res) => {
     //get job by id
     const where = { '_id': new mongo.ObjectID(req.params.id) };
-    client.db('peon').collection('job').findOne(where, (err, item) => {
+    dbclient.db('peon').collection('job').findOne(where, (err, item) => {
       if (err) {
-        res.status(501).send({error: "Not able to process"});
+        res.status(500).send({error: "Not able to process"});
       } else {
         res.status(200).send(item);
       } 
@@ -37,19 +38,31 @@ module.exports = function(app, client) {
   });
   app.post('/jobs', (req, res) => {
     //create new job
-    const job = req.body;
-    job.createdOn = Date.now();
-    job.createdBy = user;
-    job.modifiedOn = Date.now();
-    job.modifiedBy = user;
+    try {
+      const job = req.body;
+      if(!(typeof job.name === "string"))
+        murror.addError("Parameter 'name' should be string");
+      if(!(typeof job.description === "string"))
+        murror.addError("Parameter 'description' should be string");        
+      if(!(typeof job.enabled === "boolean"))
+        murror.addError("Parameter 'enabled' should be boolean");            
+      job.createdOn = Date.now();     
+      job.createdBy = user;       
+      job.modifiedOn = Date.now();    
+      job.modifiedBy = user;
 
-    client.db('peon').collection('job').insert(job, (err, result) => {
-      if (err) { 
-        res.status(501).send({error: "Not able to process"});
-      } else {
-        res.status(201).send(result.ops[0]);
-      }
-    });
+      murror.checkErrorList();
+      dbclient.db('peon').collection('job').insert(job, (err, result) => {
+        if (err) { 
+          res.status(500).send({error: err});
+        } else {
+          res.status(201).send(result.ops[0]);
+        }
+      });
+    }
+    catch(e) {
+      res.status(500).send(e.message);
+    }
   });
   app.post('/jobs/:id', (req, res) => {
     res.sendStatus(405);
@@ -62,9 +75,9 @@ module.exports = function(app, client) {
     newvalues.modifiedBy = user;
     const update = { $set: newvalues};
 
-    client.db('peon').collection('job').updateOne(where, update, (err, result) => {
+    dbclient.db('peon').collection('job').updateOne(where, update, (err, result) => {
       if (err) {
-        res.status(501).send({error: "Not able to process"});
+        res.status(500).send({error: "Not able to process"});
       } else {
         res.status(200).send({itemsUpdated: result.result.n})
       } 
@@ -74,9 +87,9 @@ module.exports = function(app, client) {
     //delete job by _id
     res.type('application/json');
     const where = { '_id': new mongo.ObjectID(req.params.id) };
-    client.db('peon').collection('job').deleteOne(where, (err, result) => {
+    dbclient.db('peon').collection('job').deleteOne(where, (err, result) => {
       if (err) {
-        res.status(501).send({error: "Not able to process"});
+        res.status(500).send({error: "Not able to process"});
       } else {
         res.status(200).send({itemsDeleted: result.result.n})
       } 
@@ -84,5 +97,5 @@ module.exports = function(app, client) {
   });    
 };
 //TODO
-//errors handling
 //user handling
+//return multiple errors

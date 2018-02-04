@@ -2,11 +2,11 @@
 var mongo = require('mongodb');
 const user = "test";
 
-module.exports = function(app, client) {
+module.exports = function(app, dbclient) {
   app.get('/jobs/:id/steps/count', (req, res) => {
     //get jobs steps count
     const where = { '_id': new mongo.ObjectID(req.params.id) };
-    client.db('peon').collection('job').aggregate([{$match: where}, {$project: {count: { $size: "$steps"}}}]).toArray((err, result) => {
+    dbclient.db('peon').collection('job').aggregate([{$match: where}, {$project: {count: { $size: "$steps"}}}]).toArray((err, result) => {
       if (err) {
         res.status(501).send({error: "Not able to process"});
       } else {        
@@ -17,7 +17,7 @@ module.exports = function(app, client) {
   app.get('/jobs/:id/steps', (req, res) => {
     //get jobs steps list
     const where = { '_id': new mongo.ObjectID(req.params.id) };
-    client.db('peon').collection('job').findOne(where, (err, result) => {
+    dbclient.db('peon').collection('job').findOne(where, (err, result) => {
       if (err) {
         res.status(501).send({error: "Not able to process"});
       } else {        
