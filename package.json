@@ -4,7 +4,7 @@
   "description": "Automation tool",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/.bin/mocha",
+    "test": "mocha -r blanket",
     "dev": "nodemon server.js"
   },
   "repository": {

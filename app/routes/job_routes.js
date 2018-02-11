@@ -1,12 +1,12 @@
 // routes/job_routes.js
 var mongo = require('mongodb');
-var murror = require('../tools/murror');
+var utools = require('../tools/utools');
 const user = "test";
 
 module.exports = function(app, dbclient) {
   app.get('/jobs/count', (req, res) => {
     //get jobs count
-    dbclient.db('peon').collection('job').count({}, function(err, count) {
+    dbclient.db('peon').collection('job').count(req.body, function(err, count) {
       if (err) {
         res.status(500).send({error: "Not able to process"});
       } else {        
@@ -16,8 +16,7 @@ module.exports = function(app, dbclient) {
   });
   app.get('/jobs', (req, res) => {
     //get all jobs
-    const where = {  };
-    dbclient.db('peon').collection('job').find(where).toArray(function(err, result) {
+    dbclient.db('peon').collection('job').find(req.body).toArray(function(err, result) {
       if (err) {
         res.status(500).send({error: "Not able to process"});
       } else {        
@@ -28,7 +27,7 @@ module.exports = function(app, dbclient) {
   app.get('/jobs/:id', (req, res) => {    
     //get job by id
     const where = { '_id': new mongo.ObjectID(req.params.id) };
-    murror.checkErrorList();
+    utools.checkErrorList();
     dbclient.db('peon').collection('job').findOne(where, (err, item) => {
       if (err) {
         res.status(500).send({error: "Not able to process"});
@@ -42,17 +41,17 @@ module.exports = function(app, dbclient) {
     try {
       const job = req.body;
       if(!(typeof job.name === "string"))
-        murror.addError("Parameter 'name' should be string");
+        utools.addError("Parameter 'name' should be string");
       if(!(typeof job.description === "string"))
-        murror.addError("Parameter 'description' should be a string");        
+        utools.addError("Parameter 'description' should be a string");        
       if(!(typeof job.enabled === "boolean"))
-        murror.addError("Parameter 'enabled' should be a boolean");            
-      job.createdOn = Date.now();     
+        utools.addError("Parameter 'enabled' should be a boolean");            
+      job.createdOn = utools.getTimestamp();     
       job.createdBy = user;       
-      job.modifiedOn = Date.now();    
+      job.modifiedOn = utools.getTimestamp();    
       job.modifiedBy = user;
 
-      murror.checkErrorList();
+      utools.checkErrorList();
       dbclient.db('peon').collection('job').insert(job, (err, result) => {
         if (err) { 
           res.status(500).send({error: err});
@@ -69,10 +68,19 @@ module.exports = function(app, dbclient) {
     res.sendStatus(405);
   });
   app.put('/jobs/:id', (req, res) => {
-    //update job by _id
+    //update job by id
+    const job = req.body;
     const where = { '_id': new mongo.ObjectID(req.params.id) };
     const newvalues = req.body;
-    newvalues.modifiedOn = Date.now();
+    if(!(typeof job.name === "string"))
+      utools.addError("Parameter 'name' should be string");
+    if(!(typeof job.description === "string"))
+      utools.addError("Parameter 'description' should be a string");        
+    if(!(typeof job.enabled === "boolean"))
+      utools.addError("Parameter 'enabled' should be a boolean");           
+
+    utools.checkErrorList();  
+    newvalues.modifiedOn = utools.getTimestamp();
     newvalues.modifiedBy = user;
     const update = { $set: newvalues};
 
@@ -86,7 +94,6 @@ module.exports = function(app, dbclient) {
   });
   app.delete('/jobs/:id', (req, res) => {
     //delete job by _id
-    res.type('application/json');
     const where = { '_id': new mongo.ObjectID(req.params.id) };
     dbclient.db('peon').collection('job').deleteOne(where, (err, result) => {
       if (err) {
@@ -100,3 +107,4 @@ module.exports = function(app, dbclient) {
 //TODO
 //user handling
 //return multiple errors
+//selectors for job list - protect from injection
