@@ -46,11 +46,11 @@ module.exports = function(app, dbclient) {
     //create new step for a job
     try {
       const step = req.body;
-      if(!(typeof step.name === "string"))
-        utools.addError("Parameter 'name' should be string");
-      if(!(typeof step.command === "string"))
+      if(!(typeof step.name === "string") && step.name !== undefined)
+        utools.addError("Parameter 'name' should be a string");
+      if(!(typeof step.command === "string") && step.name !== undefined)
         utools.addError("Parameter 'command' should be a string");        
-      if(!(typeof step.enabled === "boolean"))
+      if(!(typeof step.enabled === "boolean") && step.name !== undefined)
         utools.addError("Parameter 'enabled' should be a boolean");            
       step.createdOn = utools.getTimestamp();     
       step.createdBy = user;       
@@ -74,24 +74,30 @@ module.exports = function(app, dbclient) {
       res.status(500).send({error: e.message });
     }
   });
-  app.put('/jobs/:id/steps/:stepId', (req, res) => {
+  app.patch('/jobs/:id/steps/:stepId', (req, res) => {
     //updates step by stepId in job get by id
     try {
-      const step = req.body;
-      if(!(typeof step.name === "string"))
-        utools.addError("Parameter 'name' should be string");
-      if(!(typeof step.command === "string"))
+      var step = req.body;
+      if(!(typeof step.name === "string") && step.name !== undefined)
+        utools.addError("Parameter 'name' should be a string");
+      if(!(typeof step.command === "string") && step.command !== undefined)
         utools.addError("Parameter 'command' should be a string");        
       if(!(typeof step.enabled === "boolean") && step.enabled !== undefined)
         utools.addError("Parameter 'enabled' should be a boolean");            
       step.modifiedOn = utools.getTimestamp();    
       step.modifiedBy = user;
-
-      const where = { '_id': new mongo.ObjectID(req.params.id) };
-      const update = { $set: {"steps.$[element]": step}};
+      
+      //Rename all properties like: name => steps.$.name
+      for (var property in step) {
+        step = utools.renameProperty(step, property, 'steps.$.' +  property);
+      };
+      
+      //Find step inside the job
+      const where = { '_id': new mongo.ObjectID(req.params.id), 'steps._id':  new mongo.ObjectID(req.params.stepId)};      
+      const update = { $set: step};
 
       utools.checkErrorList();
-      dbclient.db('peon').collection('job').updateOne(where, update, {arrayFilters: [ { "elem._id": new mongo.ObjectID(req.params.stepId) } ]}, (err, result) => {
+      dbclient.db('peon').collection('job').updateOne(where, update, (err, result) => {
         if (err) {
           res.status(500).send({error: "Not able to process"});
         } else {
@@ -106,7 +112,9 @@ module.exports = function(app, dbclient) {
   app.delete('/jobs/:id/steps/:stepId', (req, res) => {
     //delete job by _id
     const where = { '_id': new mongo.ObjectID(req.params.id) };
-    dbclient.db('peon').collection('job').deleteOne(where, (err, result) => {
+    const update = { $pull: {'steps': {'_id': new mongo.ObjectID(req.params.stepId)}}};
+
+    dbclient.db('peon').collection('job').updateOne(where, update, (err, result) => {
       if (err) {
         res.status(500).send({error: "Not able to process"});
       } else {
@@ -118,3 +126,4 @@ module.exports = function(app, dbclient) {
 //TODO
 //errors handling
 //user handling
+//add logging

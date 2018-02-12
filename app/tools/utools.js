@@ -11,7 +11,14 @@ module.exports.checkErrorList = () => {
     };
 //returns current date-time
 module.exports.getTimestamp = () => { 
-    const dateTime = new Date();
-    return dateTime.toISOString();
+    return new Date();
 }
-
+//rename object property
+module.exports.renameProperty = function (obj, oldName, newName) {
+    if (obj.hasOwnProperty(oldName)) {
+        obj[newName] = obj[oldName];
+        delete obj[oldName];
+    }
+    return obj;
+};
+//check 

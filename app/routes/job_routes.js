@@ -40,11 +40,11 @@ module.exports = function(app, dbclient) {
     //create new job
     try {
       const job = req.body;
-      if(!(typeof job.name === "string"))
+      if(!(typeof job.name === "string") && job.name !== undefined)
         utools.addError("Parameter 'name' should be string");
-      if(!(typeof job.description === "string"))
+      if(!(typeof job.description === "string") && job.name !== undefined)
         utools.addError("Parameter 'description' should be a string");        
-      if(!(typeof job.enabled === "boolean"))
+      if(!(typeof job.enabled === "boolean") && job.name !== undefined)
         utools.addError("Parameter 'enabled' should be a boolean");            
       job.createdOn = utools.getTimestamp();     
       job.createdBy = user;       
@@ -67,16 +67,16 @@ module.exports = function(app, dbclient) {
   app.post('/jobs/:id', (req, res) => {
     res.sendStatus(405);
   });
-  app.put('/jobs/:id', (req, res) => {
+  app.patch('/jobs/:id', (req, res) => {
     //update job by id
     const job = req.body;
     const where = { '_id': new mongo.ObjectID(req.params.id) };
     const newvalues = req.body;
-    if(!(typeof job.name === "string"))
-      utools.addError("Parameter 'name' should be string");
-    if(!(typeof job.description === "string"))
+    if(!(typeof job.name === "string") && job.name !== undefined)
+      utools.addError("Parameter 'name' should be a string");
+    if(!(typeof job.description === "string") && job.name !== undefined)
       utools.addError("Parameter 'description' should be a string");        
-    if(!(typeof job.enabled === "boolean"))
+    if(!(typeof job.enabled === "boolean") && job.name !== undefined)
       utools.addError("Parameter 'enabled' should be a boolean");           
 
     utools.checkErrorList();  
