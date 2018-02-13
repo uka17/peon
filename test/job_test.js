@@ -1,11 +1,12 @@
 var assert  = require('chai').assert;
 var request = require('request');
+const config = require('../config/config');
 var id;
 
 describe('Job', function() {
     it('Create job', function(done) {
         request.post({
-            url: 'http://localhost:8080/jobs',  
+            url: config.test_host + '/jobs',  
             json: {"name": "job", "description": "job description", "enabled": true}
         }, 
         function(error, response, body) {
@@ -21,7 +22,7 @@ describe('Job', function() {
 
     it('Create job by id (405)', function(done) {
         request.post({
-            url: 'http://localhost:8080/jobs/' + id,  
+            url: config.test_host + '/jobs/' + id,  
             json: {"name": "job", "description": "job description", "enabled": true}
         }, 
         function(error, response, body) {
@@ -30,9 +31,10 @@ describe('Job', function() {
         });
     });
 
-    it('Job list', function(done) {
+    it('Jobs list', function(done) {
         request.get({
-            url: 'http://localhost:8080/jobs', 
+            url: config.test_host + '/jobs', 
+            json: true
         },
         function(error, response, body) {
             assert.equal(response.statusCode, 200);
@@ -41,9 +43,21 @@ describe('Job', function() {
         });
     });
 
+    it('Jobs count', function(done) {
+        request.get({
+            url: config.test_host + '/jobs/count',
+            json: true 
+        },
+        function(error, response, body) {
+            assert.equal(response.statusCode, 200);
+            assert.isAbove(body.count, 1);
+            done();
+        });
+    });
+
     it('Get job', function(done) {    
         request.get({
-            url: 'http://localhost:8080/jobs/' + id, 
+            url: config.test_host + '/jobs/' + id, 
         },
         function(error, response, body) {
             assert.equal(response.statusCode, 200);
@@ -56,15 +70,15 @@ describe('Job', function() {
     });
 
     it('Update job', function(done) {    
-        request.put({
-            url: 'http://localhost:8080/jobs/' + id, 
+        request.patch({
+            url: config.test_host + '/jobs/' + id, 
             json: {"name": "job_changed", "description": "description_changed", "enabled": false}
         },
         function(error, response, body) {
             assert.equal(response.statusCode, 200);
             assert.equal(body.itemsUpdated, 1);
             request.get({
-                url: 'http://localhost:8080/jobs/' + id, 
+                url: config.test_host + '/jobs/' + id, 
             },
             function(error, response, body) {
                 assert.equal(response.statusCode, 200);
@@ -79,7 +93,7 @@ describe('Job', function() {
 
     it('Delete job', function(done) {    
         request.delete({
-            url: 'http://localhost:8080/jobs/' + id,
+            url: config.test_host + '/jobs/' + id,
             json: true
         },
         function(error, response, body) {

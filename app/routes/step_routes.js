@@ -11,7 +11,7 @@ module.exports = function(app, dbclient) {
       if (err) {
         res.status(501).send({error: "Not able to process"});
       } else {        
-        res.status(200).send({count: result[0].count});
+        res.status(200).json({count: result[0].count});
       } 
     });
   });
@@ -27,20 +27,32 @@ module.exports = function(app, dbclient) {
     });
   });
   app.get('/jobs/:id/steps/:stepId', (req, res) => {    
-    //get step by stepId and by id of job
-    const where = { '_id': new mongo.ObjectID(req.params.id) };
-    utools.checkErrorList();
-    dbclient.db('peon').collection('job').findOne(where, (err, item) => {
-      if (err) {
-        res.status(500).send({error: "Not able to process"});
-      } else {
-        const step = item.steps.find((step) => {return step._id.toString() === req.params.stepId});
-        if(step === undefined)
+    try {
+      //get step by stepId and by id of job
+      const where = { '_id': new mongo.ObjectID(req.params.id) };
+      dbclient.db('peon').collection('job').findOne(where, (err, item) => {
+        if (err) {
           res.status(500).send({error: "Not able to process"});
-        else
-          res.status(200).send(step);
-      } 
-    });
+        } else {
+          if(item !== null) {
+            if(item.steps !== undefined) {
+              const step = item.steps.find((istep) => {return istep._id.toString() === req.params.stepId});
+              if(step === undefined)
+                res.status(404).send({error: "No step found for mentioned jobId and stepId"});
+              else
+                res.status(200).send(step);
+            }
+            else
+              res.status(404).send({error: "No steps found for this job"});  
+          }
+          else
+            res.status(404).send({error: "Job not found"});
+        } 
+      });
+    }
+    catch(e) {
+      res.status(500).send({error: e.message });
+    }
   });
   app.post('/jobs/:id/steps', (req, res) => {
     //create new step for a job
@@ -66,7 +78,7 @@ module.exports = function(app, dbclient) {
         if (err) {
           res.status(500).send({error: "Not able to process"});
         } else {
-          res.status(200).send({itemsUpdated: result.result.n})
+          res.status(201).json({itemsUpdated: result.result.n})
         } 
       });
     }
@@ -127,3 +139,4 @@ module.exports = function(app, dbclient) {
 //errors handling
 //user handling
 //add logging
+//add check for job and step existing
