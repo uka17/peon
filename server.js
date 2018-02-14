@@ -12,10 +12,10 @@ app.use(function (req, res, next) {
   next();
 });
 MongoClient.connect(config.mongodb_url, (err, dbclient) => {
-    if (err) return console.log(err)    
-    const index = require('./app/routes/index');    
-    index(app, dbclient);
-    app.listen(port, () => {
-      console.log('We are live on ' + port);
-    });               
-  })
+  if (err) return console.log(err)    
+  const index = require('./app/routes/index');    
+  index(app, dbclient);
+  app.listen(port, () => {
+    console.log('We are live on ' + port);
+  });               
+})

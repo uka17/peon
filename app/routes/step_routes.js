@@ -6,25 +6,41 @@ const user = "test";
 module.exports = function(app, dbclient) {
   app.get('/jobs/:id/steps/count', (req, res) => {
     //get jobs steps count
-    const where = { '_id': new mongo.ObjectID(req.params.id) };
-    dbclient.db('peon').collection('job').aggregate([{$match: where}, {$project: {count: { $size: "$steps"}}}]).toArray((err, result) => {
-      if (err) {
-        res.status(501).send({error: "Not able to process"});
-      } else {        
-        res.status(200).json({count: result[0].count});
-      } 
-    });
+    try {
+      const where = { '_id': new mongo.ObjectID(req.params.id) };
+      dbclient.db('peon').collection('job').aggregate([{$match: where}, {$project: {count: { $size: "$steps"}}}]).toArray((err, result) => {
+        if (err) {
+          utools.log(err, 'error', user, dbclient, res);
+        } else {        
+          res.status(200).json({count: result[0].count});
+        } 
+      });
+    }
+    catch(e) {
+      if(e.name === 'userError')
+        res.status(500).send({error: e.message});
+      else
+        utools.log(e.message, 'error', user, dbclient, res);
+    }
   });
   app.get('/jobs/:id/steps', (req, res) => {
     //get steps list by job id
-    const where = { '_id': new mongo.ObjectID(req.params.id) };
-    dbclient.db('peon').collection('job').findOne(where, (err, result) => {
-      if (err) {
-        res.status(501).send({error: "Not able to process"});
-      } else {        
-        res.status(200).send(result.steps);
-      } 
-    });
+    try {
+      const where = { '_id': new mongo.ObjectID(req.params.id) };
+      dbclient.db('peon').collection('job').findOne(where, (err, result) => {
+        if (err) {
+          utools.log(err, 'error', user, dbclient, res);
+        } else {        
+          res.status(200).send(result.steps);
+        } 
+      });
+    }
+    catch(e) {
+      if(e.name === 'userError')
+        res.status(500).send({error: e.message});
+      else
+        utools.log(e.message, 'error', user, dbclient, res);
+    }
   });
   app.get('/jobs/:id/steps/:stepId', (req, res) => {    
     try {
@@ -32,7 +48,7 @@ module.exports = function(app, dbclient) {
       const where = { '_id': new mongo.ObjectID(req.params.id) };
       dbclient.db('peon').collection('job').findOne(where, (err, item) => {
         if (err) {
-          res.status(500).send({error: "Not able to process"});
+          utools.log(err, 'error', user, dbclient, res);
         } else {
           if(item !== null) {
             if(item.steps !== undefined) {
@@ -51,7 +67,10 @@ module.exports = function(app, dbclient) {
       });
     }
     catch(e) {
-      res.status(500).send({error: e.message });
+      if(e.name === 'userError')
+        res.status(500).send({error: e.message});
+      else
+        utools.log(e.message, 'error', user, dbclient, res);
     }
   });
   app.post('/jobs/:id/steps', (req, res) => {
@@ -59,11 +78,11 @@ module.exports = function(app, dbclient) {
     try {
       const step = req.body;
       if(!(typeof step.name === "string") && step.name !== undefined)
-        utools.addError("Parameter 'name' should be a string");
+        utools.addUserError("Parameter 'name' should be a string");
       if(!(typeof step.command === "string") && step.name !== undefined)
-        utools.addError("Parameter 'command' should be a string");        
+        utools.addUserError("Parameter 'command' should be a string");        
       if(!(typeof step.enabled === "boolean") && step.name !== undefined)
-        utools.addError("Parameter 'enabled' should be a boolean");            
+        utools.addUserError("Parameter 'enabled' should be a boolean");            
       step.createdOn = utools.getTimestamp();     
       step.createdBy = user;       
       step.modifiedOn = utools.getTimestamp();    
@@ -73,17 +92,20 @@ module.exports = function(app, dbclient) {
       const where = { '_id': new mongo.ObjectID(req.params.id) };
       const update = { $addToSet: {steps: step}};
 
-      utools.checkErrorList();
+      utools.checkUserErrorList();
       dbclient.db('peon').collection('job').updateOne(where, update, (err, result) => {
         if (err) {
-          res.status(500).send({error: "Not able to process"});
+          utools.log(err, 'error', user, dbclient, res);
         } else {
           res.status(201).json({itemsUpdated: result.result.n})
         } 
       });
     }
     catch(e) {
-      res.status(500).send({error: e.message });
+      if(e.name === 'userError')
+        res.status(500).send({error: e.message});
+      else
+        utools.log(e.message, 'error', user, dbclient, res);
     }
   });
   app.patch('/jobs/:id/steps/:stepId', (req, res) => {
@@ -91,11 +113,11 @@ module.exports = function(app, dbclient) {
     try {
       var step = req.body;
       if(!(typeof step.name === "string") && step.name !== undefined)
-        utools.addError("Parameter 'name' should be a string");
+        utools.addUserError("Parameter 'name' should be a string");
       if(!(typeof step.command === "string") && step.command !== undefined)
-        utools.addError("Parameter 'command' should be a string");        
+        utools.addUserError("Parameter 'command' should be a string");        
       if(!(typeof step.enabled === "boolean") && step.enabled !== undefined)
-        utools.addError("Parameter 'enabled' should be a boolean");            
+        utools.addUserError("Parameter 'enabled' should be a boolean");            
       step.modifiedOn = utools.getTimestamp();    
       step.modifiedBy = user;
       
@@ -108,35 +130,44 @@ module.exports = function(app, dbclient) {
       const where = { '_id': new mongo.ObjectID(req.params.id), 'steps._id':  new mongo.ObjectID(req.params.stepId)};      
       const update = { $set: step};
 
-      utools.checkErrorList();
+      utools.checkUserErrorList();
       dbclient.db('peon').collection('job').updateOne(where, update, (err, result) => {
         if (err) {
-          res.status(500).send({error: "Not able to process"});
+          utools.log(err, 'error', user, dbclient, res);
         } else {
           res.status(200).send({itemsUpdated: result.result.n})
         } 
       });
     }
     catch(e) {
-      res.status(500).send({error: e.message });
+      if(e.name === 'userError')
+        res.status(500).send({error: e.message});
+      else
+        utools.log(e.message, 'error', user, dbclient, res);
     }
   });
   app.delete('/jobs/:id/steps/:stepId', (req, res) => {
     //delete job by _id
-    const where = { '_id': new mongo.ObjectID(req.params.id) };
-    const update = { $pull: {'steps': {'_id': new mongo.ObjectID(req.params.stepId)}}};
+    try {
+      const where = { '_id': new mongo.ObjectID(req.params.id) };
+      const update = { $pull: {'steps': {'_id': new mongo.ObjectID(req.params.stepId)}}};
 
-    dbclient.db('peon').collection('job').updateOne(where, update, (err, result) => {
-      if (err) {
-        res.status(500).send({error: "Not able to process"});
-      } else {
-        res.status(200).send({itemsDeleted: result.result.n})
-      } 
-    });
+      dbclient.db('peon').collection('job').updateOne(where, update, (err, result) => {
+        if (err) {
+          utools.log(err, 'error', user, dbclient, res);
+        } else {
+          res.status(200).send({itemsDeleted: result.result.n})
+        } 
+      });
+    }
+    catch(e) {
+      if(e.name === 'userError')
+        res.status(500).send({error: e.message});
+      else
+        utools.log(e.message, 'error', user, dbclient, res);
+    }
   });  
 };
 //TODO
-//errors handling
 //user handling
-//add logging
 //add check for job and step existing

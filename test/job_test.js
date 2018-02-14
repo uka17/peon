@@ -50,7 +50,7 @@ describe('Job', function() {
         },
         function(error, response, body) {
             assert.equal(response.statusCode, 200);
-            assert.isAbove(body.count, 1);
+            assert.isAbove(body.count, 0);
             done();
         });
     });
