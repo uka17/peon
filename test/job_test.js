@@ -4,7 +4,40 @@ const config = require('../config/config');
 var id;
 
 describe('Job', function() {
-    it('Create job', function(done) {
+    it('Create job. Error (incorrect "name")', function(done) {
+        request.post({
+            url: config.test_host + '/jobs',  
+            json: {"name": true, "description": "job description", "enabled": true}
+        }, 
+        function(error, response, body) {
+            assert.equal(response.statusCode, 500);
+            done();
+        });
+    });
+
+    it('Create job. Error (incorrect "description")', function(done) {
+        request.post({
+            url: config.test_host + '/jobs',  
+            json: {"name": "name", "description": true, "enabled": true}
+        }, 
+        function(error, response, body) {
+            assert.equal(response.statusCode, 500);
+            done();
+        });
+    });
+
+    it('Create job. Error (incorrect "enabled")', function(done) {
+        request.post({
+            url: config.test_host + '/jobs',  
+            json: {"name": "name", "description": "job description", "enabled": 1}
+        }, 
+        function(error, response, body) {
+            assert.equal(response.statusCode, 500);
+            done();
+        });
+    });
+
+    it('Create job. Success', function(done) {
         request.post({
             url: config.test_host + '/jobs',  
             json: {"name": "job", "description": "job description", "enabled": true}
@@ -20,7 +53,7 @@ describe('Job', function() {
         });
     });
 
-    it('Create job by id (405)', function(done) {
+    it('Create job by id. Error (405)', function(done) {
         request.post({
             url: config.test_host + '/jobs/' + id,  
             json: {"name": "job", "description": "job description", "enabled": true}
@@ -31,7 +64,7 @@ describe('Job', function() {
         });
     });
 
-    it('Jobs list', function(done) {
+    it('Jobs list. Success', function(done) {
         request.get({
             url: config.test_host + '/jobs', 
             json: true
@@ -43,7 +76,7 @@ describe('Job', function() {
         });
     });
 
-    it('Jobs count', function(done) {
+    it('Jobs count. Success', function(done) {
         request.get({
             url: config.test_host + '/jobs/count',
             json: true 
@@ -55,7 +88,7 @@ describe('Job', function() {
         });
     });
 
-    it('Get job', function(done) {    
+    it('Get job. Success', function(done) {    
         request.get({
             url: config.test_host + '/jobs/' + id, 
         },
@@ -69,7 +102,7 @@ describe('Job', function() {
         });
     });
 
-    it('Update job', function(done) {    
+    it('Update job. Success', function(done) {    
         request.patch({
             url: config.test_host + '/jobs/' + id, 
             json: {"name": "job_changed", "description": "description_changed", "enabled": false}
@@ -91,7 +124,7 @@ describe('Job', function() {
         });
     });
 
-    it('Delete job', function(done) {    
+    it('Delete job. Success', function(done) {    
         request.delete({
             url: config.test_host + '/jobs/' + id,
             json: true

@@ -60,7 +60,6 @@ module.exports = function(app, dbclient) {
       job.createdBy = user;       
       job.modifiedOn = utools.getTimestamp();    
       job.modifiedBy = user;
-      //job.steps = [];
 
       dbclient.db('peon').collection('job').insert(job, (err, result) => {
         if (err) { 
@@ -74,9 +73,11 @@ module.exports = function(app, dbclient) {
       utools.handleException(e, 'error', user, dbclient, res);
     }
   });
+
   app.post('/jobs/:id', (req, res) => {
     res.sendStatus(405);
   });
+  
   app.patch('/jobs/:id', (req, res) => {
     //update job by id
     try {
@@ -120,4 +121,3 @@ module.exports = function(app, dbclient) {
 //TODO
 //user handling
 //selectors for job list - protect from injection
-//think about checking exact fields to put to DB
