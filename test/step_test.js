@@ -114,7 +114,7 @@ describe('Step', function() {
                 json: true
             }, 
             function(error, response, body) {
-                assert.equal(response.statusCode, 404);
+                assert.equal(response.statusCode, 500);
                 done();
             });
         });
