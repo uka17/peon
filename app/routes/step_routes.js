@@ -2,6 +2,7 @@
 var mongo = require('mongodb');
 var utools = require('../tools/utools');
 var models = require('../models/job');
+var messageBox = require('../../config/message_box');
 const user = "test";
 
 module.exports = function(app, dbclient) {
@@ -26,19 +27,24 @@ module.exports = function(app, dbclient) {
   });
   app.get('/jobs/:id/steps', (req, res) => {
     //get steps list by job id
-    try {
       const where = { '_id': new mongo.ObjectID(req.params.id) };      
       dbclient.db('peon').collection('job').findOne(where, (err, result) => {
-        if (err) {
-          utools.handleException({message: err}, 'error', user, dbclient, res);
-        } else {        
-          res.status(200).send(result.steps);
+        try {
+          if (err) {
+            utools.handleException({message: err}, 'error', user, dbclient, res);
+          } else {     
+            if(result === null)   
+              utools.throwUserError(messageBox.jobNotFound); 
+            if(result.steps !== undefined)
+              res.status(200).send(result.steps);
+            else  
+              utools.throwUserError(messageBox.noStepForJob);
+          }
+        }
+        catch(e) {
+          utools.handleException(e, 'error', user, dbclient, res);
         } 
       });
-    }
-    catch(e) {
-      utools.handleException(e, 'error', user, dbclient, res);
-    }
   });
   app.get('/jobs/:id/steps/:stepId', (req, res) => {    
     
@@ -53,15 +59,15 @@ module.exports = function(app, dbclient) {
             if(item.steps !== undefined) {
               const step = item.steps.find((istep) => {return istep._id.toString() === req.params.stepId});
               if(step === undefined) 
-                utools.throwUserError("No step found for mentioned jobId and stepId");
+                utools.throwUserError(messageBox.noStepForJobAndStep);
               else
                 res.status(200).send(step);
             }
             else
-              utools.throwUserError("No step found for this job");  
+              utools.throwUserError(messageBox.noStepForJob);  
           }
           else
-            utools.throwUserError("Job not found");
+            utools.throwUserError(messageBox.jobNotFound);
         }
       }
       catch(e) {
@@ -118,7 +124,7 @@ module.exports = function(app, dbclient) {
         if (err) {
           utools.handleException({message: err}, 'error', user, dbclient, res);
         } else {
-          res.status(200).send({itemsUpdated: result.result.n})
+          res.status(200).send({itemsUpdated: result.result.n});
         } 
       });
     }
@@ -147,4 +153,3 @@ module.exports = function(app, dbclient) {
 };
 //TODO
 //user handling
-//add check for job and step existing

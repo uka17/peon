@@ -1,6 +1,7 @@
 var mongo = require('mongodb');
 var assert  = require('chai').assert;
 var request = require('request');
+var messageBox = require('../config/message_box');
 const config = require('../config/config');
 var jobId;
 var stepId;
@@ -23,14 +24,26 @@ describe('Step', function() {
         });
     });
 
-    it('Get step by id. Error (no steps for this jobId)', function(done) {
+    it('Get step by id. Error (no steps for this fakeJobId)', function(done) {
         request.get({
             url: config.test_host + '/jobs/' + jobId+ '/steps/' + fakeId,
             json: true
         }, 
         function(error, response, body) {
             assert.equal(response.statusCode, 500);
-            assert.include(response.body.error, 'No step found for this job');
+            assert.include(response.body.error, messageBox.noStepForJob);
+            done();
+        });
+    });
+
+    it('Get step by id. Error (no steps for this jobId)', function(done) {
+        request.get({
+            url: config.test_host + '/jobs/' + jobId+ '/steps',
+            json: true
+        }, 
+        function(error, response, body) {
+            assert.equal(response.statusCode, 500);
+            assert.include(response.body.error, messageBox.noStepForJob);
             done();
         });
     });
@@ -164,7 +177,7 @@ describe('Step', function() {
         }, 
         function(error, response, body) {
             assert.equal(response.statusCode, 500);
-            assert.include(response.body.error, 'No step found for mentioned jobId and stepId');
+            assert.include(response.body.error, messageBox.noStepForJobAndStep);
             done();
         });
     });
@@ -176,7 +189,7 @@ describe('Step', function() {
         }, 
         function(error, response, body) {
             assert.equal(response.statusCode, 500);
-            assert.include(response.body.error, 'Job not found');
+            assert.include(response.body.error, messageBox.jobNotFound);
             done();
         });
     });
