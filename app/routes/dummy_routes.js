@@ -10,8 +10,15 @@ module.exports = function(app, dbclient) {
     //dummy
     try {       
       var ajv = new Ajv();
-      var validate = ajv.compile(schema.jobSchema);
-      var a = {name: "abc"}
+      var validate = ajv.compile(schema.scheduleSchema);
+      var a = {
+        name: 'name',
+        recurrent: {
+          occurs: 'weekly',
+          recursEvery: 1,
+          dayOfWeek: ['Monday', 'Wednesday']
+        } 
+      };
 
       var valid = validate(a);
       if (valid) 

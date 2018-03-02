@@ -103,6 +103,45 @@ describe('Step', function() {
         });
     });
 
+    it('Create step. Error (onSucceed.gotoStep=-1)', function(done) {
+        request.post({
+            url: config.test_host + '/jobs/' + jobId + '/steps',  
+            json: {"name": "step_name", "connection": "step_connection", "enabled": true, "database": "step_db", "command": "step_command",
+                "onSucceed": {'gotoStep': -1}
+            }
+        }, 
+        function(error, response, body) {
+            assert.equal(response.statusCode, 500);          
+            done();
+        });
+    });
+
+    it('Create step. Error (onSucceed.gotoStep without value)', function(done) {
+        request.post({
+            url: config.test_host + '/jobs/' + jobId + '/steps',  
+            json: {"name": "step_name", "connection": "step_connection", "enabled": true, "database": "step_db", "command": "step_command",
+                "onSucceed": 'gotoStep'
+            }
+        }, 
+        function(error, response, body) {
+            assert.equal(response.statusCode, 500);          
+            done();
+        });
+    });
+
+    it('Create step. Error (onSucceed incorrect value)', function(done) {
+        request.post({
+            url: config.test_host + '/jobs/' + jobId + '/steps',  
+            json: {"name": "step_name", "connection": "step_connection", "enabled": true, "database": "step_db", "command": "step_command",
+                "onSucceed": 'incorrect'
+            }
+        }, 
+        function(error, response, body) {
+            assert.equal(response.statusCode, 500);          
+            done();
+        });
+    });
+
     it('Steps count. Success (count=0)', function(done) {
         request.get({
             url: config.test_host + '/jobs/' + jobId + '/steps/count',
@@ -118,7 +157,9 @@ describe('Step', function() {
     it('Create step. Success', function(done) {
         request.post({
             url: config.test_host + '/jobs/' + jobId + '/steps',  
-            json: {"name": "step_name", "connection": "step_connection", "enabled": true, "database": "step_db", "command": "step_command"}
+            json: {"name": "step_name", "connection": "step_connection", "enabled": true, "database": "step_db", "command": "step_command",
+                "onSucceed": {'gotoStep': 2}
+            }
         }, 
         function(error, response, body) {
             assert.equal(response.statusCode, 201);
