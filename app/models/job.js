@@ -67,7 +67,7 @@ module.exports.scheduleSchema = {
           additionalItems: false
         }
       },
-      required: ['occurs', 'recursEvery', 'dayOfWeek'],
+      required: ['occurs', 'recursEvery'],
       additionalProperties: false
     },
     createdOn: {type: 'string', format: 'date'},
