@@ -65,9 +65,19 @@ module.exports.scheduleSchema = {
           uniqueItems: true,
           items: { enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] },
           additionalItems: false
-        }
+        },
+        dailyFrequency: {oneOf: [
+          { type: 'object', properties: { occursOnceAt: {type: 'time'}}},
+          { type: 'object', properties: { occursEvery: 
+              { type: 'object', properties: { 
+                  intervalType: { enum: ['minute(s)', 'hour(s)'] },
+                  interval: {type: 'integer', minimum: 0},
+                }
+              },
+            }
+          }
+        ]}
       },
-      required: ['occurs', 'recursEvery', 'dayOfWeek'],
       additionalProperties: false
     },
     createdOn: {type: 'string', format: 'date'},
