@@ -1,6 +1,7 @@
 var userErrorList = new Array();
 const MongoClient = require('mongodb').MongoClient;
 var Ajv = require('ajv');
+const config = require('../../config/config');
 //#region Error handling
 //add error to array
 module.exports.addUserError = (err) => { userErrorList.push(err); };
@@ -38,7 +39,7 @@ module.exports.handleException = function(e, type, createdBy, dbclient, res) {
     else {
         let pr = new Promise((resolve, reject) => {
             logItem = {message: e.message, type: type, createdOn: getTimestamp(), cratedBy: createdBy};
-            dbclient.db('peon').collection('log').insert(logItem, (err, result) => {
+            dbclient.db(config.db_name).collection('log').insert(logItem, (err, result) => {
                 if (err)
                     reject(new Error(err));
                 else 

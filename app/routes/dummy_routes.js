@@ -2,8 +2,8 @@
 var mongo = require('mongodb');
 var utools = require('../tools/utools');
 var schema = require('../models/job');
+const config = require('../../config/config');
 var Ajv = require('ajv');
-const user = "test";
 
 module.exports = function(app, dbclient) {
   app.get('/dummy', (req, res) => {

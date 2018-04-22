@@ -1,7 +1,7 @@
 var mongo = require('mongodb');
 var assert  = require('chai').assert;
 var request = require('request');
-var messageBox = require('../config/message_box');
+var messageBox = require('../config/message_labels');
 const config = require('../config/config');
 var jobId;
 var stepId;

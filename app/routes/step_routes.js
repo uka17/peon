@@ -2,17 +2,17 @@
 var mongo = require('mongodb');
 var utools = require('../tools/utools');
 var models = require('../models/job');
-var messageBox = require('../../config/message_box');
-const user = "test";
+var messageBox = require('../../config/message_labels');
+const config = require('../../config/config');
 
 module.exports = function(app, dbclient) {
   app.get('/jobs/:id/steps/count', (req, res) => {
     //get jobs steps count
     try {
       const where = { '_id': new mongo.ObjectID(req.params.id) };
-      dbclient.db('peon').collection('job').findOne(where, (err, item) => {
+      dbclient.db(config.db_name).collection('job').findOne(where, (err, item) => {
         if (err) {
-          utools.handleException({message: err}, 'error', user, dbclient, res);
+          utools.handleException({message: err}, 'error',config.user, dbclient, res);
         } else {
           if(item.steps !== undefined)          
             res.status(200).send({count: item.steps.length});
@@ -22,16 +22,16 @@ module.exports = function(app, dbclient) {
       });
     }
     catch(e) {
-      utools.handleException(e, 'error', user, dbclient, res);
+      utools.handleException(e, 'error',config.user, dbclient, res);
     }
   });
   app.get('/jobs/:id/steps', (req, res) => {
     //get steps list by job id
       const where = { '_id': new mongo.ObjectID(req.params.id) };      
-      dbclient.db('peon').collection('job').findOne(where, (err, result) => {
+      dbclient.db(config.db_name).collection('job').findOne(where, (err, result) => {
         try {
           if (err) {
-            utools.handleException({message: err}, 'error', user, dbclient, res);
+            utools.handleException({message: err}, 'error',config.user, dbclient, res);
           } else {     
             if(result === null)   
               utools.throwUserError(messageBox.jobNotFound); 
@@ -42,7 +42,7 @@ module.exports = function(app, dbclient) {
           }
         }
         catch(e) {
-          utools.handleException(e, 'error', user, dbclient, res);
+          utools.handleException(e, 'error',config.user, dbclient, res);
         } 
       });
   });
@@ -50,10 +50,10 @@ module.exports = function(app, dbclient) {
     
     //get step by stepId and by id of job
     const where = { '_id': new mongo.ObjectID(req.params.id) };
-    dbclient.db('peon').collection('job').findOne(where, (err, item) => {
+    dbclient.db(config.db_name).collection('job').findOne(where, (err, item) => {
       try {
         if (err) {
-          utools.handleException({message: err}, 'error', user, dbclient, res);
+          utools.handleException({message: err}, 'error',config.user, dbclient, res);
         } else {
           if(item !== null) {
             if(item.steps !== undefined) {
@@ -71,7 +71,7 @@ module.exports = function(app, dbclient) {
         }
       }
       catch(e) {
-        utools.handleException(e, 'error', user, dbclient, res);
+        utools.handleException(e, 'error',config.user, dbclient, res);
       }
     });
   });
@@ -81,25 +81,25 @@ module.exports = function(app, dbclient) {
       const step = req.body;
       utools.checkObject(step, models.stepSchema);
       step.createdOn = utools.getTimestamp();     
-      step.createdBy = user;       
+      step.createdBy =config.user;       
       step.modifiedOn = utools.getTimestamp();    
-      step.modifiedBy = user;
+      step.modifiedBy =config.user;
       step._id = new mongo.ObjectID();
 
       const where = { '_id': new mongo.ObjectID(req.params.id) };
       const update = { $addToSet: {steps: step}};
 
       utools.checkUserErrorList();
-      dbclient.db('peon').collection('job').updateOne(where, update, (err, result) => {
+      dbclient.db(config.db_name).collection('job').updateOne(where, update, (err, result) => {
         if (err) {
-          utools.handleException({message: err}, 'error', user, dbclient, res);
+          utools.handleException({message: err}, 'error',config.user, dbclient, res);
         } else {
           res.status(201).json({itemsUpdated: result.result.n})
         } 
       });
     }
     catch(e) {
-      utools.handleException(e, 'error', user, dbclient, res);
+      utools.handleException(e, 'error',config.user, dbclient, res);
     }
   });
   app.patch('/jobs/:id/steps/:stepId', (req, res) => {
@@ -108,7 +108,7 @@ module.exports = function(app, dbclient) {
       var step = req.body;
       utools.checkObject(step, models.stepSchema);           
       step.modifiedOn = utools.getTimestamp();    
-      step.modifiedBy = user;
+      step.modifiedBy =config.user;
       
       //Rename all properties like: name => steps.$.name
       for (var property in step) {
@@ -120,16 +120,16 @@ module.exports = function(app, dbclient) {
       const update = { $set: step};
 
       utools.checkUserErrorList();
-      dbclient.db('peon').collection('job').updateOne(where, update, (err, result) => {
+      dbclient.db(config.db_name).collection('job').updateOne(where, update, (err, result) => {
         if (err) {
-          utools.handleException({message: err}, 'error', user, dbclient, res);
+          utools.handleException({message: err}, 'error',config.user, dbclient, res);
         } else {
           res.status(200).send({itemsUpdated: result.result.n});
         } 
       });
     }
     catch(e) {
-      utools.handleException(e, 'error', user, dbclient, res);
+      utools.handleException(e, 'error',config.user, dbclient, res);
     }
   });
   app.delete('/jobs/:id/steps/:stepId', (req, res) => {
@@ -138,16 +138,16 @@ module.exports = function(app, dbclient) {
       const where = { '_id': new mongo.ObjectID(req.params.id) };
       const update = { $pull: {'steps': {'_id': new mongo.ObjectID(req.params.stepId)}}};
 
-      dbclient.db('peon').collection('job').updateOne(where, update, (err, result) => {
+      dbclient.db(config.db_name).collection('job').updateOne(where, update, (err, result) => {
         if (err) {
-          utools.handleException({message: err}, 'error', user, dbclient, res);
+          utools.handleException({message: err}, 'error',config.user, dbclient, res);
         } else {
           res.status(200).send({itemsDeleted: result.result.n})
         } 
       });
     }
     catch(e) {
-      utools.handleException(e, 'error', user, dbclient, res);
+      utools.handleException(e, 'error',config.user, dbclient, res);
     }
   });  
 };

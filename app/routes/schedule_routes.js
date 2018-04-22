@@ -1,16 +1,16 @@
 // routes/schedule_routes.js
 var mongo = require('mongodb');
 var utools = require('../tools/utools');
-const user = "test";
+const config = require('../../config/config');
 
 module.exports = function(app, dbclient) {
   app.get('/jobs/:id/schedules/count', (req, res) => {
     //get jobs schedules count
     try {
       const where = { '_id': new mongo.ObjectID(req.params.id) };
-      dbclient.db('peon').collection('job').aggregate([{$match: where}, {$project: {count: { $size: "$schedules"}}}]).toArray((err, result) => {
+      dbclient.db(config.db_name).collection('job').aggregate([{$match: where}, {$project: {count: { $size: "$schedules"}}}]).toArray((err, result) => {
         if (err) {
-          utools.log(err, 'error', user, dbclient, res);
+          utools.log(err, 'error',config.user, dbclient, res);
         } else {        
           res.status(200).json({count: result[0].count});
         } 
@@ -20,16 +20,16 @@ module.exports = function(app, dbclient) {
       if(e.name === 'userError')
         res.status(500).send({error: e.message});
       else
-        utools.log(e.message, 'error', user, dbclient, res);
+        utools.log(e.message, 'error',config.user, dbclient, res);
     }
   });
   app.get('/jobs/:id/schedules', (req, res) => {
     //get schedules list by job id
     try {
       const where = { '_id': new mongo.ObjectID(req.params.id) };
-      dbclient.db('peon').collection('job').findOne(where, (err, result) => {
+      dbclient.db(config.db_name).collection('job').findOne(where, (err, result) => {
         if (err) {
-          utools.log(err, 'error', user, dbclient, res);
+          utools.log(err, 'error',config.user, dbclient, res);
         } else {        
           res.status(200).send(result.schedules);
         } 
@@ -39,16 +39,16 @@ module.exports = function(app, dbclient) {
       if(e.name === 'userError')
         res.status(500).send({error: e.message});
       else
-        utools.log(e.message, 'error', user, dbclient, res);
+        utools.log(e.message, 'error',config.user, dbclient, res);
     }
   });
   app.get('/jobs/:id/schedules/:scheduleId', (req, res) => {    
     try {
       //get schedule by scheduleId and by id of job
       const where = { '_id': new mongo.ObjectID(req.params.id) };
-      dbclient.db('peon').collection('job').findOne(where, (err, item) => {
+      dbclient.db(config.db_name).collection('job').findOne(where, (err, item) => {
         if (err) {
-          utools.log(err, 'error', user, dbclient, res);
+          utools.log(err, 'error',config.user, dbclient, res);
         } else {
           if(item !== null) {
             if(item.schedules !== undefined) {
@@ -70,7 +70,7 @@ module.exports = function(app, dbclient) {
       if(e.name === 'userError')
         res.status(500).send({error: e.message});
       else
-        utools.log(e.message, 'error', user, dbclient, res);
+        utools.log(e.message, 'error',config.user, dbclient, res);
     }
   });
   app.post('/jobs/:id/schedules', (req, res) => {
@@ -84,18 +84,18 @@ module.exports = function(app, dbclient) {
       if(!(typeof step.enabled === "boolean") && step.name !== undefined)
         utools.addUserError("Parameter 'enabled' should be a boolean");            
       step.createdOn = utools.getTimestamp();     
-      step.createdBy = user;       
+      step.createdBy =config.user;       
       step.modifiedOn = utools.getTimestamp();    
-      step.modifiedBy = user;
+      step.modifiedBy =config.user;
       step._id = new mongo.ObjectID();
 
       const where = { '_id': new mongo.ObjectID(req.params.id) };
       const update = { $addToSet: {steps: step}};
 
       utools.checkUserErrorList();
-      dbclient.db('peon').collection('job').updateOne(where, update, (err, result) => {
+      dbclient.db(config.db_name).collection('job').updateOne(where, update, (err, result) => {
         if (err) {
-          utools.log(err, 'error', user, dbclient, res);
+          utools.log(err, 'error',config.user, dbclient, res);
         } else {
           res.status(201).json({itemsUpdated: result.result.n})
         } 
@@ -105,7 +105,7 @@ module.exports = function(app, dbclient) {
       if(e.name === 'userError')
         res.status(500).send({error: e.message});
       else
-        utools.log(e.message, 'error', user, dbclient, res);
+        utools.log(e.message, 'error',config.user, dbclient, res);
     }
   });
   app.patch('/jobs/:id/steps/:stepId', (req, res) => {
@@ -119,7 +119,7 @@ module.exports = function(app, dbclient) {
       if(!(typeof step.enabled === "boolean") && step.enabled !== undefined)
         utools.addUserError("Parameter 'enabled' should be a boolean");            
       step.modifiedOn = utools.getTimestamp();    
-      step.modifiedBy = user;
+      step.modifiedBy =config.user;
       
       //Rename all properties like: name => steps.$.name
       for (var property in step) {
@@ -131,9 +131,9 @@ module.exports = function(app, dbclient) {
       const update = { $set: step};
 
       utools.checkUserErrorList();
-      dbclient.db('peon').collection('job').updateOne(where, update, (err, result) => {
+      dbclient.db(config.db_name).collection('job').updateOne(where, update, (err, result) => {
         if (err) {
-          utools.log(err, 'error', user, dbclient, res);
+          utools.log(err, 'error',config.user, dbclient, res);
         } else {
           res.status(200).send({itemsUpdated: result.result.n})
         } 
@@ -143,7 +143,7 @@ module.exports = function(app, dbclient) {
       if(e.name === 'userError')
         res.status(500).send({error: e.message});
       else
-        utools.log(e.message, 'error', user, dbclient, res);
+        utools.log(e.message, 'error',config.user, dbclient, res);
     }
   });
   app.delete('/jobs/:id/steps/:stepId', (req, res) => {
@@ -152,9 +152,9 @@ module.exports = function(app, dbclient) {
       const where = { '_id': new mongo.ObjectID(req.params.id) };
       const update = { $pull: {'steps': {'_id': new mongo.ObjectID(req.params.stepId)}}};
 
-      dbclient.db('peon').collection('job').updateOne(where, update, (err, result) => {
+      dbclient.db(config.db_name).collection('job').updateOne(where, update, (err, result) => {
         if (err) {
-          utools.log(err, 'error', user, dbclient, res);
+          utools.log(err, 'error',config.user, dbclient, res);
         } else {
           res.status(200).send({itemsDeleted: result.result.n})
         } 
@@ -164,7 +164,7 @@ module.exports = function(app, dbclient) {
       if(e.name === 'userError')
         res.status(500).send({error: e.message});
       else
-        utools.log(e.message, 'error', user, dbclient, res);
+        utools.log(e.message, 'error',config.user, dbclient, res);
     }
   });  
 };
