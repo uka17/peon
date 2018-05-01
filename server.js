@@ -4,7 +4,7 @@ const MongoClient = require('mongodb').MongoClient;
 const bodyParser = require('body-parser');
 const config = require('./config/config');
 const app = express();
-const port = config.port;
+const port = config.port; 
 
 app.use(bodyParser.json());
 app.use(function (req, res, next) {
