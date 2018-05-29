@@ -70,19 +70,18 @@ module.exports.scheduleSchema = {
           { type: 'object', properties: { occursOnceAt: {type: 'time'}}},
           { type: 'object', properties: { occursEvery: 
               { type: 'object', properties: { 
-                  intervalType: { enum: ['minute(s)', 'hour(s)'] },
+                  intervalType: { enum: ['minute', 'hour'] },
                   interval: {type: 'integer', minimum: 0},
                 }
               },
             }
           }
         ]}
-      },
-      additionalProperties: false
+      }
     },
-    createdOn: {type: 'string', format: 'date'},
+    createdOn: {type: 'string', format: 'date-time'},
     createdBy: {type: 'string'},
-    modifiedOn: {type: 'string', format: 'date'},
+    modifiedOn: {type: 'string', format: 'date-time'},
     modifiedBy: {type: 'string'}
   },
   additionalProperties: false

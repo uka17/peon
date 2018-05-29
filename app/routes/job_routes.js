@@ -1,7 +1,7 @@
 // routes/job_routes.js
 var mongo = require('mongodb');
 var utools = require('../tools/utools');
-var models = require('../models/job');
+var models = require('../models/app_models');
 const config = require('../../config/config');
 
 module.exports = function(app, dbclient) {
