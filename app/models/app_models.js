@@ -19,7 +19,9 @@ module.exports.jobSchema = {
   },
   additionalProperties: false
 };
- 
+
+module.exports.jobSchemaRequired = ['name', 'description', 'enabled']
+
 module.exports.stepSchema = {
   $id: "step",
   type: "object",
@@ -47,18 +49,33 @@ module.exports.stepSchema = {
 };
 
 module.exports.scheduleSchema = {
-  $id: "schedule",
-  type: "object",
-  properties: {
-    name: {type: 'string'},
-    enabled: {type: 'boolean'},
-    occurrenceType: {oneOf: [
-      { oneTime: {type: 'string', format: 'date-time'}},
-      { recurent: { type: 'object' }}
-    ]},    
-  },
-  additionalProperties: false
-};
+  $id: 'http://example.com/schedule-schema',
+  oneOf: [
+    {"$ref": "#/definitions/oneTime"},
+    {"$ref": "#/definitions/daily"}
+  ],
+  definitions: {
+    oneTime: {
+      type: "object",
+      properties: {
+        name: {type: 'string'},
+        enabled: {type: 'boolean'},
+        oneTime: {type: 'string', format: 'date-time'}
+      },
+      additionalProperties: false      
+    },
+    daily: {
+      type: "object",
+      properties: {
+        name: {type: 'string'},
+        enabled: {type: 'boolean'},
+        eachNDay: {type: 'integer', minimum: 1},
+        dailyFrequency: {$ref: 'daily-frequency#/'}
+      },
+      additionalProperties: false
+    }
+  }
+}
 
 module.exports.scheduleSchemaDaily = {
   $id: "Daily",
@@ -69,6 +86,35 @@ module.exports.scheduleSchemaDaily = {
   },
   additionalProperties: false
 };
+
+module.exports.scheduleSchemaDailyFrequency = {
+  $id: 'http://example.com/daily-frequency',
+  oneOf: [
+    {"$ref": "#/definitions/once"},
+    {"$ref": "#/definitions/every"}
+  ],
+  definitions: {
+    once: {
+      type: 'object', 
+      properties: { occursOnceAt: {type: 'string', format: 'time'}},
+      additionalProperties: false      
+    },
+    every: {
+      type: 'object', 
+      properties: { 
+        occursEvery: { 
+          type: 'object', 
+          properties: { 
+            //TODO check for 24 and 59
+            intervalType: { enum: ['minute', 'hour'] },
+            interval: {type: 'integer', minimum: 0},
+          }
+        },
+      },
+      additionalProperties: false
+    }
+  }
+}
 
 module.exports.scheduleSchemaWeekly = {
   $id: "Weekly",
@@ -102,23 +148,3 @@ module.exports.scheduleSchemaMonthly = {
   },
   additionalProperties: false
 };
-
-module.exports.scheduleSchemaDailyFrequency = {
-  $id: "dailyFrequency",
-  type: 'object', 
-  properties: { 
-    dailyFrequency: {oneOf: [
-      { type: 'object', properties: { occursOnceAt: {type: 'time'}}},
-      { type: 'object', properties: { occursEvery: 
-          { type: 'object', properties: { 
-              //TODO check for 24 and 59
-              intervalType: { enum: ['minute', 'hour'] },
-              interval: {type: 'integer', minimum: 0},
-            }
-          },
-        }
-      }
-    ]}
-  },
-  additionalProperties: false
-}
