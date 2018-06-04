@@ -17,7 +17,7 @@ module.exports = function(app, dbclient) {
       var a = {
         eachNDay: 2,
         //dailyFrequency: { occursEvery: {intervalType: 'minute', interval: 4} }
-        dailyFrequency: { occursOnceAt: '11:11:55' }
+        dailyFrequency: { occursOnceAt: '11:11:65' }
       };
 
       var valid = validate(a);

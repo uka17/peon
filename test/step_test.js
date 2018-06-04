@@ -157,7 +157,7 @@ describe('Step', function() {
     it('Create step. Success', function(done) {
         request.post({
             url: config.test_host + '/jobs/' + jobId + '/steps',  
-            json: {"name": "step_name", "connection": "step_connection", "enabled": true, "database": "step_db", "command": "step_command",
+            json: {"name": "step_name", "connection": {}, "enabled": true, "database": "step_db", "command": "step_command",
                 "onSucceed": {'gotoStep': 2}
             }
         }, 
@@ -202,7 +202,7 @@ describe('Step', function() {
         function(error, response, body) {
             assert.equal(response.statusCode, 200);
             assert.equal(body.name, 'step_name');
-            assert.equal(body.connection, 'step_connection');
+            assert.deepEqual(body.connection, {});
             assert.equal(body.enabled, true);
             assert.equal(body.database, 'step_db');
             assert.equal(body.command, 'step_command');
@@ -238,7 +238,7 @@ describe('Step', function() {
     it('Change step by id. Success', function(done) {
         request.patch({
             url: config.test_host + '/jobs/' + jobId + '/steps/' + stepId,
-            json: {"name": "step_name1", "connection": "step_connection1", "enabled": true, "database": "step_db1", "command": "step_command"}
+            json: {"name": "step_name1", "connection": {}, "enabled": true, "database": "step_db1", "command": "step_command"}
         }, 
         function(error, response, body) {
             assert.equal(response.statusCode, 200);
@@ -250,7 +250,7 @@ describe('Step', function() {
             function(error, response, body) {
                 assert.equal(response.statusCode, 200);
                 assert.equal(body.name, 'step_name1');
-                assert.equal(body.connection, 'step_connection1');
+                assert.deepEqual(body.connection, {});
                 assert.equal(body.enabled, true);
                 assert.equal(body.database, 'step_db1');
                 assert.equal(body.command, 'step_command');
