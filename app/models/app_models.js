@@ -9,7 +9,6 @@ It is not relating to DB schema validation anyhow
 var Ajv = require('ajv');
 
 module.exports.jobSchema = {
-  $id: "job",
   type: "object",
   properties: {
     name: {type: 'string'},

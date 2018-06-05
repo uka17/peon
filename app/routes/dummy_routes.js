@@ -10,17 +10,18 @@ module.exports = function(app, dbclient) {
   app.get('/dummy', (req, res) => {
     //dummy
     try {           
-      //var newSchema = schema.jobSchema;
-      //newSchema['required'] = schema.jobSchemaRequiered;
+      schema.jobSchema['required'] = schema.jobSchemaRequired;      
 
-      var validate = ajv.compile(schema.scheduleSchemaDaily);
-      var a = {
-        eachNDay: 2,
-        //dailyFrequency: { occursEvery: {intervalType: 'minute', interval: 4} }
-        dailyFrequency: { occursOnceAt: '11:11:65' }
+      var validate = ajv.compile(schema.jobSchema);
+      var testData = {
+          name: 'job',
+          description: 'job description',
+          //enabled: true,
+          steps: []
       };
+                
+      var valid = validate(testData);
 
-      var valid = validate(a);
       if (valid) 
         res.status(200).send({result: "Valid"});
       else 
