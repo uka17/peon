@@ -19,10 +19,9 @@ module.exports.jobSchema = {
   additionalProperties: false
 };
 
-module.exports.jobSchemaRequired = ['name', 'description', 'enabled']
+module.exports.jobSchemaRequired = ['name']
 
 module.exports.stepSchema = {
-  $id: "step",
   type: "object",
   properties: {
     name: {type: 'string'},
@@ -32,23 +31,25 @@ module.exports.stepSchema = {
     command: {type: 'string'},    
     onSucceed: {oneOf: [
       { enum: ['gotoNextStep', 'quitWithSuccess', 'quitWithFailure'] },
-      { type: 'object', properties: { gotoStep: {type: 'integer', minimum: 1}}}
+      { type: 'object', properties: { gotoStep: {type: 'integer', minimum: 1}}, additionalProperties: false}
     ]},
     onFailure: {oneOf: [
       { enum: ['gotoNextStep', 'quitWithSuccess', 'quitWithFailure'] },
-      { type: 'object', properties: { gotoStep: {type: 'integer', minimum: 1}}}
+      { type: 'object', properties: { gotoStep: {type: 'integer', minimum: 1}}, additionalProperties: false}
     ]},
     retryAttempts: {type: 'object', properties: {
         number: {type: 'integer', minimum: 0, maximum: 10},
-        interval: {type: 'integer', minimum: 5}
-      }
+        interval: {type: 'integer', minimum: 1}
+      },
+      additionalProperties: false
     }
   },
   additionalProperties: false
 };
 
+module.exports.stepSchemaRequired = ['name', 'connection', 'database', 'command', 'onSucceed', 'onFailure', 'retryAttempts']
+
 module.exports.scheduleSchema = {
-  $id: 'http://example.com/schedule-schema',
   oneOf: [
     {"$ref": "#/definitions/oneTime"},
     {"$ref": "#/definitions/daily"}
