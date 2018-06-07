@@ -4,17 +4,19 @@ var utools = require('../tools/utools');
 var schema = require('../models/app_models');
 const config = require('../../config/config');
 var Ajv = require('ajv');
-var ajv = new Ajv({ allErrors: true });
+var ajv = new Ajv();
 
 module.exports = function(app, dbclient) {
   app.get('/dummy', (req, res) => {
     //dummy
     try {           
-      schema.stepSchema['required'] = schema.stepSchemaRequired;
-      var validate = ajv.compile(schema.stepSchema);      
+      schema.jobSchema['required'] = schema.jobSchemaRequired;
+      var validate = ajv.compile(schema.jobSchema);      
       var testData = {
-        enabled: true
-      };
+        description: 'job description',
+        enabled: true,
+        steps: []  
+    };
                 
       var valid = validate(testData);
 

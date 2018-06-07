@@ -9,6 +9,7 @@ It is not relating to DB schema validation anyhow
 var Ajv = require('ajv');
 
 module.exports.jobSchema = {
+  $id: 'http://example.com/job',
   type: "object",
   properties: {
     name: {type: 'string'},
@@ -22,6 +23,7 @@ module.exports.jobSchema = {
 module.exports.jobSchemaRequired = ['name']
 
 module.exports.stepSchema = {
+  $id: 'http://example.com/step',
   type: "object",
   properties: {
     name: {type: 'string'},
@@ -50,9 +52,12 @@ module.exports.stepSchema = {
 module.exports.stepSchemaRequired = ['name', 'connection', 'database', 'command', 'onSucceed', 'onFailure', 'retryAttempts']
 
 module.exports.scheduleSchema = {
+  $id: 'http://example.com/schedule',
   oneOf: [
     {"$ref": "#/definitions/oneTime"},
-    {"$ref": "#/definitions/daily"}
+    {"$ref": "#/definitions/daily"},
+    {"$ref": "#/definitions/weekly"},
+    {"$ref": "#/definitions/monthly"}
   ],
   definitions: {
     oneTime: {
@@ -70,7 +75,40 @@ module.exports.scheduleSchema = {
         name: {type: 'string'},
         enabled: {type: 'boolean'},
         eachNDay: {type: 'integer', minimum: 1},
-        dailyFrequency: {$ref: 'daily-frequency#/'}
+        dailyFrequency: {$ref: 'daily#/'}
+      },
+      additionalProperties: false
+    },
+    weekly: {
+      type: "object",
+      properties: {
+        name: {type: 'string'},
+        enabled: {type: 'boolean'},
+        eachNWeek: {type: 'integer', minimum: 1},
+        dayOfWeek: {
+          type: 'array',
+          uniqueItems: true,
+          items: { enum: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] },
+          additionalItems: false
+        },
+        dailyFrequency: {$ref: 'daily#/'}
+      },
+      additionalProperties: false
+    },
+    monthly: {
+      type: "object",
+      properties: {
+        name: {type: 'string'},
+        enabled: {type: 'boolean'},
+        month: {
+          type: 'array',
+          uniqueItems: true,
+          items: { enum: ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'] },
+          additionalItems: false
+        },
+        //TODO check feb and short months
+        day: {type: 'integer', minimum: 1, maximum: 31},
+        dailyFrequency: {$ref: 'daily#/'}
       },
       additionalProperties: false
     }
@@ -78,17 +116,7 @@ module.exports.scheduleSchema = {
 }
 
 module.exports.scheduleSchemaDaily = {
-  $id: "Daily",
-  type: 'object', 
-  properties: { 
-    eachNDay: {type: 'integer', minimum: 1},
-    dailyFrequency: {type: 'object'}
-  },
-  additionalProperties: false
-};
-
-module.exports.scheduleSchemaDailyFrequency = {
-  $id: 'http://example.com/daily-frequency',
+  $id: 'http://example.com/daily',
   oneOf: [
     {"$ref": "#/definitions/once"},
     {"$ref": "#/definitions/every"}
@@ -101,13 +129,14 @@ module.exports.scheduleSchemaDailyFrequency = {
     },
     every: {
       type: 'object', 
-      properties: { 
+      properties: {
+        start: {type: 'string', format: 'time'},
         occursEvery: { 
           type: 'object', 
           properties: { 
             //TODO check for 24 and 59
-            intervalType: { enum: ['minute', 'hour'] },
-            interval: {type: 'integer', minimum: 0},
+            intervalValue: {type: 'integer', minimum: 0},
+            intervalType: { enum: ['minute', 'hour'] }            
           }
         },
       },
@@ -115,36 +144,3 @@ module.exports.scheduleSchemaDailyFrequency = {
     }
   }
 }
-
-module.exports.scheduleSchemaWeekly = {
-  $id: "Weekly",
-  type: 'object', 
-  properties: { 
-    eachNWeek: {type: 'integer', minimum: 1},
-    dayOfWeek: {
-      type: 'array',
-      uniqueItems: true,
-      items: { enum: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] },
-      additionalItems: false
-    },
-    dailyFrequency: {type: 'object'}
-  },
-  additionalProperties: false
-};
-
-module.exports.scheduleSchemaMonthly = {
-  $id: "Monthly",
-  type: 'object', 
-  properties: { 
-    month: {
-      type: 'array',
-      uniqueItems: true,
-      items: { enum: ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'] },
-      additionalItems: false
-    },
-    //TODO check feb and short months
-    day: {type: 'integer', minimum: 1, maximum: 31},
-    dailyFrequency: {type: 'object'}
-  },
-  additionalProperties: false
-};
