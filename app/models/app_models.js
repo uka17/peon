@@ -67,7 +67,8 @@ module.exports.scheduleSchema = {
         enabled: {type: 'boolean'},
         oneTime: {type: 'string', format: 'date-time'}
       },
-      additionalProperties: false      
+      additionalProperties: false,
+      required: ['name', 'oneTime']  
     },
     daily: {
       type: "object",
@@ -77,7 +78,8 @@ module.exports.scheduleSchema = {
         eachNDay: {type: 'integer', minimum: 1},
         dailyFrequency: {$ref: 'daily#/'}
       },
-      additionalProperties: false
+      additionalProperties: false,
+      required: ['name', 'eachNDay']
     },
     weekly: {
       type: "object",
@@ -93,7 +95,8 @@ module.exports.scheduleSchema = {
         },
         dailyFrequency: {$ref: 'daily#/'}
       },
-      additionalProperties: false
+      additionalProperties: false,
+      required: ['name', 'eachNWeek', 'dayOfWeek']
     },
     monthly: {
       type: "object",
@@ -110,7 +113,8 @@ module.exports.scheduleSchema = {
         day: {type: 'integer', minimum: 1, maximum: 31},
         dailyFrequency: {$ref: 'daily#/'}
       },
-      additionalProperties: false
+      additionalProperties: false,
+      required: ['name', 'month', 'day']
     }
   }
 }
@@ -125,7 +129,8 @@ module.exports.scheduleSchemaDaily = {
     once: {
       type: 'object', 
       properties: { occursOnceAt: {type: 'string', format: 'time'}},
-      additionalProperties: false      
+      additionalProperties: false,
+      required: ['occursOnceAt']
     },
     every: {
       type: 'object', 
@@ -136,11 +141,14 @@ module.exports.scheduleSchemaDaily = {
           properties: { 
             //TODO check for 24 and 59
             intervalValue: {type: 'integer', minimum: 0},
-            intervalType: { enum: ['minute', 'hour'] }            
-          }
+            intervalType: { type: 'string', enum: ['minute', 'hour'] }            
+          },
+		  additionalProperties: false,
+          required: ['intervalValue', 'intervalType']
         },
       },
-      additionalProperties: false
+      additionalProperties: false,
+      required: ['start', 'occursEvery']
     }
   }
 }

@@ -128,7 +128,6 @@ describe('schema validation', function() {
         it('not all properties', function(done) {    
             let nJob = JSON.parse(JSON.stringify(testJob));
             delete nJob.enabled;
-
             assert.equal(DataVsSchemaResult(nJob, schema.jobSchema), true);
             done();
         })            
@@ -136,8 +135,8 @@ describe('schema validation', function() {
             let nJob = JSON.parse(JSON.stringify(testJob));
             delete nJob.name;
             schema.jobSchema['required'] = schema.jobSchemaRequired; 
-            //assert.equal(DataVsSchemaResult(nJob, schema.jobSchema), false);
-            //assert.equal(DataVsSchemaErrors(nJob, schema.jobSchema), "data should have required property 'name'");
+            assert.equal(DataVsSchemaResult(nJob, schema.jobSchema), false);
+            assert.equal(DataVsSchemaErrors(nJob, schema.jobSchema), "data should have required property 'name'");
             done();
         })                         
     })
@@ -347,29 +346,275 @@ describe('schema validation', function() {
                 assert.equal(DataVsSchemaResult(nOneTimeSchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), true);
                 done();
             })
-
-            //DO MORE
+            it('incorrect "name" type', function(done) {                                            
+                let nOneTimeSchedule = JSON.parse(JSON.stringify(oneTimeSchedule));
+                nOneTimeSchedule.name = 1;
+                assert.equal(DataVsSchemaResult(nOneTimeSchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                assert.include(DataVsSchemaErrors(nOneTimeSchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.name should be string');
+                done();
+            })
+            it('incorrect "enabled" type', function(done) {                                            
+                let nOneTimeSchedule = JSON.parse(JSON.stringify(oneTimeSchedule));
+                nOneTimeSchedule.enabled = 1;
+                assert.equal(DataVsSchemaResult(nOneTimeSchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                assert.include(DataVsSchemaErrors(nOneTimeSchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.enabled should be boolean');
+                done();
+            })
+            it('incorrect "oneTime" type', function(done) {                                            
+                let nOneTimeSchedule = JSON.parse(JSON.stringify(oneTimeSchedule));
+                nOneTimeSchedule.oneTime = 1;
+                assert.equal(DataVsSchemaResult(nOneTimeSchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                assert.include(DataVsSchemaErrors(nOneTimeSchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.oneTime should be string');
+                done();
+            })
+            it('incorrect "oneTime" format', function(done) {                                            
+                let nOneTimeSchedule = JSON.parse(JSON.stringify(oneTimeSchedule));
+                nOneTimeSchedule.oneTime = '18-12-1984 11:11:11';
+                assert.equal(DataVsSchemaResult(nOneTimeSchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                assert.include(DataVsSchemaErrors(nOneTimeSchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.oneTime should match format "date-time"');
+                done();
+            })            
+            it('extra property', function(done) {                                            
+                let nOneTimeSchedule = JSON.parse(JSON.stringify(oneTimeSchedule));
+                nOneTimeSchedule['bla'] = 1;
+                assert.equal(DataVsSchemaResult(nOneTimeSchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                assert.include(DataVsSchemaErrors(nOneTimeSchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data should NOT have additional properties');
+                done();
+            })        
+            it('no not mandatory field. OK', function(done) {                                            
+                let nOneTimeSchedule = JSON.parse(JSON.stringify(oneTimeSchedule));
+                delete nOneTimeSchedule.enabled;
+                assert.equal(DataVsSchemaResult(nOneTimeSchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), true);
+                done();
+            })                             
+            it('requiered fileds "name" issue', function(done) {                                            
+                let nOneTimeSchedule = JSON.parse(JSON.stringify(oneTimeSchedule));
+                delete nOneTimeSchedule.name;
+                assert.equal(DataVsSchemaResult(nOneTimeSchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                assert.include(DataVsSchemaErrors(nOneTimeSchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), "data should have required property 'name'");
+                done();
+            })                             
         });
         describe('daily', function() {
-            describe('once', function() {
-                it('initial validation. OK', function(done) {                            
+            describe('general checks', function() {
+                it('initial validation dailyScheduleOnce. OK', function(done) {                            
                     let nDailyScheduleOnce = JSON.parse(JSON.stringify(dailyScheduleOnce));
-                    nDailyScheduleOnce.dailyFrequency = { occursOnceAt: '11:11:11'};
                     assert.equal(DataVsSchemaResult(nDailyScheduleOnce, schema.scheduleSchema, [schema.scheduleSchemaDaily]), true);
-                    //assert.equal(DataVsSchemaErrors(nDailyScheduleOnce, schema.scheduleSchema, [schema.scheduleSchemaDaily]), true);
                     done();
                 })
-                dailyScheduleEvery
-                //DO MORE
-            });
-            describe('every', function() {
-                it('initial validation. OK', function(done) {                            
-                    let nDailyScheduleEvery = JSON.parse(JSON.stringify(dailyScheduleEvery));
-                    nDailyScheduleEvery.dailyFrequency = { start: '11:11:11', occursEvery: {intervalValue: 1, intervalType: 'minute'}};
-                    assert.equal(DataVsSchemaResult(nDailyScheduleEvery, schema.scheduleSchema, [schema.scheduleSchemaDaily]), true);
+                it('initial validation dailyScheduleEvery. OK', function(done) {                            
+                    let nDailyScheduleOnce = JSON.parse(JSON.stringify(dailyScheduleEvery));
+                    assert.equal(DataVsSchemaResult(nDailyScheduleOnce, schema.scheduleSchema, [schema.scheduleSchemaDaily]), true);
+                    done();
+                })
+                it('incorrect "name" type', function(done) {                                            
+                    let nDailyScheduleOnce = JSON.parse(JSON.stringify(dailyScheduleOnce));
+                    nDailyScheduleOnce.name = 1;
+                    assert.equal(DataVsSchemaResult(nDailyScheduleOnce, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                    assert.include(DataVsSchemaErrors(nDailyScheduleOnce, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.name should be string');
+                    done();
+                })
+                it('incorrect "enabled" type', function(done) {                                            
+                    let nDailyScheduleOnce = JSON.parse(JSON.stringify(dailyScheduleOnce));
+                    nDailyScheduleOnce.enabled = 1;
+                    assert.equal(DataVsSchemaResult(nDailyScheduleOnce, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                    assert.include(DataVsSchemaErrors(nDailyScheduleOnce, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.enabled should be boolean');
+                    done();
+                })
+                it('incorrect "eachNDay" type', function(done) {                                            
+                    let nDailyScheduleOnce = JSON.parse(JSON.stringify(dailyScheduleOnce));
+                    nDailyScheduleOnce.eachNDay = true;
+                    assert.equal(DataVsSchemaResult(nDailyScheduleOnce, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                    assert.include(DataVsSchemaErrors(nDailyScheduleOnce, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.eachNDay should be integer');
+                    done();
+                })
+                it('incorrect "dailyFrequency" type', function(done) {                                            
+                    let nDailyScheduleOnce = JSON.parse(JSON.stringify(dailyScheduleOnce));
+                    nDailyScheduleOnce.dailyFrequency = 1;
+                    assert.equal(DataVsSchemaResult(nDailyScheduleOnce, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                    assert.include(DataVsSchemaErrors(nDailyScheduleOnce, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.dailyFrequency should be object');
                     done();
                 })                
-                //DO MORE
+                it('incorrect "eachNDay" =0', function(done) {                                            
+                    let nDailyScheduleOnce = JSON.parse(JSON.stringify(dailyScheduleOnce));
+                    nDailyScheduleOnce.eachNDay = 0;
+                    assert.equal(DataVsSchemaResult(nDailyScheduleOnce, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                    assert.include(DataVsSchemaErrors(nDailyScheduleOnce, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.eachNDay should be >= 1');
+                    done();
+                })
+                it('incorrect "eachNDay" <0', function(done) {                                            
+                    let nDailyScheduleOnce = JSON.parse(JSON.stringify(dailyScheduleOnce));
+                    nDailyScheduleOnce.eachNDay = -1;
+                    assert.equal(DataVsSchemaResult(nDailyScheduleOnce, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                    assert.include(DataVsSchemaErrors(nDailyScheduleOnce, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.eachNDay should be >= 1');
+                    done();
+                })                                         
+                it('extra property', function(done) {                                            
+                    let nDailyScheduleOnce = JSON.parse(JSON.stringify(dailyScheduleOnce));
+                    nDailyScheduleOnce['bla'] = 1;
+                    assert.equal(DataVsSchemaResult(nDailyScheduleOnce, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                    assert.include(DataVsSchemaErrors(nDailyScheduleOnce, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data should NOT have additional properties');
+                    done();
+                })        
+                it('no not mandatory field. OK', function(done) {                                            
+                    let nDailyScheduleOnce = JSON.parse(JSON.stringify(dailyScheduleOnce));
+                    delete nDailyScheduleOnce.enabled;
+                    assert.equal(DataVsSchemaResult(nDailyScheduleOnce, schema.scheduleSchema, [schema.scheduleSchemaDaily]), true);
+                    done();
+                })                             
+                it('requiered fileds "name" issue', function(done) {                                            
+                    let nDailyScheduleOnce = JSON.parse(JSON.stringify(dailyScheduleOnce));
+                    delete nDailyScheduleOnce.name;
+                    assert.equal(DataVsSchemaResult(nDailyScheduleOnce, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                    assert.include(DataVsSchemaErrors(nDailyScheduleOnce, schema.scheduleSchema, [schema.scheduleSchemaDaily]), "data should have required property 'name'");
+                    done();
+                })    
+                it('requiered fileds "eachNDay" issue', function(done) {                                            
+                    let nDailyScheduleOnce = JSON.parse(JSON.stringify(dailyScheduleOnce));
+                    delete nDailyScheduleOnce.eachNDay;
+                    assert.equal(DataVsSchemaResult(nDailyScheduleOnce, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                    assert.include(DataVsSchemaErrors(nDailyScheduleOnce, schema.scheduleSchema, [schema.scheduleSchemaDaily]), "data should have required property 'eachNDay'");
+                    done();
+                })           
+                describe('once', function() {
+                    it('incorrect "dailyFrequency.occursOnceAt" type', function(done) {                                            
+                        let nDailyScheduleOnce = JSON.parse(JSON.stringify(dailyScheduleOnce));
+                        nDailyScheduleOnce.dailyFrequency.occursOnceAt = 1;
+                        assert.equal(DataVsSchemaResult(nDailyScheduleOnce, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                        assert.include(DataVsSchemaErrors(nDailyScheduleOnce, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.dailyFrequency.occursOnceAt should be string');
+                        done();
+                    })
+                    it('incorrect "dailyFrequency.occursOnceAt" format (11)', function(done) {                                            
+                        let nDailyScheduleOnce = JSON.parse(JSON.stringify(dailyScheduleOnce));
+                        nDailyScheduleOnce.dailyFrequency.occursOnceAt = '11';
+                        assert.equal(DataVsSchemaResult(nDailyScheduleOnce, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                        assert.include(DataVsSchemaErrors(nDailyScheduleOnce, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.dailyFrequency.occursOnceAt should match format "time"');
+                        done();
+                    })
+                    it('incorrect "dailyFrequency.occursOnceAt" format (11:11:99)', function(done) {                                            
+                        let nDailyScheduleOnce = JSON.parse(JSON.stringify(dailyScheduleOnce));
+                        nDailyScheduleOnce.dailyFrequency.occursOnceAt = '11:11:99';
+                        assert.equal(DataVsSchemaResult(nDailyScheduleOnce, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                        assert.include(DataVsSchemaErrors(nDailyScheduleOnce, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.dailyFrequency.occursOnceAt should match format "time"');
+                        done();
+                    })        
+                    it('extra property', function(done) {                                            
+                        let nDailyScheduleOnce = JSON.parse(JSON.stringify(dailyScheduleOnce));
+                        nDailyScheduleOnce.dailyFrequency['bla'] = 1;
+                        assert.equal(DataVsSchemaResult(nDailyScheduleOnce, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                        assert.include(DataVsSchemaErrors(nDailyScheduleOnce, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.dailyFrequency should NOT have additional properties');
+                        done();
+                    })                    
+                    it('requiered fileds "occursOnceAt" issue', function(done) {                                            
+                        let nDailyScheduleOnce = JSON.parse(JSON.stringify(dailyScheduleOnce));
+                        delete nDailyScheduleOnce.dailyFrequency.occursOnceAt;
+                        assert.equal(DataVsSchemaResult(nDailyScheduleOnce, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                        assert.include(DataVsSchemaErrors(nDailyScheduleOnce, schema.scheduleSchema, [schema.scheduleSchemaDaily]), "data.dailyFrequency should have required property 'occursOnceAt'");
+                        done();
+                    })                                  
+                })
+                describe('every', function() {
+                    it('incorrect "dailyFrequency.start" type', function(done) {                                            
+                        let nDailyScheduleEvery = JSON.parse(JSON.stringify(dailyScheduleEvery));
+                        nDailyScheduleEvery.dailyFrequency.start = 1;
+                        assert.equal(DataVsSchemaResult(nDailyScheduleEvery, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                        assert.include(DataVsSchemaErrors(nDailyScheduleEvery, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.dailyFrequency.start should be string');
+                        done();
+                    })          
+                    it('incorrect "dailyFrequency.start" format (11)', function(done) {                                            
+                        let nDailyScheduleEvery = JSON.parse(JSON.stringify(dailyScheduleEvery));
+                        nDailyScheduleEvery.dailyFrequency.start = '11';
+                        assert.equal(DataVsSchemaResult(nDailyScheduleEvery, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                        assert.include(DataVsSchemaErrors(nDailyScheduleEvery, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.dailyFrequency.start should match format "time"');
+                        done();
+                    })
+                    it('incorrect "dailyFrequency.start" format (11:11:99)', function(done) {                                            
+                        let nDailyScheduleEvery = JSON.parse(JSON.stringify(dailyScheduleEvery));
+                        nDailyScheduleEvery.dailyFrequency.start = '11:11:99';
+                        assert.equal(DataVsSchemaResult(nDailyScheduleEvery, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                        assert.include(DataVsSchemaErrors(nDailyScheduleEvery, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.dailyFrequency.start should match format "time"');
+                        done();
+                    })    
+                    it('incorrect "dailyFrequency.occursEvery" type', function(done) {                                            
+                        let nDailyScheduleEvery = JSON.parse(JSON.stringify(dailyScheduleEvery));
+                        nDailyScheduleEvery.dailyFrequency.occursEvery = 1;
+                        assert.equal(DataVsSchemaResult(nDailyScheduleEvery, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                        assert.include(DataVsSchemaErrors(nDailyScheduleEvery, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.dailyFrequency.occursEvery should be object');
+                        done();
+                    })  
+                    it('extra property', function(done) {                                            
+                        let nDailyScheduleEvery = JSON.parse(JSON.stringify(dailyScheduleOnce));
+                        nDailyScheduleEvery.dailyFrequency['bla'] = 1;
+                        assert.equal(DataVsSchemaResult(nDailyScheduleEvery, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                        assert.include(DataVsSchemaErrors(nDailyScheduleEvery, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.dailyFrequency should NOT have additional properties');
+                        done();
+                    })                    
+                    it('requiered fileds "dailyFrequency.start" issue', function(done) {                                            
+                        let nDailyScheduleEvery = JSON.parse(JSON.stringify(dailyScheduleEvery));
+                        delete nDailyScheduleEvery.dailyFrequency.start;
+                        assert.equal(DataVsSchemaResult(nDailyScheduleEvery, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                        assert.include(DataVsSchemaErrors(nDailyScheduleEvery, schema.scheduleSchema, [schema.scheduleSchemaDaily]), "data.dailyFrequency should have required property 'start'");
+                        done();
+                    })              
+                    it('requiered fileds "dailyFrequency.occursEvery" issue', function(done) {                                            
+                        let nDailyScheduleEvery = JSON.parse(JSON.stringify(dailyScheduleEvery));
+                        delete nDailyScheduleEvery.dailyFrequency.occursEvery;
+                        assert.equal(DataVsSchemaResult(nDailyScheduleEvery, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                        assert.include(DataVsSchemaErrors(nDailyScheduleEvery, schema.scheduleSchema, [schema.scheduleSchemaDaily]), "data.dailyFrequency should have required property 'occursEvery'");
+                        done();
+                    })          
+                    describe('occursEvery', function() {
+                        it('incorrect "dailyFrequency.occursEvery.intervalValue" type', function(done) {                                            
+                            let nDailyScheduleEvery = JSON.parse(JSON.stringify(dailyScheduleEvery));
+                            nDailyScheduleEvery.dailyFrequency.occursEvery.intervalValue = true;
+                            assert.equal(DataVsSchemaResult(nDailyScheduleEvery, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                            assert.include(DataVsSchemaErrors(nDailyScheduleEvery, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.dailyFrequency.occursEvery.intervalValue should be integer');
+                            done();
+                        })   
+                        it('incorrect "dailyFrequency.occursEvery.intervalValue" <0', function(done) {                                            
+                            let nDailyScheduleEvery = JSON.parse(JSON.stringify(dailyScheduleEvery));
+                            nDailyScheduleEvery.dailyFrequency.occursEvery.intervalValue = -1;
+                            assert.equal(DataVsSchemaResult(nDailyScheduleEvery, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                            assert.include(DataVsSchemaErrors(nDailyScheduleEvery, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.dailyFrequency.occursEvery.intervalValue should be >= 0');
+                            done();
+                        }) 
+                        it('incorrect "dailyFrequency.occursEvery.intervalType" type', function(done) {                                            
+                            let nDailyScheduleEvery = JSON.parse(JSON.stringify(dailyScheduleEvery));
+                            nDailyScheduleEvery.dailyFrequency.occursEvery.intervalType = true;
+                            assert.equal(DataVsSchemaResult(nDailyScheduleEvery, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                            assert.include(DataVsSchemaErrors(nDailyScheduleEvery, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.dailyFrequency.occursEvery.intervalType should be equal to one of the allowed values');
+                            done();
+                        })  
+                        it('incorrect "dailyFrequency.occursEvery.intervalType" value', function(done) {                                            
+                            let nDailyScheduleEvery = JSON.parse(JSON.stringify(dailyScheduleEvery));
+                            nDailyScheduleEvery.dailyFrequency.occursEvery.intervalType = 'a';
+                            assert.equal(DataVsSchemaResult(nDailyScheduleEvery, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                            assert.include(DataVsSchemaErrors(nDailyScheduleEvery, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.dailyFrequency.occursEvery.intervalType should be equal to one of the allowed values');
+                            done();
+                        })      
+                        it('extra property', function(done) {                                            
+                            let nDailyScheduleEvery = JSON.parse(JSON.stringify(dailyScheduleEvery));
+                            nDailyScheduleEvery.dailyFrequency.occursEvery['bla'] = 1;
+                            assert.equal(DataVsSchemaResult(nDailyScheduleEvery, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                            assert.include(DataVsSchemaErrors(nDailyScheduleEvery, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.dailyFrequency.occursEvery should NOT have additional properties');
+                            done();
+                        })       
+                        it('requiered fileds "dailyFrequency.occursEvery.intervalValue" issue', function(done) {                                            
+                            let nDailyScheduleEvery = JSON.parse(JSON.stringify(dailyScheduleEvery));
+                            delete nDailyScheduleEvery.dailyFrequency.occursEvery.intervalValue;
+                            assert.equal(DataVsSchemaResult(nDailyScheduleEvery, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                            assert.include(DataVsSchemaErrors(nDailyScheduleEvery, schema.scheduleSchema, [schema.scheduleSchemaDaily]), "data.dailyFrequency.occursEvery should have required property 'intervalValue'");
+                            done();
+                        })   
+                        it('requiered fileds "dailyFrequency.occursEvery.intervalType" issue', function(done) {                                            
+                            let nDailyScheduleEvery = JSON.parse(JSON.stringify(dailyScheduleEvery));
+                            delete nDailyScheduleEvery.dailyFrequency.occursEvery.intervalType;
+                            assert.equal(DataVsSchemaResult(nDailyScheduleEvery, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                            assert.include(DataVsSchemaErrors(nDailyScheduleEvery, schema.scheduleSchema, [schema.scheduleSchemaDaily]), "data.dailyFrequency.occursEvery should have required property 'intervalType'");
+                            done();
+                        })                                           
+                    })                     
+                })                                      
             });
         });
         describe('weekly', function() {

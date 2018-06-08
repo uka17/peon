@@ -10,12 +10,14 @@ module.exports = function(app, dbclient) {
   app.get('/dummy', (req, res) => {
     //dummy
     try {           
-      schema.jobSchema['required'] = schema.jobSchemaRequired;
-      var validate = ajv.compile(schema.jobSchema);      
+      //schema.scheduleSchema['required'] = schema.scheduleSchemaDaily;
+      ajv.addSchema(schema.scheduleSchemaDaily);
+      var validate = ajv.compile(schema.scheduleSchema);      
       var testData = {
-        description: 'job description',
+        name: 'dailyOnce',
         enabled: true,
-        steps: []  
+        eachNDay: 1,
+        dailyFrequency: { occursOnceAt: '11:11:99'}
     };
                 
       var valid = validate(testData);
@@ -23,7 +25,7 @@ module.exports = function(app, dbclient) {
       if (valid) 
         res.status(200).send({result: "Valid"});
       else 
-        res.status(500).send({error: ajv.errorsText(validate.errors)});
+        res.status(500).send({error: validate.errors});
       
     }
     catch(e) {
