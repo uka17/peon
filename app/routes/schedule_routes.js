@@ -10,7 +10,7 @@ module.exports = function(app, dbclient) {
       const where = { '_id': new mongo.ObjectID(req.params.id) };
       dbclient.db(config.db_name).collection('job').aggregate([{$match: where}, {$project: {count: { $size: "$schedules"}}}]).toArray((err, result) => {
         if (err) {
-          utools.log(err, 'error',config.user, dbclient, res);
+          utools.log(err, 'error', config.user, dbclient, res);
         } else {        
           res.status(200).json({count: result[0].count});
         } 
@@ -20,7 +20,7 @@ module.exports = function(app, dbclient) {
       if(e.name === 'userError')
         res.status(500).send({error: e.message});
       else
-        utools.log(e.message, 'error',config.user, dbclient, res);
+        utools.log(e.message, 'error', config.user, dbclient, res);
     }
   });
   app.get('/jobs/:id/schedules', (req, res) => {
@@ -29,7 +29,7 @@ module.exports = function(app, dbclient) {
       const where = { '_id': new mongo.ObjectID(req.params.id) };
       dbclient.db(config.db_name).collection('job').findOne(where, (err, result) => {
         if (err) {
-          utools.log(err, 'error',config.user, dbclient, res);
+          utools.log(err, 'error', config.user, dbclient, res);
         } else {        
           res.status(200).send(result.schedules);
         } 
@@ -39,16 +39,16 @@ module.exports = function(app, dbclient) {
       if(e.name === 'userError')
         res.status(500).send({error: e.message});
       else
-        utools.log(e.message, 'error',config.user, dbclient, res);
+        utools.log(e.message, 'error', config.user, dbclient, res);
     }
   });
   app.get('/jobs/:id/schedules/:scheduleId', (req, res) => {    
-    try {
-      //get schedule by scheduleId and by id of job
+    //get schedule by scheduleId and by id of job
+    try {      
       const where = { '_id': new mongo.ObjectID(req.params.id) };
       dbclient.db(config.db_name).collection('job').findOne(where, (err, item) => {
         if (err) {
-          utools.log(err, 'error',config.user, dbclient, res);
+          utools.log(err, 'error', config.user, dbclient, res);
         } else {
           if(item !== null) {
             if(item.schedules !== undefined) {
@@ -70,7 +70,7 @@ module.exports = function(app, dbclient) {
       if(e.name === 'userError')
         res.status(500).send({error: e.message});
       else
-        utools.log(e.message, 'error',config.user, dbclient, res);
+        utools.log(e.message, 'error', config.user, dbclient, res);
     }
   });
   app.post('/jobs/:id/schedules', (req, res) => {
@@ -84,9 +84,9 @@ module.exports = function(app, dbclient) {
       if(!(typeof step.enabled === "boolean") && step.name !== undefined)
         utools.addUserError("Parameter 'enabled' should be a boolean");            
       step.createdOn = utools.getTimestamp();     
-      step.createdBy =config.user;       
+      step.createdBy = config.user;       
       step.modifiedOn = utools.getTimestamp();    
-      step.modifiedBy =config.user;
+      step.modifiedBy = config.user;
       step._id = new mongo.ObjectID();
 
       const where = { '_id': new mongo.ObjectID(req.params.id) };
@@ -95,7 +95,7 @@ module.exports = function(app, dbclient) {
       utools.checkUserErrorList();
       dbclient.db(config.db_name).collection('job').updateOne(where, update, (err, result) => {
         if (err) {
-          utools.log(err, 'error',config.user, dbclient, res);
+          utools.log(err, 'error', config.user, dbclient, res);
         } else {
           res.status(201).json({itemsUpdated: result.result.n})
         } 
@@ -105,7 +105,7 @@ module.exports = function(app, dbclient) {
       if(e.name === 'userError')
         res.status(500).send({error: e.message});
       else
-        utools.log(e.message, 'error',config.user, dbclient, res);
+        utools.log(e.message, 'error',  config.user, dbclient, res);
     }
   });
   app.patch('/jobs/:id/steps/:stepId', (req, res) => {
@@ -119,7 +119,7 @@ module.exports = function(app, dbclient) {
       if(!(typeof step.enabled === "boolean") && step.enabled !== undefined)
         utools.addUserError("Parameter 'enabled' should be a boolean");            
       step.modifiedOn = utools.getTimestamp();    
-      step.modifiedBy =config.user;
+      step.modifiedBy = config.user;
       
       //Rename all properties like: name => steps.$.name
       for (var property in step) {
@@ -133,7 +133,7 @@ module.exports = function(app, dbclient) {
       utools.checkUserErrorList();
       dbclient.db(config.db_name).collection('job').updateOne(where, update, (err, result) => {
         if (err) {
-          utools.log(err, 'error',config.user, dbclient, res);
+          utools.log(err, 'error', config.user, dbclient, res);
         } else {
           res.status(200).send({itemsUpdated: result.result.n})
         } 
@@ -143,7 +143,7 @@ module.exports = function(app, dbclient) {
       if(e.name === 'userError')
         res.status(500).send({error: e.message});
       else
-        utools.log(e.message, 'error',config.user, dbclient, res);
+        utools.log(e.message, 'error', config.user, dbclient, res);
     }
   });
   app.delete('/jobs/:id/steps/:stepId', (req, res) => {
@@ -154,7 +154,7 @@ module.exports = function(app, dbclient) {
 
       dbclient.db(config.db_name).collection('job').updateOne(where, update, (err, result) => {
         if (err) {
-          utools.log(err, 'error',config.user, dbclient, res);
+          utools.log(err, 'error', config.user, dbclient, res);
         } else {
           res.status(200).send({itemsDeleted: result.result.n})
         } 
@@ -164,7 +164,7 @@ module.exports = function(app, dbclient) {
       if(e.name === 'userError')
         res.status(500).send({error: e.message});
       else
-        utools.log(e.message, 'error',config.user, dbclient, res);
+        utools.log(e.message, 'error', config.user, dbclient, res);
     }
   });  
 };

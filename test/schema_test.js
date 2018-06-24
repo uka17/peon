@@ -381,7 +381,7 @@ describe('schema validation', function() {
                 assert.include(DataVsSchemaErrors(nOneTimeSchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data should NOT have additional properties');
                 done();
             })        
-            it('no not mandatory field. OK', function(done) {                                            
+            it('excluding noт mandatory field. OK', function(done) {                                            
                 let nOneTimeSchedule = JSON.parse(JSON.stringify(oneTimeSchedule));
                 delete nOneTimeSchedule.enabled;
                 assert.equal(DataVsSchemaResult(nOneTimeSchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), true);
@@ -456,7 +456,7 @@ describe('schema validation', function() {
                     assert.include(DataVsSchemaErrors(nDailyScheduleOnce, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data should NOT have additional properties');
                     done();
                 })        
-                it('no not mandatory field. OK', function(done) {                                            
+                it('excluding noт mandatory field. OK', function(done) {                                            
                     let nDailyScheduleOnce = JSON.parse(JSON.stringify(dailyScheduleOnce));
                     delete nDailyScheduleOnce.enabled;
                     assert.equal(DataVsSchemaResult(nDailyScheduleOnce, schema.scheduleSchema, [schema.scheduleSchemaDaily]), true);
@@ -623,8 +623,103 @@ describe('schema validation', function() {
                 assert.equal(DataVsSchemaResult(nWeeklySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), true);
                 done();
             })
-
-            //DO MORE
+            it('incorrect "name" type', function(done) {                                            
+                let nWeeklySchedule = JSON.parse(JSON.stringify(weeklySchedule));
+                nWeeklySchedule.name = 1;
+                assert.equal(DataVsSchemaResult(nWeeklySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                assert.include(DataVsSchemaErrors(nWeeklySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.name should be string');
+                done();
+            })
+            it('incorrect "enabled" type', function(done) {                                            
+                let nWeeklySchedule = JSON.parse(JSON.stringify(weeklySchedule));
+                nWeeklySchedule.enabled = 1;
+                assert.equal(DataVsSchemaResult(nWeeklySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                assert.include(DataVsSchemaErrors(nWeeklySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.enabled should be boolean');
+                done();
+            })
+            it('incorrect "eachNWeek" type', function(done) {                                            
+                let nWeeklySchedule = JSON.parse(JSON.stringify(weeklySchedule));
+                nWeeklySchedule.eachNWeek = true;
+                assert.equal(DataVsSchemaResult(nWeeklySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                assert.include(DataVsSchemaErrors(nWeeklySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.eachNWeek should be integer');
+                done();
+            })
+            it('incorrect "dailyFrequency" type', function(done) {                                            
+                let nWeeklySchedule = JSON.parse(JSON.stringify(weeklySchedule));
+                nWeeklySchedule.dailyFrequency = 1;
+                assert.equal(DataVsSchemaResult(nWeeklySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                assert.include(DataVsSchemaErrors(nWeeklySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.dailyFrequency should be object');
+                done();
+            })                
+            it('incorrect "eachNWeek" =0', function(done) {                                            
+                let nWeeklySchedule = JSON.parse(JSON.stringify(weeklySchedule));
+                nWeeklySchedule.eachNWeek = 0;
+                assert.equal(DataVsSchemaResult(nWeeklySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                assert.include(DataVsSchemaErrors(nWeeklySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.eachNWeek should be >= 1');
+                done();
+            })
+            it('incorrect "eachNWeek" <0', function(done) {                                            
+                let nWeeklySchedule = JSON.parse(JSON.stringify(weeklySchedule));
+                nWeeklySchedule.eachNWeek = -1;
+                assert.equal(DataVsSchemaResult(nWeeklySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                assert.include(DataVsSchemaErrors(nWeeklySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.eachNWeek should be >= 1');
+                done();
+            })       
+            it('incorrect "dayOfWeek" type', function(done) {                                            
+                let nWeeklySchedule = JSON.parse(JSON.stringify(weeklySchedule));
+                nWeeklySchedule.dayOfWeek = true;
+                assert.equal(DataVsSchemaResult(nWeeklySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                assert.include(DataVsSchemaErrors(nWeeklySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.dayOfWeek should be array');
+                done();
+            })               
+            it('incorrect "dayOfWeek" value', function(done) {                                            
+                let nWeeklySchedule = JSON.parse(JSON.stringify(weeklySchedule));
+                nWeeklySchedule.dayOfWeek = ['zzz'];
+                assert.equal(DataVsSchemaResult(nWeeklySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                assert.include(DataVsSchemaErrors(nWeeklySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.dayOfWeek[0] should be equal to one of the allowed values');
+                done();
+            })             
+            it('"dayOfWeek" contains not unique items', function(done) {                                            
+                let nWeeklySchedule = JSON.parse(JSON.stringify(weeklySchedule));
+                nWeeklySchedule.dayOfWeek = ['mon', 'fri', 'mon'];
+                assert.equal(DataVsSchemaResult(nWeeklySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                assert.include(DataVsSchemaErrors(nWeeklySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.dayOfWeek should NOT have duplicate items');
+                done();
+            })                                   
+            it('extra property', function(done) {                                            
+                let nWeeklySchedule = JSON.parse(JSON.stringify(weeklySchedule));
+                nWeeklySchedule['bla'] = 1;
+                assert.equal(DataVsSchemaResult(nWeeklySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                assert.include(DataVsSchemaErrors(nWeeklySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data should NOT have additional properties');
+                done();
+            })        
+            it('excluding noт mandatory field. OK', function(done) {                                            
+                let nWeeklySchedule = JSON.parse(JSON.stringify(weeklySchedule));
+                delete nWeeklySchedule.enabled;
+                assert.equal(DataVsSchemaResult(nWeeklySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), true);
+                done();
+            })                             
+            it('requiered fileds "name" issue', function(done) {                                            
+                let nWeeklySchedule = JSON.parse(JSON.stringify(weeklySchedule));
+                delete nWeeklySchedule.name;
+                assert.equal(DataVsSchemaResult(nWeeklySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                assert.include(DataVsSchemaErrors(nWeeklySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), "data should have required property 'name'");
+                done();
+            })    
+            it('requiered fileds "eachNWeek" issue', function(done) {                                            
+                let nWeeklySchedule = JSON.parse(JSON.stringify(weeklySchedule));
+                delete nWeeklySchedule.eachNWeek;
+                assert.equal(DataVsSchemaResult(nWeeklySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                assert.include(DataVsSchemaErrors(nWeeklySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), "data should have required property 'eachNWeek'");
+                done();
+            })
+            it('requiered fileds "dayOfWeek" issue', function(done) {                                            
+                let nWeeklySchedule = JSON.parse(JSON.stringify(weeklySchedule));
+                delete nWeeklySchedule.dayOfWeek;
+                assert.equal(DataVsSchemaResult(nWeeklySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                assert.include(DataVsSchemaErrors(nWeeklySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), "data should have required property 'dayOfWeek'");
+                done();
+            })            
         });    
         describe('monthly', function() {
             it('initial validation. OK', function(done) {                            
@@ -632,8 +727,110 @@ describe('schema validation', function() {
                 assert.equal(DataVsSchemaResult(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), true);
                 done();
             })
-
-            //DO MORE
+            it('incorrect "name" type', function(done) {                                            
+                let nMonthlySchedule = JSON.parse(JSON.stringify(monthlySchedule));
+                nMonthlySchedule.name = 1;
+                assert.equal(DataVsSchemaResult(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                assert.include(DataVsSchemaErrors(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.name should be string');
+                done();
+            })
+            it('incorrect "enabled" type', function(done) {                                            
+                let nMonthlySchedule = JSON.parse(JSON.stringify(monthlySchedule));
+                nMonthlySchedule.enabled = 1;
+                assert.equal(DataVsSchemaResult(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                assert.include(DataVsSchemaErrors(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.enabled should be boolean');
+                done();
+            })
+            it('incorrect "month" type', function(done) {                                            
+                let nMonthlySchedule = JSON.parse(JSON.stringify(monthlySchedule));
+                nMonthlySchedule.month = true;
+                assert.equal(DataVsSchemaResult(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                assert.include(DataVsSchemaErrors(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.month should be array');
+                done();
+            })
+            it('incorrect "day" type', function(done) {                                            
+                let nMonthlySchedule = JSON.parse(JSON.stringify(monthlySchedule));
+                nMonthlySchedule.day = true;
+                assert.equal(DataVsSchemaResult(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                assert.include(DataVsSchemaErrors(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.day should be integer');
+                done();
+            })            
+            it('incorrect "dailyFrequency" type', function(done) {                                            
+                let nMonthlySchedule = JSON.parse(JSON.stringify(monthlySchedule));
+                nMonthlySchedule.dailyFrequency = 1;
+                assert.equal(DataVsSchemaResult(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                assert.include(DataVsSchemaErrors(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.dailyFrequency should be object');
+                done();
+            })                
+            it('incorrect "day" =0', function(done) {                                            
+                let nMonthlySchedule = JSON.parse(JSON.stringify(monthlySchedule));
+                nMonthlySchedule.day = 0;
+                assert.equal(DataVsSchemaResult(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                assert.include(DataVsSchemaErrors(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.day should be >= 1');
+                done();
+            })
+            it('incorrect "day" <0', function(done) {                                            
+                let nMonthlySchedule = JSON.parse(JSON.stringify(monthlySchedule));
+                nMonthlySchedule.day = -1;
+                assert.equal(DataVsSchemaResult(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                assert.include(DataVsSchemaErrors(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.day should be >= 1');
+                done();
+            })       
+            it('incorrect "day" >31', function(done) {                                            
+                let nMonthlySchedule = JSON.parse(JSON.stringify(monthlySchedule));
+                nMonthlySchedule.day = 32;
+                assert.equal(DataVsSchemaResult(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                assert.include(DataVsSchemaErrors(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.day should be <= 31');
+                done();
+            })                     
+            it('incorrect "month" value', function(done) {                                            
+                let nMonthlySchedule = JSON.parse(JSON.stringify(monthlySchedule));
+                nMonthlySchedule.month = ['zzz'];
+                assert.equal(DataVsSchemaResult(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                assert.include(DataVsSchemaErrors(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.month[0] should be equal to one of the allowed values');
+                done();
+            })             
+            it('"month" contains not unique items', function(done) {                                            
+                let nMonthlySchedule = JSON.parse(JSON.stringify(monthlySchedule));
+                nMonthlySchedule.month = ['jan', 'dec', 'jan'];
+                assert.equal(DataVsSchemaResult(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                assert.include(DataVsSchemaErrors(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.month should NOT have duplicate items');
+                done();
+            })                                   
+            it('extra property', function(done) {                                            
+                let nMonthlySchedule = JSON.parse(JSON.stringify(monthlySchedule));
+                nMonthlySchedule['bla'] = 1;
+                assert.equal(DataVsSchemaResult(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                assert.include(DataVsSchemaErrors(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data should NOT have additional properties');
+                done();
+            })        
+            it('excluding noт mandatory field. OK', function(done) {                                            
+                let nMonthlySchedule = JSON.parse(JSON.stringify(monthlySchedule));
+                delete nMonthlySchedule.enabled;
+                assert.equal(DataVsSchemaResult(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), true);
+                done();
+            })                             
+            it('requiered fileds "name" issue', function(done) {                                            
+                let nMonthlySchedule = JSON.parse(JSON.stringify(monthlySchedule));
+                delete nMonthlySchedule.name;
+                assert.equal(DataVsSchemaResult(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                assert.include(DataVsSchemaErrors(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), "data should have required property 'name'");
+                done();
+            })    
+            it('requiered fileds "month" issue', function(done) {                                            
+                let nMonthlySchedule = JSON.parse(JSON.stringify(monthlySchedule));
+                delete nMonthlySchedule.month;
+                assert.equal(DataVsSchemaResult(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                assert.include(DataVsSchemaErrors(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), "data should have required property 'month'");
+                done();
+            })
+            it('requiered fileds "day" issue', function(done) {                                            
+                let nMonthlySchedule = JSON.parse(JSON.stringify(monthlySchedule));
+                delete nMonthlySchedule.day;
+                assert.equal(DataVsSchemaResult(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                assert.include(DataVsSchemaErrors(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), "data should have required property 'day'");
+                done();
+            })        
         });               
     })
 });    

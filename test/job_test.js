@@ -65,7 +65,7 @@ describe('job', function() {
             });
         });
     });
-    describe('list and count', function() {
+    describe('list, get and count', function() {
         it('list. OK', function(done) {
             request.get({
                 url: config.test_host + '/jobs', 
@@ -74,6 +74,20 @@ describe('job', function() {
             function(error, response, body) {
                 assert.equal(response.statusCode, 200);
                 assert.isAbove(body.length, 0);
+                done();
+            });
+        });
+        
+        it('get. OK', function(done) {    
+            request.get({
+                url: config.test_host + '/jobs/' + id, 
+            },
+            function(error, response, body) {
+                assert.equal(response.statusCode, 200);
+                var parsedBody = JSON.parse(body);
+                assert.equal(parsedBody.name, 'job');
+                assert.equal(parsedBody.description, 'job description');
+                assert.equal(parsedBody.enabled, true);
                 done();
             });
         });
@@ -91,22 +105,7 @@ describe('job', function() {
         });
     });
 
-    describe('get, update, delete', function() {
-    
-        it('get. OK', function(done) {    
-            request.get({
-                url: config.test_host + '/jobs/' + id, 
-            },
-            function(error, response, body) {
-                assert.equal(response.statusCode, 200);
-                var parsedBody = JSON.parse(body);
-                assert.equal(parsedBody.name, 'job');
-                assert.equal(parsedBody.description, 'job description');
-                assert.equal(parsedBody.enabled, true);
-                done();
-            });
-        });
-
+    describe('update and delete', function() {
         it('update. OK', function(done) {    
             request.patch({
                 url: config.test_host + '/jobs/' + id, 
