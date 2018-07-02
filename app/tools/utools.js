@@ -31,10 +31,10 @@ module.exports.throwUserError = (message) => {
     uErr.name = 'appError';
     throw uErr;
 }
-//Handle error. I ncase if this is user error - return in to user, otherwise log error and return response with HTTP 500 and logID
+//Handle error. In case if this is user error - return in to user, otherwise log error and return response with HTTP 500 and logID
 module.exports.handleException = function(e, type, createdBy, dbclient, res) {
     if(e.name === 'appError') {
-        res.status(500).send({error: e.message});
+        res.status(400).send({error: e.message});
     }
     else {
         let pr = new Promise((resolve, reject) => {

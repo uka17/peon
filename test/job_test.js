@@ -11,7 +11,7 @@ describe('job', function() {
                 json: {"name": true, "description": "job description", "enabled": true}
             }, 
             function(error, response, body) {
-                assert.equal(response.statusCode, 500);
+                assert.equal(response.statusCode, 400);
                 done();
             });
         });
@@ -22,7 +22,7 @@ describe('job', function() {
                 json: {"name": "name", "description": true, "enabled": true}
             }, 
             function(error, response, body) {
-                assert.equal(response.statusCode, 500);
+                assert.equal(response.statusCode, 400);
                 done();
             });
         });
@@ -33,7 +33,7 @@ describe('job', function() {
                 json: {"name": "name", "description": "job description", "enabled": 1}
             }, 
             function(error, response, body) {
-                assert.equal(response.statusCode, 500);
+                assert.equal(response.statusCode, 400);
                 done();
             });
         });
