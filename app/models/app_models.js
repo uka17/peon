@@ -15,7 +15,9 @@ module.exports.jobSchema = {
     name: {type: 'string'},
     description: {type: 'string'},
     enabled: {type: 'boolean'},
-    steps: { "type": "array"}
+    steps: { "type": "array"},
+    schedules: { "type": "array"},
+    notifications: { "type": "array"}
   },
   additionalProperties: false
 };

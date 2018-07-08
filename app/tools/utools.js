@@ -5,8 +5,7 @@ const config = require('../../config/config');
 const messageBox = require('../../config/message_labels');
 var toJSON = require( 'utils-error-to-json' );
 //#region Error handling
-module.exports.validateObject = (object, schema, res) => {
-    //return TRUE in case if object is valid and FALSE in other case
+module.exports.validateObject = (object, schema) => {
     var ajv = new Ajv();
     var validate = ajv.compile(schema);
     var valid = validate(object);

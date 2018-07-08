@@ -59,25 +59,18 @@ module.exports = function(app, dbclient) {
     //create new job
     try {
       const job = req.body;
-      //steps, schedules and notifications should be checked separately in case if lists are not empty
-      /*
-      if(job.steps.length > 0) {
-        job.steps.forEach((element) => {
-          utools.validateObject(element, models.stepSchema, res);
-        });        
-      }
-      
-      */
-      let validationResult = utools.validateObject(job, models.jobSchema, res);
-      if(!validationResult.isValid) {
-        res.status(400).send({requestValidationErrors: validationResult.errors});
+      //job body validation
+      models.jobSchema['required'] = models.jobSchemaRequired; 
+      let jobValidationResult = utools.validateObject(job, models.jobSchema);
+      if(!jobValidationResult.isValid) {
+        res.status(400).send({requestValidationErrors: jobValidationResult.errors});
       }
       else {
         job.createdOn = utools.getTimestamp();     
         job.createdBy = config.user;       
         job.modifiedOn = utools.getTimestamp();    
         job.modifiedBy = config.user;
-        
+
         dbclient.db(config.db_name).collection('job').insert(job, (err, result) => {
           if (err) { 
             utools.handleServerException(err, config.user, dbclient, res);
@@ -101,7 +94,7 @@ module.exports = function(app, dbclient) {
     try {
       var job = req.body;      
       job.modifiedOn = utools.getTimestamp();
-      job.modifiedBy =config.user;      
+      job.modifiedBy = config.user;      
 
       const where = { '_id': new mongo.ObjectID(req.params.id) };      
       const update = { $set: job};

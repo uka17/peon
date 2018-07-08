@@ -85,7 +85,7 @@ module.exports = function(app, dbclient) {
       }
       else {
         step.createdOn = utools.getTimestamp();     
-        step.createdBy =config.user;       
+        step.createdBy = config.user;       
         step.modifiedOn = utools.getTimestamp();    
         step.modifiedBy =config.user;
         step._id = new mongo.ObjectID();
