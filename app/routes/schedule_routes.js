@@ -2,6 +2,7 @@
 var mongo = require('mongodb');
 var utools = require('../tools/utools');
 const config = require('../../config/config');
+const messageBox = require('../../config/message_labels');
 
 module.exports = function(app, dbclient) {
   app.get('/jobs/:id/schedules/count', (req, res) => {
@@ -10,17 +11,15 @@ module.exports = function(app, dbclient) {
       const where = { '_id': new mongo.ObjectID(req.params.id) };
       dbclient.db(config.db_name).collection('job').aggregate([{$match: where}, {$project: {count: { $size: "$schedules"}}}]).toArray((err, result) => {
         if (err) {
-          utools.log(err, 'error', config.user, dbclient, res);
-        } else {        
+          utools.handleException({message: err}, 'error', config.user, dbclient, res);
+        } 
+        else {        
           res.status(200).json({count: result[0].count});
         } 
       });
     }
     catch(e) {
-      if(e.name === 'userError')
-        res.status(500).send({error: e.message});
-      else
-        utools.log(e.message, 'error', config.user, dbclient, res);
+      utools.handleException(e, 'error', config.user, dbclient, res);
     }
   });
   app.get('/jobs/:id/schedules', (req, res) => {
@@ -29,40 +28,39 @@ module.exports = function(app, dbclient) {
       const where = { '_id': new mongo.ObjectID(req.params.id) };
       dbclient.db(config.db_name).collection('job').findOne(where, (err, result) => {
         if (err) {
-          utools.log(err, 'error', config.user, dbclient, res);
-        } else {        
+          utools.handleException({message: err}, 'error', config.user, dbclient, res);
+        } 
+        else {        
           res.status(200).send(result.schedules);
         } 
       });
     }
     catch(e) {
-      if(e.name === 'userError')
-        res.status(500).send({error: e.message});
-      else
-        utools.log(e.message, 'error', config.user, dbclient, res);
+      utools.handleException(e, 'error', config.user, dbclient, res);
     }
   });
   app.get('/jobs/:id/schedules/:scheduleId', (req, res) => {    
     //get schedule by scheduleId and by id of job
     try {      
-      const where = { '_id': new mongo.ObjectID(req.params.id) };
+      const where = { '_id': new mongo.ObjectID(req.params.id) };      
       dbclient.db(config.db_name).collection('job').findOne(where, (err, item) => {
         if (err) {
-          utools.log(err, 'error', config.user, dbclient, res);
-        } else {
+          utools.handleException({message: err}, 'error', config.user, dbclient, res);
+        } 
+        else {
           if(item !== null) {
             if(item.schedules !== undefined) {
               const schedule = item.schedules.find((ischedule) => {return ischedule._id.toString() === req.params.stepId});
               if(schedule === undefined)
-                res.status(404).send({error: "No schedule found for mentioned jobId and scheduleId"});
+                utools.throwUserError(messageBox.schedule.noScheduleForJobIdAndScheduleId);                
               else
                 res.status(200).send(schedule);
             }
             else
-              res.status(404).send({error: "No schedule found for this job"});  
+              utools.handleUserException(messageBox.schedule.noScheduleForJob, 404, res);  
           }
           else
-            res.status(404).send({error: "Job not found"});
+            res.status(404).send({error: messageBox.job.jobNotFound});
         } 
       });
     }

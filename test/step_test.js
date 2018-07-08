@@ -11,11 +11,11 @@ describe('step', function() {
     it('create job. Success', function(done) {
         request.post({
             url: config.test_host + '/jobs',  
-            json: {"name": "job", "description": "job description", "enabled": true}
+            json: {"name": "testJob", "description": "job description", "enabled": true}
         }, 
         function(error, response, body) {
             assert.equal(response.statusCode, 201);
-            assert.equal(body.name, 'job');
+            assert.equal(body.name, 'testJob');
             assert.equal(body.description, 'job description');
             assert.equal(body.enabled, true);
             assert.exists(body._id);
@@ -30,8 +30,8 @@ describe('step', function() {
             json: true
         }, 
         function(error, response, body) {
-            assert.equal(response.statusCode, 400);
-            assert.include(response.body.error, messageBox.noStepForJob);
+            assert.equal(response.statusCode, 404);
+            assert.include(response.body.error, messageBox.step.noStepForJob);
             done();
         });
     });
@@ -42,8 +42,8 @@ describe('step', function() {
             json: true
         }, 
         function(error, response, body) {
-            assert.equal(response.statusCode, 400);
-            assert.include(response.body.error, messageBox.noStepForJob);
+            assert.equal(response.statusCode, 404);
+            assert.include(response.body.error, messageBox.step.noStepForJob);
             done();
         });
     });
@@ -54,7 +54,7 @@ describe('step', function() {
             json: {"name": 1, "connection": "step_connection", "enabled": true, "database": "step_db", "command": "step_command"}
         }, 
         function(error, response, body) {
-            assert.equal(response.statusCode, 400);          
+            assert.equal(response.statusCode, 500);          
             done();
         });
     });
@@ -65,7 +65,7 @@ describe('step', function() {
             json: {"name": "name", "connection": 1, "enabled": true, "database": "step_db", "command": "step_command"}
         }, 
         function(error, response, body) {
-            assert.equal(response.statusCode, 400);          
+            assert.equal(response.statusCode, 500);          
             done();
         });
     });
@@ -76,7 +76,7 @@ describe('step', function() {
             json: {"name": "name", "connection": "step_connection", "enabled": 5, "database": "step_db", "command": "step_command"}
         }, 
         function(error, response, body) {
-            assert.equal(response.statusCode, 400);          
+            assert.equal(response.statusCode, 500);          
             done();
         });
     });
@@ -87,7 +87,7 @@ describe('step', function() {
             json: {"name": "name", "connection": "step_connection", "enabled": true, "database": true, "command": "step_command"}
         }, 
         function(error, response, body) {
-            assert.equal(response.statusCode, 400);          
+            assert.equal(response.statusCode, 500);          
             done();
         });
     });
@@ -98,7 +98,7 @@ describe('step', function() {
             json: {"name": "name", "connection": "step_connection", "enabled": true, "database": "step_db", "command": false}
         }, 
         function(error, response, body) {
-            assert.equal(response.statusCode, 400);          
+            assert.equal(response.statusCode, 500);          
             done();
         });
     });
@@ -111,7 +111,7 @@ describe('step', function() {
             }
         }, 
         function(error, response, body) {
-            assert.equal(response.statusCode, 400);          
+            assert.equal(response.statusCode, 500);          
             done();
         });
     });
@@ -124,7 +124,7 @@ describe('step', function() {
             }
         }, 
         function(error, response, body) {
-            assert.equal(response.statusCode, 400);          
+            assert.equal(response.statusCode, 500);          
             done();
         });
     });
@@ -137,7 +137,7 @@ describe('step', function() {
             }
         }, 
         function(error, response, body) {
-            assert.equal(response.statusCode, 400);          
+            assert.equal(response.statusCode, 500);          
             done();
         });
     });
@@ -158,12 +158,12 @@ describe('step', function() {
         request.post({
             url: config.test_host + '/jobs/' + jobId + '/steps',  
             json: {"name": "step_name", "connection": {}, "enabled": true, "database": "step_db", "command": "step_command",
-                "onSucceed": {'gotoStep': 2}
+                "onSucceed": {"gotoStep": 2}
             }
         }, 
         function(error, response, body) {
             assert.equal(response.statusCode, 201);
-            assert.equal(body.itemsUpdated, 1);            
+            assert.equal(body[messageBox.common.updated], 1);            
             done();
         });
     });
@@ -175,7 +175,7 @@ describe('step', function() {
         }, 
         function(error, response, body) {
             assert.equal(response.statusCode, 200);
-            assert.equal(body.count, 1);            
+            assert.equal(body[messageBox.common.count], 1);            
             done();
         });
     });
@@ -217,8 +217,8 @@ describe('step', function() {
             json: true
         }, 
         function(error, response, body) {
-            assert.equal(response.statusCode, 400);
-            assert.include(response.body.error, messageBox.noStepForJobAndStep);
+            assert.equal(response.statusCode, 404);
+            assert.include(response.body.error, messageBox.step.noStepForJobAndStep);
             done();
         });
     });
@@ -229,8 +229,8 @@ describe('step', function() {
             json: true
         }, 
         function(error, response, body) {
-            assert.equal(response.statusCode, 400);
-            assert.include(response.body.error, messageBox.jobNotFound);
+            assert.equal(response.statusCode, 404);
+            assert.include(response.body.error, messageBox.job.jobNotFound);
             done();
         });
     });
@@ -242,7 +242,7 @@ describe('step', function() {
         }, 
         function(error, response, body) {
             assert.equal(response.statusCode, 200);
-            assert.equal(body.itemsUpdated, 1);  
+            assert.equal(body[messageBox.common.updated], 1);  
             request.get({
                 url: config.test_host + '/jobs/' + jobId + '/steps/' + stepId,
                 json: true
@@ -267,13 +267,13 @@ describe('step', function() {
         },
         function(error, response, body) {
             assert.equal(response.statusCode, 200);
-            assert.equal(body.itemsDeleted, 1);
+            assert.equal(body[messageBox.common.deleted], 1);
             request.get({
                 url: config.test_host + '/jobs/' + jobId + '/steps/' + stepId,
                 json: true
             }, 
             function(error, response, body) {
-                assert.equal(response.statusCode, 400);
+                assert.equal(response.statusCode, 404);
                 done();
             });
         });
@@ -286,7 +286,7 @@ describe('step', function() {
         },
         function(error, response, body) {
             assert.equal(response.statusCode, 200);
-            assert.equal(body.itemsDeleted, 1);
+            assert.equal(body[messageBox.common.deleted], 1);
             done();
         });
     });

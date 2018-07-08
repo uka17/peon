@@ -1,6 +1,7 @@
 var assert  = require('chai').assert;
 var request = require('request');
 const config = require('../config/config');
+var messageBox = require('../config/message_labels');
 var id;
 
 describe('job', function() {
@@ -11,7 +12,7 @@ describe('job', function() {
                 json: {"name": true, "description": "job description", "enabled": true}
             }, 
             function(error, response, body) {
-                assert.equal(response.statusCode, 400);
+                assert.equal(response.statusCode, 500);
                 done();
             });
         });
@@ -22,7 +23,7 @@ describe('job', function() {
                 json: {"name": "name", "description": true, "enabled": true}
             }, 
             function(error, response, body) {
-                assert.equal(response.statusCode, 400);
+                assert.equal(response.statusCode, 500);
                 done();
             });
         });
@@ -33,7 +34,7 @@ describe('job', function() {
                 json: {"name": "name", "description": "job description", "enabled": 1}
             }, 
             function(error, response, body) {
-                assert.equal(response.statusCode, 400);
+                assert.equal(response.statusCode, 500);
                 done();
             });
         });
@@ -99,7 +100,7 @@ describe('job', function() {
             },
             function(error, response, body) {
                 assert.equal(response.statusCode, 200);
-                assert.isAbove(body.count, 0);
+                assert.isAbove(body[messageBox.common.count], 0);
                 done();
             });
         });
@@ -113,7 +114,7 @@ describe('job', function() {
             },
             function(error, response, body) {
                 assert.equal(response.statusCode, 200);
-                assert.equal(body.itemsUpdated, 1);
+                assert.equal(body[messageBox.common.updated], 1);
                 request.get({
                     url: config.test_host + '/jobs/' + id, 
                 },
@@ -135,7 +136,7 @@ describe('job', function() {
             },
             function(error, response, body) {
                 assert.equal(response.statusCode, 200);
-                assert.equal(body.itemsDeleted, 1);
+                assert.equal(body[messageBox.common.deleted], 1);
                 done();
             });
         });
