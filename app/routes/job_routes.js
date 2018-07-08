@@ -36,7 +36,7 @@ module.exports = function(app, dbclient) {
       });
     }
     catch(e) {
-      utools.handleException(e, config.user, dbclient, res);
+      utools.handleServerException(e, config.user, dbclient, res);
     }
   });
   app.get('/jobs/:id', (req, res) => {    
@@ -52,26 +52,40 @@ module.exports = function(app, dbclient) {
       });
     }
     catch(e) {
-      utools.handleException(e, config.user, dbclient, res);
+      utools.handleServerException(e, config.user, dbclient, res);
     }
   });
   app.post('/jobs', (req, res) => {
     //create new job
     try {
       const job = req.body;
-      utools.checkObject(job, models.jobSchema);
-      job.createdOn = utools.getTimestamp();     
-      job.createdBy = config.user;       
-      job.modifiedOn = utools.getTimestamp();    
-      job.modifiedBy = config.user;
-
-      dbclient.db(config.db_name).collection('job').insert(job, (err, result) => {
-        if (err) { 
-          utools.handleServerException(err, config.user, dbclient, res);
-        } else {
-          res.status(201).send(result.ops[0]);
-        }
-      });
+      //steps, schedules and notifications should be checked separately in case if lists are not empty
+      /*
+      if(job.steps.length > 0) {
+        job.steps.forEach((element) => {
+          utools.validateObject(element, models.stepSchema, res);
+        });        
+      }
+      
+      */
+      let validationResult = utools.validateObject(job, models.jobSchema, res);
+      if(!validationResult.isValid) {
+        res.status(400).send({requestValidationErrors: validationResult.errors});
+      }
+      else {
+        job.createdOn = utools.getTimestamp();     
+        job.createdBy = config.user;       
+        job.modifiedOn = utools.getTimestamp();    
+        job.modifiedBy = config.user;
+        
+        dbclient.db(config.db_name).collection('job').insert(job, (err, result) => {
+          if (err) { 
+            utools.handleServerException(err, config.user, dbclient, res);
+          } else {
+            res.status(201).send(result.ops[0]);
+          }
+        });
+      }
     }
     catch(e) {
       utools.handleServerException(e, config.user, dbclient, res);
@@ -86,7 +100,6 @@ module.exports = function(app, dbclient) {
     //update job by id
     try {
       var job = req.body;      
-      utools.checkObject(job, models.jobSchema);
       job.modifiedOn = utools.getTimestamp();
       job.modifiedBy =config.user;      
 

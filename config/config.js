@@ -8,5 +8,6 @@ module.exports = {
     //Application
     port: process.env.PORT || 8080,
     test_host: "http://localhost:8080",    
-    user: "test"
+    user: "test",
+    debugMode: true
   };

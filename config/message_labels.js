@@ -10,6 +10,7 @@ module.exports.schedule = {
     noScheduleForJobIdAndScheduleId: 'no schedule found for mentioned jobId and scheduleId'
 }
 module.exports.common = {
+    debugMessage: 'The Lord of Darkness cursed something on our server. We have already called out the Holy Reinforcements and they are trying to fix everything. You can help us to win by sending logId. Amen!',
     updated: 'updated',
     deleted: 'deleted',
     count: 'count'

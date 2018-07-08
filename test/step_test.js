@@ -54,7 +54,7 @@ describe('step', function() {
             json: {"name": 1, "connection": "step_connection", "enabled": true, "database": "step_db", "command": "step_command"}
         }, 
         function(error, response, body) {
-            assert.equal(response.statusCode, 500);          
+            assert.equal(response.statusCode, 400);          
             done();
         });
     });
@@ -65,7 +65,7 @@ describe('step', function() {
             json: {"name": "name", "connection": 1, "enabled": true, "database": "step_db", "command": "step_command"}
         }, 
         function(error, response, body) {
-            assert.equal(response.statusCode, 500);          
+            assert.equal(response.statusCode, 400);          
             done();
         });
     });
@@ -76,7 +76,7 @@ describe('step', function() {
             json: {"name": "name", "connection": "step_connection", "enabled": 5, "database": "step_db", "command": "step_command"}
         }, 
         function(error, response, body) {
-            assert.equal(response.statusCode, 500);          
+            assert.equal(response.statusCode, 400);          
             done();
         });
     });
@@ -87,7 +87,7 @@ describe('step', function() {
             json: {"name": "name", "connection": "step_connection", "enabled": true, "database": true, "command": "step_command"}
         }, 
         function(error, response, body) {
-            assert.equal(response.statusCode, 500);          
+            assert.equal(response.statusCode, 400);          
             done();
         });
     });
@@ -98,7 +98,7 @@ describe('step', function() {
             json: {"name": "name", "connection": "step_connection", "enabled": true, "database": "step_db", "command": false}
         }, 
         function(error, response, body) {
-            assert.equal(response.statusCode, 500);          
+            assert.equal(response.statusCode, 400);          
             done();
         });
     });
@@ -111,7 +111,7 @@ describe('step', function() {
             }
         }, 
         function(error, response, body) {
-            assert.equal(response.statusCode, 500);          
+            assert.equal(response.statusCode, 400);          
             done();
         });
     });
@@ -124,7 +124,7 @@ describe('step', function() {
             }
         }, 
         function(error, response, body) {
-            assert.equal(response.statusCode, 500);          
+            assert.equal(response.statusCode, 400);          
             done();
         });
     });
@@ -137,7 +137,7 @@ describe('step', function() {
             }
         }, 
         function(error, response, body) {
-            assert.equal(response.statusCode, 500);          
+            assert.equal(response.statusCode, 400);          
             done();
         });
     });

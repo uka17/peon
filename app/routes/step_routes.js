@@ -22,7 +22,7 @@ module.exports = function(app, dbclient) {
       });
     }
     catch(e) {
-      utools.handleServerException(err, config.user, dbclient, res);
+      utools.handleServerException(e, config.user, dbclient, res);
     }
   });
   app.get('/jobs/:id/steps', (req, res) => {
@@ -43,7 +43,7 @@ module.exports = function(app, dbclient) {
       });
     }
     catch(e) {
-      utools.handleServerException(err, config.user, dbclient, res);
+      utools.handleServerException(e, config.user, dbclient, res);
     }       
   });
   app.get('/jobs/:id/steps/:stepId', (req, res) => {        
@@ -72,32 +72,37 @@ module.exports = function(app, dbclient) {
       });
     }
     catch(e) {
-      utools.handleServerException(err, config.user, dbclient, res);
+      utools.handleServerException(e, config.user, dbclient, res);
     }    
   });
   app.post('/jobs/:id/steps', (req, res) => {
     //create new step for a job
     try {
       const step = req.body;
-      utools.checkObject(step, models.stepSchema);
-      step.createdOn = utools.getTimestamp();     
-      step.createdBy =config.user;       
-      step.modifiedOn = utools.getTimestamp();    
-      step.modifiedBy =config.user;
-      step._id = new mongo.ObjectID();
+      let validationResult = utools.validateObject(step, models.stepSchema, res);
+      if(!validationResult.isValid) {
+        res.status(400).send({requestValidationErrors: validationResult.errors});
+      }
+      else {
+        step.createdOn = utools.getTimestamp();     
+        step.createdBy =config.user;       
+        step.modifiedOn = utools.getTimestamp();    
+        step.modifiedBy =config.user;
+        step._id = new mongo.ObjectID();
 
-      const where = { '_id': new mongo.ObjectID(req.params.id) };
-      const update = { $addToSet: {steps: step}};
+        const where = { '_id': new mongo.ObjectID(req.params.id) };
+        const update = { $addToSet: {steps: step}};
 
-      dbclient.db(config.db_name).collection('job').updateOne(where, update, (err, result) => {
-        if (err) {
-          utools.handleServerException(err, config.user, dbclient, res);
-        } else {
-          let resObject = {};
-          resObject[messageBox.common.updated] = result.result.n;
-          res.status(201).send(resObject);    
-        } 
-      });
+        dbclient.db(config.db_name).collection('job').updateOne(where, update, (err, result) => {
+          if (err) {
+            utools.handleServerException(err, config.user, dbclient, res);
+          } else {
+            let resObject = {};
+            resObject[messageBox.common.updated] = result.result.n;
+            res.status(201).send(resObject);    
+          } 
+        });
+      }
     }
     catch(e) {
       utools.handleServerException(e, config.user, dbclient, res);
@@ -106,8 +111,7 @@ module.exports = function(app, dbclient) {
   app.patch('/jobs/:id/steps/:stepId', (req, res) => {
     //updates step by stepId in job get by id
     try {
-      var step = req.body;
-      //utools.checkObject(step, models.stepSchema);           
+      var step = req.body;      
       step.modifiedOn = utools.getTimestamp();    
       step.modifiedBy = config.user;
       

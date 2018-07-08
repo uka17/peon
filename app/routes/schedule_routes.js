@@ -11,15 +11,17 @@ module.exports = function(app, dbclient) {
       const where = { '_id': new mongo.ObjectID(req.params.id) };
       dbclient.db(config.db_name).collection('job').aggregate([{$match: where}, {$project: {count: { $size: "$schedules"}}}]).toArray((err, result) => {
         if (err) {
-          utools.handleException({message: err}, 'error', config.user, dbclient, res);
+          utools.handleServerException(err, config.user, dbclient, res);
         } 
         else {        
-          res.status(200).json({count: result[0].count});
+          let resObject = {};
+          resObject[messageBox.common.count] = result[0].count;
+          res.status(200).send(resObject);    
         } 
       });
     }
     catch(e) {
-      utools.handleException(e, 'error', config.user, dbclient, res);
+      utools.handleServerException(e, config.user, dbclient, res);
     }
   });
   app.get('/jobs/:id/schedules', (req, res) => {
@@ -28,7 +30,7 @@ module.exports = function(app, dbclient) {
       const where = { '_id': new mongo.ObjectID(req.params.id) };
       dbclient.db(config.db_name).collection('job').findOne(where, (err, result) => {
         if (err) {
-          utools.handleException({message: err}, 'error', config.user, dbclient, res);
+          utools.handleServerException(err, config.user, dbclient, res);
         } 
         else {        
           res.status(200).send(result.schedules);
@@ -36,7 +38,7 @@ module.exports = function(app, dbclient) {
       });
     }
     catch(e) {
-      utools.handleException(e, 'error', config.user, dbclient, res);
+      utools.handleServerException(e, config.user, dbclient, res);
     }
   });
   app.get('/jobs/:id/schedules/:scheduleId', (req, res) => {    
@@ -45,14 +47,14 @@ module.exports = function(app, dbclient) {
       const where = { '_id': new mongo.ObjectID(req.params.id) };      
       dbclient.db(config.db_name).collection('job').findOne(where, (err, item) => {
         if (err) {
-          utools.handleException({message: err}, 'error', config.user, dbclient, res);
+          utools.handleServerException(err, config.user, dbclient, res);
         } 
         else {
           if(item !== null) {
             if(item.schedules !== undefined) {
               const schedule = item.schedules.find((ischedule) => {return ischedule._id.toString() === req.params.stepId});
               if(schedule === undefined)
-                utools.throwUserError(messageBox.schedule.noScheduleForJobIdAndScheduleId);                
+                utools.handleUserException(messageBox.schedule.noScheduleForJobIdAndScheduleId, 404, res);           
               else
                 res.status(200).send(schedule);
             }
@@ -60,109 +62,39 @@ module.exports = function(app, dbclient) {
               utools.handleUserException(messageBox.schedule.noScheduleForJob, 404, res);  
           }
           else
-            res.status(404).send({error: messageBox.job.jobNotFound});
+            utools.handleUserException(messageBox.job.jobNotFound, 404, res);  
         } 
       });
     }
     catch(e) {
-      if(e.name === 'userError')
-        res.status(500).send({error: e.message});
-      else
-        utools.log(e.message, 'error', config.user, dbclient, res);
+      utools.handleServerException(e, config.user, dbclient, res);
     }
   });
   app.post('/jobs/:id/schedules', (req, res) => {
     //create new schedule for a job
     try {
-      const step = req.body;
-      if(!(typeof step.name === "string") && step.name !== undefined)
-        utools.addUserError("Parameter 'name' should be a string");
-      if(!(typeof step.command === "string") && step.name !== undefined)
-        utools.addUserError("Parameter 'command' should be a string");        
-      if(!(typeof step.enabled === "boolean") && step.name !== undefined)
-        utools.addUserError("Parameter 'enabled' should be a boolean");            
-      step.createdOn = utools.getTimestamp();     
-      step.createdBy = config.user;       
-      step.modifiedOn = utools.getTimestamp();    
-      step.modifiedBy = config.user;
-      step._id = new mongo.ObjectID();
-
-      const where = { '_id': new mongo.ObjectID(req.params.id) };
-      const update = { $addToSet: {steps: step}};
-
-      utools.checkUserErrorList();
-      dbclient.db(config.db_name).collection('job').updateOne(where, update, (err, result) => {
-        if (err) {
-          utools.log(err, 'error', config.user, dbclient, res);
-        } else {
-          res.status(201).json({itemsUpdated: result.result.n})
-        } 
-      });
+      
     }
     catch(e) {
-      if(e.name === 'userError')
-        res.status(500).send({error: e.message});
-      else
-        utools.log(e.message, 'error',  config.user, dbclient, res);
+      
     }
   });
-  app.patch('/jobs/:id/steps/:stepId', (req, res) => {
-    //updates step by stepId in job get by id
+  app.patch('/jobs/:id/schedules/:scheduleId', (req, res) => {
+    //updates schedule by jobId and scheduleId
     try {
-      var step = req.body;
-      if(!(typeof step.name === "string") && step.name !== undefined)
-        utools.addUserError("Parameter 'name' should be a string");
-      if(!(typeof step.command === "string") && step.command !== undefined)
-        utools.addUserError("Parameter 'command' should be a string");        
-      if(!(typeof step.enabled === "boolean") && step.enabled !== undefined)
-        utools.addUserError("Parameter 'enabled' should be a boolean");            
-      step.modifiedOn = utools.getTimestamp();    
-      step.modifiedBy = config.user;
       
-      //Rename all properties like: name => steps.$.name
-      for (var property in step) {
-        step = utools.renameProperty(step, property, 'steps.$.' +  property);
-      };
-      
-      //Find step inside the job
-      const where = { '_id': new mongo.ObjectID(req.params.id), 'steps._id':  new mongo.ObjectID(req.params.stepId)};      
-      const update = { $set: step};
-
-      utools.checkUserErrorList();
-      dbclient.db(config.db_name).collection('job').updateOne(where, update, (err, result) => {
-        if (err) {
-          utools.log(err, 'error', config.user, dbclient, res);
-        } else {
-          res.status(200).send({itemsUpdated: result.result.n})
-        } 
-      });
     }
     catch(e) {
-      if(e.name === 'userError')
-        res.status(500).send({error: e.message});
-      else
-        utools.log(e.message, 'error', config.user, dbclient, res);
+
     }
   });
-  app.delete('/jobs/:id/steps/:stepId', (req, res) => {
-    //delete job by _id
+  app.delete('/jobs/:id/schedules/:scheduleId', (req, res) => {
+    //delete schedule by jobId and scheduleId
     try {
-      const where = { '_id': new mongo.ObjectID(req.params.id) };
-      const update = { $pull: {'steps': {'_id': new mongo.ObjectID(req.params.stepId)}}};
 
-      dbclient.db(config.db_name).collection('job').updateOne(where, update, (err, result) => {
-        if (err) {
-          utools.log(err, 'error', config.user, dbclient, res);
-        } else {
-          res.status(200).send({itemsDeleted: result.result.n})
-        } 
-      });
     }
     catch(e) {
-      if(e.name === 'userError')
-        res.status(500).send({error: e.message});
-      else
-        utools.log(e.message, 'error', config.user, dbclient, res);
+
     }
   });  
 };

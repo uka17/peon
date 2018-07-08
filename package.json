@@ -21,7 +21,8 @@
     "ajv": "^6.5.0",
     "body-parser": "^1.18.2",
     "express": "^4.16.2",
-    "mongodb": "^3.0.1"
+    "mongodb": "^3.0.1",
+    "utils-error-to-json": "^1.0.0"
   },
   "devDependencies": {
     "chai": "^4.1.2",
