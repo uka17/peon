@@ -4,6 +4,7 @@ var utools = require('../tools/utools');
 var models = require('../models/app_models');
 var messageBox = require('../../config/message_labels');
 const config = require('../../config/config');
+var validation = require('../tools/validation');
 
 module.exports = function(app, dbclient) {
   app.get('/jobs/:id/steps/count', (req, res) => {
@@ -79,7 +80,8 @@ module.exports = function(app, dbclient) {
     //create new step for a job
     try {
       const step = req.body;
-      let validationResult = utools.validateObject(step, models.stepSchema, res);
+      models.stepSchema['required'] = models.stepSchemaRequired; 
+      let validationResult = validation.validateObject(step, models.stepSchema);
       if(!validationResult.isValid) {
         res.status(400).send({requestValidationErrors: validationResult.errors});
       }
@@ -87,7 +89,7 @@ module.exports = function(app, dbclient) {
         step.createdOn = utools.getTimestamp();     
         step.createdBy = config.user;       
         step.modifiedOn = utools.getTimestamp();    
-        step.modifiedBy =config.user;
+        step.modifiedBy = config.user;
         step._id = new mongo.ObjectID();
 
         const where = { '_id': new mongo.ObjectID(req.params.id) };

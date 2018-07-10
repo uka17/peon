@@ -1,24 +1,13 @@
 var userErrorList = new Array();
 const MongoClient = require('mongodb').MongoClient;
-var Ajv = require('ajv');
 const config = require('../../config/config');
 const messageBox = require('../../config/message_labels');
 var toJSON = require( 'utils-error-to-json' );
 //#region Error handling
-module.exports.validateObject = (object, schema) => {
-    var ajv = new Ajv();
-    var validate = ajv.compile(schema);
-    var valid = validate(object);
-    if (!valid) {
-        return {isValid: false, errors: ajv.errorsText(validate.errors)};
-    }
-    else
-        return {isValid: true};
-}
-
 //Handle server error - log error and return response with HTTP 500 and logID
 module.exports.handleServerException = function(e, createdBy, dbclient, res) {
     if(config.debugMode) {
+        console.log(toJSON(e));
         res.status(500).send(toJSON(e));
     }
     else {

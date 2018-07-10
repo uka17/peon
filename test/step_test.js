@@ -7,6 +7,17 @@ var jobId;
 var stepId;
 var fakeId = new mongo.ObjectID('0a9296f2496698264c23e180');
 
+var testStep = {
+    name: 'step',
+    enabled: true,      
+    connection: {},
+    database: 'database',
+    command: 'command',
+    retryAttempts: {number: 1, interval: 5},
+    onSucceed: 'quitWithFailure',
+    onFailure: 'quitWithFailure'
+};
+
 describe('step', function() {
     it('create job. Success', function(done) {
         request.post({
@@ -157,9 +168,7 @@ describe('step', function() {
     it('create step. Success', function(done) {
         request.post({
             url: config.test_host + '/jobs/' + jobId + '/steps',  
-            json: {"name": "step_name", "connection": {}, "enabled": true, "database": "step_db", "command": "step_command",
-                "onSucceed": {"gotoStep": 2}
-            }
+            json: testStep
         }, 
         function(error, response, body) {
             assert.equal(response.statusCode, 201);
@@ -188,7 +197,7 @@ describe('step', function() {
         function(error, response, body) {
             assert.equal(response.statusCode, 200);
             assert.equal(body.length, 1);
-            assert.equal(body[0].name, 'step_name');
+            assert.equal(body[0].name, testStep.name);
             stepId = body[0]._id;
             done();
         });
@@ -201,11 +210,11 @@ describe('step', function() {
         }, 
         function(error, response, body) {
             assert.equal(response.statusCode, 200);
-            assert.equal(body.name, 'step_name');
+            assert.equal(body.name, testStep.name);
             assert.deepEqual(body.connection, {});
             assert.equal(body.enabled, true);
-            assert.equal(body.database, 'step_db');
-            assert.equal(body.command, 'step_command');
+            assert.equal(body.database, testStep.database);
+            assert.equal(body.command, testStep.command);
             stepId = body._id;
             done();
         });

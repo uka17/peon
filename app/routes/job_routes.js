@@ -1,6 +1,7 @@
 // routes/job_routes.js
 var mongo = require('mongodb');
 var utools = require('../tools/utools');
+var validation = require('../tools/validation');
 var models = require('../models/app_models');
 const config = require('../../config/config');
 const messageBox = require('../../config/message_labels');
@@ -59,9 +60,8 @@ module.exports = function(app, dbclient) {
     //create new job
     try {
       const job = req.body;
-      //job body validation
-      models.jobSchema['required'] = models.jobSchemaRequired; 
-      let jobValidationResult = utools.validateObject(job, models.jobSchema);
+      //job body validationc
+      let jobValidationResult = validation.validateJob(job);
       if(!jobValidationResult.isValid) {
         res.status(400).send({requestValidationErrors: jobValidationResult.errors});
       }
