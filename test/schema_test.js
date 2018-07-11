@@ -5,60 +5,17 @@ var Ajv = require('ajv');
 var messageBox = require('../config/message_labels.js');
 var schema = require('../app/models/app_models.js');
 const config = require('../config/config.js');
+var testData = require('./test_data');
 //var fakeId = new mongo.ObjectID('0a9296f2496698264c23e180');
 
-//job test data preparation
-var testJob = {
-    name: 'job',
-    description: 'job description',
-    enabled: true,
-    steps: []  
-};
-//---
-//step test data preparation
-var testStep = {
-    name: 'step',
-    enabled: true,      
-    connection: {},
-    database: 'database',
-    command: 'command',
-    retryAttempts: {number: 1, interval: 5},
-    onSucceed: 'quitWithFailure',
-    onFailure: 'quitWithFailure'
-};
-//---
-//schedule test data preparation
-var oneTimeSchedule = {
-    name: 'oneTime',
-    enabled: true,
-    oneTime: '2018-05-31T20:54:23.071Z'
-};
-var dailyScheduleOnce = {
-    name: 'dailyOnce',
-    enabled: true,
-    eachNDay: 1,
-    dailyFrequency: { occursOnceAt: '11:11:11'}
-};
-var dailyScheduleEvery = {
-    name: 'dailyEvery',
-    enabled: true,
-    eachNDay: 1,
-    dailyFrequency: { start: '11:11:11', occursEvery: {intervalValue: 1, intervalType: 'minute'}}
-};
-var weeklySchedule = {
-    name: 'weekly',
-    enabled: true,
-    eachNWeek: 1,
-    dayOfWeek: ['mon', 'wed', 'fri'],
-    dailyFrequency: { occursOnceAt: '11:11:11'}
-};
-var monthlySchedule = {
-    name: 'monthly',
-    enabled: true,
-    month: ['jan', 'jul'],
-    day: 1,
-    dailyFrequency: { start: '11:11:11', occursEvery: {intervalValue: 1, intervalType: 'minute'}}
-};
+//test data preparation
+var testJob = testData.job;
+var testStep = testData.step;
+var oneTimeSchedule = testData.oneTimeSchedule;
+var dailyScheduleOnce = testData.dailyScheduleOnce;
+var dailyScheduleEvery = testData.dailyScheduleEvery;
+var weeklySchedule = testData.weeklySchedule;
+var monthlySchedule = testData.monthlySchedule;
 //---
 
 function DataVsSchemaResult(testData, schema, extraSchema) {

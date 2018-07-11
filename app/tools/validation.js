@@ -35,11 +35,28 @@ module.exports.validateJob = (job) => {
  * @param {object[]} stepList List of steps for validation
  */
 module.exports.validateStepList = (stepList) => {
-    models.stepSchema['required'] = models.stepSchemaRequired; 
-    for(i = 0; i < stepList.length; i++) {
-        let validationResult = validateObject(element, models.stepSchema);
-        if(!validationResult.isValid) 
-            return validationResult;
+    if(stepList) {
+        models.stepSchema['required'] = models.stepSchemaRequired; 
+        for(i = 0; i < stepList.length; i++) {
+            let validationResult = validateObject(element, models.stepSchema);
+            if(!validationResult.isValid) 
+                return validationResult;
+        }
     }
     return {isValid: true};
 }
+/**
+ * Validation of schedule. Returns {isValid: boolean, errorList: error[]} or {isValid: boolean}
+ * @param {object[]} scheduleList List of schedules for validation
+ */
+module.exports.validateScheduleList = (scheduleList) => {
+    if(scheduleList) {
+        for(i = 0; i < scheduleList.length; i++) {
+            let validationResult = validateObject(element, models.scheduleSchema);
+            if(!validationResult.isValid) 
+                return validationResult;
+        }
+    }
+    return {isValid: true};
+}
+

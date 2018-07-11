@@ -1,4 +1,3 @@
-var userErrorList = new Array();
 const MongoClient = require('mongodb').MongoClient;
 const config = require('../../config/config');
 const messageBox = require('../../config/message_labels');
@@ -7,7 +6,7 @@ var toJSON = require( 'utils-error-to-json' );
 //Handle server error - log error and return response with HTTP 500 and logID
 module.exports.handleServerException = function(e, createdBy, dbclient, res) {
     if(config.debugMode) {
-        console.log(toJSON(e));
+        console.log(e);
         res.status(500).send(toJSON(e));
     }
     else {

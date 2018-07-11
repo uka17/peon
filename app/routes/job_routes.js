@@ -61,10 +61,29 @@ module.exports = function(app, dbclient) {
     try {
       const job = req.body;
       //job body validationc
-      let jobValidationResult = validation.validateJob(job);
-      if(!jobValidationResult.isValid) {
-        res.status(400).send({requestValidationErrors: jobValidationResult.errors});
+      let validationSequence = ['job', 'steps', 'schedules', 'notifications'];
+      let jobValidationResult;
+      for(i=0; i < validationSequence.length; i++) {        
+        switch(validationSequence[i]) {
+          case 'job':
+            jobValidationResult = validation.validateJob(job);     
+            break;
+          case 'steps':
+            jobValidationResult = validation.validateStepList(job.steps)
+            break;
+          case 'schedules':
+            jobValidationResult = validation.validateScheduleList(job.schedules)
+            break;
+          case 'notifications':
+            //jobValidationResult = validation.validateStepList(job.steps)
+            break;            
+        }
+        if(!jobValidationResult.isValid)
+          break;
       }
+
+      if(!jobValidationResult.isValid)
+        res.status(400).send({requestValidationErrors: jobValidationResult.errors});
       else {
         job.createdOn = utools.getTimestamp();     
         job.createdBy = config.user;       

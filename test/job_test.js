@@ -3,6 +3,7 @@ var request = require('request');
 const config = require('../config/config');
 var messageBox = require('../config/message_labels');
 var id;
+var testData = require('./test_data');
 
 describe('job', function() {
     describe('create', function() {
