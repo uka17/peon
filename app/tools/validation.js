@@ -11,8 +11,10 @@ var Ajv = require('ajv');
  * @param {object} object Object for validation
  * @param {json} schema Schema for object validation
  */
-function validateObject(object, schema) {
+function validateObject(object, schema, extraSchemaList) {
     var ajv = new Ajv();
+    if(extraSchemaList)
+        extraSchemaList.forEach(function(e) { ajv.addSchema(e) }); 
     var validate = ajv.compile(schema);
     var valid = validate(object);
     if (!valid) {
@@ -38,7 +40,7 @@ module.exports.validateStepList = (stepList) => {
     if(stepList) {
         models.stepSchema['required'] = models.stepSchemaRequired; 
         for(i = 0; i < stepList.length; i++) {
-            let validationResult = validateObject(element, models.stepSchema);
+            let validationResult = validateObject(stepList[i], models.stepSchema);
             if(!validationResult.isValid) 
                 return validationResult;
         }
@@ -51,8 +53,8 @@ module.exports.validateStepList = (stepList) => {
  */
 module.exports.validateScheduleList = (scheduleList) => {
     if(scheduleList) {
-        for(i = 0; i < scheduleList.length; i++) {
-            let validationResult = validateObject(element, models.scheduleSchema);
+        for(let i = 0; i < scheduleList.length; i++) {
+            let validationResult = validateObject(scheduleList[i], models.scheduleSchema, [models.scheduleSchemaDaily]);
             if(!validationResult.isValid) 
                 return validationResult;
         }

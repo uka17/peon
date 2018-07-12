@@ -142,4 +142,25 @@ describe('job', function() {
             });
         });
     });
+    
+    describe('cases for success job creation with test_data.js', function() {
+        var testJobIdList = [];
+        testData.jobTestCaseOK.forEach(element => {
+            it(element.name, function(done) {  
+                request.post({
+                    url: config.test_host + '/jobs',  
+                    json: element
+                }, 
+                function(error, response, body) {
+                    assert.equal(response.statusCode, 201);
+                    assert.equal(body.name, element.name);
+                    assert.equal(body.description, element.description);
+                    assert.equal(body.enabled, element.enabled);
+                    assert.exists(body._id);
+                    testJobIdList.push(body._id);
+                    done();
+                });
+            }); 
+        });             
+    });
 }); 

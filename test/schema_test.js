@@ -18,11 +18,11 @@ var weeklySchedule = testData.weeklySchedule;
 var monthlySchedule = testData.monthlySchedule;
 //---
 
-function DataVsSchemaResult(testData, schema, extraSchema) {
+function DataVsSchemaResult(testData, schema, extraSchemaList) {
     //TODO: to be optimized with removeSchema(/.*/)
     var ajv = new Ajv();
-    if(extraSchema)
-        extraSchema.forEach(function(e) { ajv.addSchema(e) }); 
+    if(extraSchemaList)
+        extraSchemaList.forEach(function(e) { ajv.addSchema(e) }); 
     let validate = ajv.compile(schema);
     return validate(testData);
 }
