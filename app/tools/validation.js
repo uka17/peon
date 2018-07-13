@@ -7,9 +7,10 @@ const messageBox = require('../../config/message_labels');
 var Ajv = require('ajv');
 
 /**
- * Validation of object accordingly schema. Returns {isValid: boolean, errorList: error[]} or {isValid: boolean} 
+ * Validation of object accordingly schema. Returns validation anyway and validation error list in case of error 
  * @param {object} object Object for validation
- * @param {json} schema Schema for object validation
+ * @param {string} schema JSON schema for object validation
+ * @returns {{isValid: boolean, errorList: string[]}|{isValid: boolean}}
  */
 function validateObject(object, schema, extraSchemaList) {
     var ajv = new Ajv();
@@ -25,16 +26,19 @@ function validateObject(object, schema, extraSchemaList) {
 }
 module.exports.validateObject = validateObject;
 /**
- * Validation of job. Returns {isValid: boolean, errorList: error[]} or {isValid: boolean} 
+ * Validation of job. Returns validation result anyway and validation error list in case of error 
  * @param {object} job List of steps for validation
+ * @returns {{isValid: boolean, errorList: string[]}|{isValid: boolean}}
  */
 module.exports.validateJob = (job) => {
     models.jobSchema['required'] = models.jobSchemaRequired; 
     return validateObject(job, models.jobSchema);
 }
 /**
- * Validation of step. Returns {isValid: boolean, errorList: error[]} or {isValid: boolean} 
+ * Validation of step list. Returns validation result anyway and validation error list in case of error. 
+ * Checks all items. Result is valid only in case is all list is valid 
  * @param {object[]} stepList List of steps for validation
+ * @returns {{isValid: boolean, errorList: string[]}|{isValid: boolean}}
  */
 module.exports.validateStepList = (stepList) => {
     if(stepList) {
@@ -47,10 +51,11 @@ module.exports.validateStepList = (stepList) => {
     }
     return {isValid: true};
 }
-/**
- * Validation of schedule. Returns {isValid: boolean, errorList: error[]} or {isValid: boolean}
- * @param {object[]} scheduleList List of schedules for validation
- */
+/** Validation of schedule list. Returns validation result anyway and validation error list in case of error 
+* Checks all items. Result is valid only in case is all list is valid
+* @param {object[]} scheduleList List of schedules for validation
+* @returns {{isValid: boolean, errorList: string[]}|{isValid: boolean}}
+*/
 module.exports.validateScheduleList = (scheduleList) => {
     if(scheduleList) {
         for(let i = 0; i < scheduleList.length; i++) {

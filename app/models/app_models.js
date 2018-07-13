@@ -1,9 +1,10 @@
 //models/app_models.js
 /*
-Purpose of this schema validator is to check if input from API side (client side): 
+Objective of this schemas  is to check if input from API side (client side): 
 - contains all needed fields
-- fields have correct data format
+- fields have correct data formats
 - input do not contains extra fields
+- constrains for data (e.g. 24 hours 60 minutes)
 It is not relating to DB schema validation anyhow
 */
 var Ajv = require('ajv');

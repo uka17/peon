@@ -3,7 +3,14 @@ const config = require('../../config/config');
 const messageBox = require('../../config/message_labels');
 var toJSON = require( 'utils-error-to-json' );
 //#region Error handling
-//Handle server error - log error and return response with HTTP 500 and logID
+/**
+ * Server error handler. Shows error in console, returns error in response in case if global debug flag is TRUE else
+ * puts log in DB and returns Id of log to user 
+ * @param {object} e Exception to be handled     
+ * @param {string} createdBy Under whose credentials app thrown this exception
+ * @param {object} dbclient DB connections instance
+ * @param {object} res Response handler
+ */
 module.exports.handleServerException = function(e, createdBy, dbclient, res) {
     if(config.debugMode) {
         console.log(e);
@@ -31,17 +38,30 @@ module.exports.handleServerException = function(e, createdBy, dbclient, res) {
             );    
     }
 }
-//Handle error user error - return in to user.
+/**
+ * Shows user error with proper HTTP response code
+ * @param {string} message Error message
+ * @param {number} errorCode HTTP response code
+ * @param {object} res Response handler 
+ */
 module.exports.handleUserException = function(message, errorCode, res) {
     res.status(errorCode).send({error: message});
 }
 //#endregion
-//returns current date-time
+/**
+ * Return date-time in a proper format
+ * @returns {datetime} Date-time
+ */
 var getTimestamp = () => { 
     return new Date();
 }
 module.exports.getTimestamp = getTimestamp;
-//rename object property
+/**
+ * Renames all properties in object which are equal to oldName
+ * @param {object} obj Object to be modified
+ * @param {string} oldName Name of property to be renamed
+ * @param {string} newName New name for property
+ */
 module.exports.renameProperty = function (obj, oldName, newName) {
     if (obj.hasOwnProperty(oldName)) {
         obj[newName] = obj[oldName];
