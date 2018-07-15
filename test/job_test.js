@@ -7,17 +7,6 @@ var testData = require('./test_data');
 
 describe('job', function() {
     describe('create', function() {
-        it('incorrect "name"', function(done) {
-            request.post({
-                url: config.test_host + '/jobs',  
-                json: {"name": true, "description": "job description", "enabled": true}
-            }, 
-            function(error, response, body) {
-                assert.equal(response.statusCode, 400);
-                done();
-            });
-        });
-
         it('incorrect "description"', function(done) {
             request.post({
                 url: config.test_host + '/jobs',  
@@ -27,7 +16,18 @@ describe('job', function() {
                 assert.equal(response.statusCode, 400);
                 done();
             });
-        });
+        }).timeout(5000);
+
+        it('incorrect "name"', function(done) {
+            request.post({
+                url: config.test_host + '/jobs',  
+                json: {"name": true, "description": "job description", "enabled": true}
+            }, 
+            function(error, response, body) {
+                assert.equal(response.statusCode, 400);
+                done();
+            });
+        }).timeout(5000);
 
         it('incorrect "enabled"', function(done) {
             request.post({
@@ -144,6 +144,7 @@ describe('job', function() {
     });
     
     describe('cases for success job creation with test_data.js', function() {
+        //TODO Kill all jobs in testJobIdList
         var testJobIdList = [];
         testData.jobTestCaseOK.forEach(element => {
             it(element.name, function(done) {  
@@ -161,6 +162,6 @@ describe('job', function() {
                     done();
                 });
             }); 
-        });             
+        });                 
     });
 }); 
