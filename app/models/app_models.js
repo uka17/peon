@@ -31,7 +31,7 @@ module.exports.stepSchema = {
   properties: {
     name: {type: 'string'},
     enabled: {type: 'boolean'},      
-    connection: {type: 'object'},
+    connection: {type: 'string'},
     database: {type: 'string'},
     command: {type: 'string'},    
     onSucceed: {oneOf: [
@@ -51,8 +51,23 @@ module.exports.stepSchema = {
   },
   additionalProperties: false
 };
-
 module.exports.stepSchemaRequired = ['name', 'connection', 'database', 'command', 'onSucceed', 'onFailure', 'retryAttempts']
+
+module.exports.connectionSchema = {
+  $id: 'http://example.com/connection',
+  type: "object",
+  properties: {
+    name: {type: 'string'},
+    host: {type: 'string'},
+    port: {type: 'integer', minimum: 0, maximum: 65536},
+    enabled: {type: 'boolean'},      
+    login: {type: 'string'},
+    password: {type: 'string'},
+    type: { enum: ['mongodb', 'postgresql'] } 
+  },
+  additionalProperties: false
+}
+module.exports.connectionSchemaRequired = ['name', 'host', 'enabled', 'login', 'password', 'type'];
 
 module.exports.scheduleSchema = {
   $id: 'http://example.com/schedule',

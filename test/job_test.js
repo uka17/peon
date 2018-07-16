@@ -151,7 +151,7 @@ describe('job', function() {
                 request.post({
                     url: config.test_host + '/jobs',  
                     json: element
-                }, 
+                },                 
                 function(error, response, body) {
                     assert.equal(response.statusCode, 201);
                     assert.equal(body.name, element.name);
