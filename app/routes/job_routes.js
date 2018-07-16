@@ -18,7 +18,6 @@ module.exports = function(app, dbclient) {
           let resObject = {};
           resObject[messageBox.common.count] = count;
           res.status(200).send(resObject);
-          validation.
         } 
       });
     }
