@@ -61,7 +61,6 @@ module.exports = function(app, dbclient) {
     //create new job
     try {
       const job = req.body;
-      //job body validationc
       let validationSequence = ['job', 'steps', 'schedules', 'notifications'];
       let jobValidationResult;
       for(i=0; i < validationSequence.length; i++) {        
@@ -76,6 +75,7 @@ module.exports = function(app, dbclient) {
             jobValidationResult = validation.validateScheduleList(job.schedules)
             break;
           case 'notifications':
+            //TODO validation for notification
             //jobValidationResult = validation.validateStepList(job.steps)
             break;            
         }
@@ -84,7 +84,7 @@ module.exports = function(app, dbclient) {
       }
 
       if(!jobValidationResult.isValid)
-        res.status(400).send({requestValidationErrors: jobValidationResult.errors});
+        res.status(400).send({requestValidationErrors: jobValidationResult.errorList});
       else {
         job.createdOn = utools.getTimestamp();     
         job.createdBy = config.user;       

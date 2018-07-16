@@ -109,7 +109,7 @@ module.exports.step = {
 module.exports.oneTimeSchedule = {
     name: 'oneTime',
     enabled: true,
-    oneTime: '2018-05-31T20:54:23.071Z'
+    oneTime: '2018-01-31T20:54:23.071Z'
 };
 module.exports.dailyScheduleOnce = {
     name: 'dailyOnce',
@@ -137,3 +137,9 @@ module.exports.monthlySchedule = {
     day: 1,
     dailyFrequency: { start: '11:11:11', occursEvery: {intervalValue: 1, intervalType: 'minute'}}
 };
+//utils validation test data
+module.exports.validTime = '11:11:11';
+module.exports.invalidTimes = ['aa:11:11', '24:11:11', '11:60:11', '11:77:aa', '25:aa:64', 'aaaa']
+
+module.exports.validDateTime = '2015-03-25T12:00:00Z';
+module.exports.invalidDateTimes = ['2015-aa-25T12:00:00Z', '2015-13-25T12:00:00Z', '2015-03-32T12:00:00Z', '2015032512:00:00Z', 'aaa']
