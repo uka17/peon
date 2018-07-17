@@ -33,4 +33,18 @@ describe('validation', function() {
             });   
         });        
     });    
+
+    describe('validateConnection', function() {
+        it('OK (' + testData.connectionOK.name + ')', function(done) {        
+            assert.equal(validation.validateConnection(testData.connectionOK).isValid, true);        
+            done();
+        });  
+        
+        testData.connectionNOK.forEach(element => {            
+            it('NOK (' + element.name + ')', function(done) {      
+                assert.equal(validation.validateConnection(element).isValid, false);            
+                done();
+            });   
+        });        
+    });       
 });    

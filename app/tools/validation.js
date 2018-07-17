@@ -27,12 +27,22 @@ function validateObject(object, schema, extraSchemaList) {
 module.exports.validateObject = validateObject;
 /**
  * Validation of job. Returns validation result anyway and validation error list in case of error 
- * @param {object} job List of steps for validation
+ * @param {object} job Job object for validation
  * @returns {{isValid: boolean, errorList: string[]}|{isValid: boolean}} Result of validation and (in case of failure) error list
  */
 module.exports.validateJob = (job) => {
     models.jobSchema['required'] = models.jobSchemaRequired; 
     return validateObject(job, models.jobSchema);
+}
+
+/**
+ * Validation of connection. Returns validation result anyway and validation error list in case of error 
+ * @param {object} connection Connection object for validation
+ * @returns {{isValid: boolean, errorList: string[]}|{isValid: boolean}} Result of validation and (in case of failure) error list
+ */
+module.exports.validateConnection = (connection) => {
+    models.connectionSchema['required'] = models.connectionSchemaRequired; 
+    return validateObject(connection, models.connectionSchema);
 }
 /**
  * Validation of step list. Returns validation result anyway and validation error list in case of error. 
