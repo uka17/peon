@@ -10,7 +10,7 @@ module.exports = function(app, dbclient) {
   app.get('/jobs/count', (req, res) => {
     //get jobs count
     try {
-      dbclient.db(config.db_name).collection('job').count(req.body, function(err, count) {
+      dbclient.db(config.db_name).collection('job').countDocuments(req.body, function(err, count) {
         if (err) {        
           utools.handleServerException(err, config.user, dbclient, res);
         } 

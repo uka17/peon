@@ -11,7 +11,7 @@ app.use(function (req, res, next) {
   res.header("Content-Type",'application/json');
   next();
 });
-MongoClient.connect(config.mongodb_url, (err, dbclient) => {
+MongoClient.connect(config.mongodb_url, { useNewUrlParser: true }, (err, dbclient) => {
   if (err) return console.log(err)    
   const index = require('./app/routes/index');    
   index(app, dbclient);
