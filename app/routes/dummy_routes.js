@@ -10,7 +10,7 @@ var validation = require('../tools/validation');
 module.exports = function(app, dbclient) {
   app.get('/dummy', (req, res) => {
     //dummy
-    try {           
+    try {         
       res.status(200).send({result: validation.dateTimeIsValid('2015-aa-25T12:00:00Z')});
     }
     catch(e) {

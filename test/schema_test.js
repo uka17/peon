@@ -17,7 +17,13 @@ var dailyScheduleEvery = testData.dailyScheduleEvery;
 var weeklySchedule = testData.weeklySchedule;
 var monthlySchedule = testData.monthlySchedule;
 //---
-
+/**
+ * Returns result of object validation across one or several nested schemas
+ * @param {object} testData Object to be validated
+ * @param {object} schema Schema across which object should be validated
+ * @param {object[]=} extraSchemaList Any extra schema list which should be used for validation
+ * @returns {boolean} Result of object validation
+ */
 function DataVsSchemaResult(testData, schema, extraSchemaList) {
     //TODO: to be optimized with removeSchema(/.*/)
     var ajv = new Ajv();
@@ -26,6 +32,13 @@ function DataVsSchemaResult(testData, schema, extraSchemaList) {
     let validate = ajv.compile(schema);
     return validate(testData);
 }
+/**
+ * Returns result of object validation across one or several nested schemas
+ * @param {object} testData Object to be validated
+ * @param {object} schema Schema across which object should be validated
+ * @param {object[]=} extraSchemaList Any extra schema list which should be used for validation
+ * @returns {string} List of errors
+ */
 function DataVsSchemaErrors(testData, schema, extraSchema) {
     //TODO: to be optimized with removeSchema(/.*/)
     var ajv = new Ajv();

@@ -10,7 +10,7 @@ var Ajv = require('ajv');
  * Validation of object accordingly schema. Returns validation anyway and validation error list in case of error 
  * @param {object} object Object for validation
  * @param {string} schema JSON schema for object validation
- * @returns {{isValid: boolean, errorList: string[]}|{isValid: boolean}}
+ * @returns {{isValid: boolean, errorList: string[]}|{isValid: boolean}} Result of validation and (in case of failure) error list
  */
 function validateObject(object, schema, extraSchemaList) {
     var ajv = new Ajv();
@@ -28,7 +28,7 @@ module.exports.validateObject = validateObject;
 /**
  * Validation of job. Returns validation result anyway and validation error list in case of error 
  * @param {object} job List of steps for validation
- * @returns {{isValid: boolean, errorList: string[]}|{isValid: boolean}}
+ * @returns {{isValid: boolean, errorList: string[]}|{isValid: boolean}} Result of validation and (in case of failure) error list
  */
 module.exports.validateJob = (job) => {
     models.jobSchema['required'] = models.jobSchemaRequired; 
@@ -38,7 +38,7 @@ module.exports.validateJob = (job) => {
  * Validation of step list. Returns validation result anyway and validation error list in case of error. 
  * Checks all items. Result is valid only in case is all list is valid 
  * @param {object[]} stepList List of steps for validation
- * @returns {{isValid: boolean, errorList: string[]}|{isValid: boolean}}
+ * @returns {{isValid: boolean, errorList: string[]}|{isValid: boolean}} Result of validation and (in case of failure) error list
  */
 module.exports.validateStepList = (stepList) => {
     if(stepList) {
@@ -54,7 +54,7 @@ module.exports.validateStepList = (stepList) => {
 /** Validation of schedule list. Returns validation result anyway and validation error list in case of error 
 * Checks all items. Result is valid only in case is all list is valid
 * @param {object[]} scheduleList List of schedules for validation
-* @returns {{isValid: boolean, errorList: string[]}|{isValid: boolean}}
+* @returns {{isValid: boolean, errorList: string[]}|{isValid: boolean}} Result of validation and (in case of failure) error list
 */
 module.exports.validateScheduleList = (scheduleList) => {
     if(scheduleList) {
@@ -67,9 +67,9 @@ module.exports.validateScheduleList = (scheduleList) => {
     return {isValid: true};
 }
 /**
- * Validates time value. returns TRUE in case if parameter is correct time value
+ * Validates time value. Returns TRUE in case if parameter is correct time value
  * @param {string} time Time value to validate in format hh:mm:ss
- * @returns boolean
+ * @returns {boolean} Result of validation
  */
 module.exports.timeIsValid = (time) => {
     return /^([0-1][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$/.test(time);
@@ -79,6 +79,7 @@ module.exports.timeIsValid = (time) => {
  * Correct data-time value should be date and UTC time accordingly ISO Dates (Date-Time) format YYYY-MM-DDTHH:MM:SSZ
  * Example: 2015-03-25T12:00:00Z
  * @param {string} date Date-time value to validate 
+ * @returns {boolean} Result of validation
  */
 module.exports.dateTimeIsValid = (dateTime) => {
     //TODO bis sextus and 30-31
