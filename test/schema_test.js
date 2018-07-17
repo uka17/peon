@@ -157,7 +157,7 @@ describe('schema validation', function() {
             let nStep = JSON.parse(JSON.stringify(testStep));
             nStep.connection = 1;
             assert.equal(DataVsSchemaResult(nStep, schema.stepSchema), false);
-            assert.equal(DataVsSchemaErrors(nStep, schema.stepSchema), "data.connection should be object");            
+            assert.equal(DataVsSchemaErrors(nStep, schema.stepSchema), "data.connection should be string");            
             done();
         })      
         it('incorrect "database" type', function(done) {                            
@@ -309,6 +309,93 @@ describe('schema validation', function() {
             done();
         })             
     })
+    describe('connection', function() {
+        it('initial validation. type "mongodb". OK', function(done) {                            
+            let nConnection = JSON.parse(JSON.stringify(testData.connectionOK));
+            assert.equal(DataVsSchemaResult(nConnection, schema.connectionSchema), true);
+            done();
+        })
+        it('initial validation. type "postgresql". OK', function(done) {                            
+            let nConnection = JSON.parse(JSON.stringify(testData.connectionOK));
+            nConnection.type = 'postgresql';
+            assert.equal(DataVsSchemaResult(nConnection, schema.connectionSchema), true);
+            done();
+        })                
+        it('incorrect "name" type', function(done) {                            
+            let nConnection = JSON.parse(JSON.stringify(testData.connectionOK));
+            nConnection.name = true;
+            assert.equal(DataVsSchemaResult(nConnection, schema.connectionSchema), false);
+            assert.equal(DataVsSchemaErrors(nConnection, schema.connectionSchema), "data.name should be string");            
+            done();
+        })        
+        it('incorrect "host" type', function(done) {                            
+            let nConnection = JSON.parse(JSON.stringify(testData.connectionOK));
+            nConnection.host = true;
+            assert.equal(DataVsSchemaResult(nConnection, schema.connectionSchema), false);
+            assert.equal(DataVsSchemaErrors(nConnection, schema.connectionSchema), "data.host should be string");            
+            done();
+        })     
+        it('incorrect "port" type', function(done) {                            
+            let nConnection = JSON.parse(JSON.stringify(testData.connectionOK));
+            nConnection.port = true;
+            assert.equal(DataVsSchemaResult(nConnection, schema.connectionSchema), false);
+            assert.equal(DataVsSchemaErrors(nConnection, schema.connectionSchema), "data.port should be integer");            
+            done();
+        })     
+        it('incorrect minimal value for "port"', function(done) {                            
+            let nConnection = JSON.parse(JSON.stringify(testData.connectionOK));
+            nConnection.port = -1;
+            assert.equal(DataVsSchemaResult(nConnection, schema.connectionSchema), false);
+            assert.include(DataVsSchemaErrors(nConnection, schema.connectionSchema), "data.port should be >= 0");            
+            done();
+        })  
+        it('incorrect maximal value for "port"', function(done) {                            
+            let nConnection = JSON.parse(JSON.stringify(testData.connectionOK));
+            nConnection.port = 77777;
+            assert.equal(DataVsSchemaResult(nConnection, schema.connectionSchema), false);
+            assert.include(DataVsSchemaErrors(nConnection, schema.connectionSchema), "data.port should be <= 65536");            
+            done();
+        })          
+        it('incorrect "enabled" type', function(done) {                            
+            let nConnection = JSON.parse(JSON.stringify(testData.connectionOK));
+            nConnection.enabled = 'aaa';
+            assert.equal(DataVsSchemaResult(nConnection, schema.connectionSchema), false);
+            assert.equal(DataVsSchemaErrors(nConnection, schema.connectionSchema), "data.enabled should be boolean");            
+            done();
+        })     
+        it('incorrect "login" type', function(done) {                            
+            let nConnection = JSON.parse(JSON.stringify(testData.connectionOK));
+            nConnection.login = 777;
+            assert.equal(DataVsSchemaResult(nConnection, schema.connectionSchema), false);
+            assert.equal(DataVsSchemaErrors(nConnection, schema.connectionSchema), "data.login should be string");            
+            done();
+        })     
+        it('incorrect "password" type', function(done) {                            
+            let nConnection = JSON.parse(JSON.stringify(testData.connectionOK));
+            nConnection.password = true;
+            assert.equal(DataVsSchemaResult(nConnection, schema.connectionSchema), false);
+            assert.equal(DataVsSchemaErrors(nConnection, schema.connectionSchema), "data.password should be string");            
+            done();
+        })               
+        it('extra property', function(done) {                            
+            let nConnection = JSON.parse(JSON.stringify(testData.connectionOK));
+            nConnection.fuck = true;
+            assert.equal(DataVsSchemaResult(nConnection, schema.connectionSchema), false);
+            assert.equal(DataVsSchemaErrors(nConnection, schema.connectionSchema), "data should NOT have additional properties");                    
+            done();                        
+        })                                 
+        it('requiered properties not found', function(done) {             
+            schema.connectionSchema['required'] = schema.connectionSchemaRequired; 
+            schema.connectionSchema['required'].forEach(element => {
+                let nConnection = JSON.parse(JSON.stringify(testData.connectionOK));
+                delete nConnection[element];    
+                assert.equal(DataVsSchemaResult(nConnection, schema.connectionSchema), false);
+                assert.equal(DataVsSchemaErrors(nConnection, schema.connectionSchema), "data should have required property '" + element + "'");                            
+            });
+            done();
+        })             
+    })
+
     describe('schedule', function() {
         describe('oneTime', function() {
             it('initial validation. OK', function(done) {                            

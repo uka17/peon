@@ -1,3 +1,5 @@
+var mongo = require('mongodb');
+
 //job test data preparation
 module.exports.job = {
     name: 'job',
@@ -14,7 +16,7 @@ module.exports.jobTestCaseOK = [
         {
             name: 'step1',
             enabled: true,      
-            connection: {},
+            connection: new mongo.ObjectID('0a9296f2496698264c23e180'),
             database: 'database',
             command: 'command',
             retryAttempts: {number: 1, interval: 5},
@@ -24,7 +26,7 @@ module.exports.jobTestCaseOK = [
         {
             name: 'step2',
             enabled: true,      
-            connection: {},
+            connection: new mongo.ObjectID('0a9296f2496698264c23e180'),
             database: 'database',
             command: 'command',
             retryAttempts: {number: 1, interval: 5},
@@ -50,7 +52,7 @@ module.exports.jobTestCaseOK = [
         {
             name: 'step1',
             enabled: true,      
-            connection: {},
+            connection: new mongo.ObjectID('0a9296f2496698264c23e180'),
             database: 'database',
             command: 'command',
             retryAttempts: {number: 1, interval: 5},
@@ -98,13 +100,79 @@ module.exports.jobTestCaseOK = [
 module.exports.step = {
     name: 'step',
     enabled: true,      
-    connection: {},
+    connection: new mongo.ObjectID('0a9296f2496698264c23e180'),
     database: 'database',
     command: 'command',
     retryAttempts: {number: 1, interval: 5},
     onSucceed: 'quitWithFailure',
     onFailure: 'quitWithFailure'
 };
+//connection test data
+module.exports.connectionOK = {
+    name: 'test_connection',
+    host: '127.0.0.1',
+    port: 8080,
+    enabled: true,      
+    login: 'user',
+    password: 'password',
+    type: 'mongodb'
+};
+module.exports.connectionNOK = [
+    {
+        name: 'test_connection',
+        host: '127.0.0.1',
+        port: 8080,
+        enabled: true,      
+        login: 'user',
+        password: 'password',
+        type: 'mongodb'
+    },
+    {
+        name: true,
+        host: '127.0.0.1',
+        port: 8080,
+        enabled: true,      
+        login: 'user',
+        password: 'password',
+        type: 'mongodb'
+    },
+    {
+        name: 'test_connection',
+        host: 123,
+        port: 8080,
+        enabled: true,      
+        login: 'user',
+        password: 'password',
+        type: 'mongodb'
+    },
+    {
+        name: 'test_connection',
+        host: '127.0.0.1',
+        port: 8080,
+        enabled: 777,      
+        login: 'user',
+        password: 'password',
+        type: 'mongodb'
+    },
+    {
+        name: 'test_connection',
+        host: '127.0.0.1',
+        port: 8080,
+        enabled: true,      
+        login: 123,
+        password: 'password',
+        type: 'zzzz'
+    },       
+    {
+        name: 'test_connection',
+        host: '127.0.0.1',
+        port: 8080,
+        enabled: true,      
+        login: 'user',
+        password: 'password',
+        type: 'zzzz'
+    }                
+];
 //schedule test data preparation
 module.exports.oneTimeSchedule = {
     name: 'oneTime',
