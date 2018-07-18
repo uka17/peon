@@ -4,110 +4,28 @@ const config = require('../config/config');
 var messageBox = require('../config/message_labels');
 var id;
 var testData = require('./test_data');
+var testHelper = require('../app/tools/test_helper');
+var helper = new testHelper(testData.connectionOK);
 
 describe('connection', function() {
     describe('create', function() {
-        it('incorrect "name"', function(done) {
-            let nConnection = JSON.parse(JSON.stringify(testData.connectionOK));            
-            nConnection.name = true;
+        let url = config.test_host + '/connections';
+        helper.failedPostTest(url, 'name', 'string');
+        helper.failedPostTest(url, 'host', 'string');
+        helper.failedPostTest(url, 'port', 'integer');
+        helper.failedPostTest(url, 'host', 'string');
+        helper.failedPostTest(url, 'enabled', 'boolean');
+        helper.failedPostTest(url, 'login', 'string');
+        helper.failedPostTest(url, 'type', 'enum');
+             
+        it('OK', function(done) {       
             request.post({
                 url: config.test_host + '/connections',  
-                json: nConnection
-            }, 
-            function(error, response, body) {
-                assert.equal(response.statusCode, 400);
-                done();
-            });
-        });
-        it('incorrect "host"', function(done) {
-            let nConnection = JSON.parse(JSON.stringify(testData.connectionOK));            
-            nConnection.host = true;
-            request.post({
-                url: config.test_host + '/connections',  
-                json: nConnection
-            }, 
-            function(error, response, body) {
-                assert.equal(response.statusCode, 400);
-                done();
-            });
-        });
-        it('incorrect "port"', function(done) {
-            let nConnection = JSON.parse(JSON.stringify(testData.connectionOK));            
-            nConnection.port = true;
-            request.post({
-                url: config.test_host + '/connections',  
-                json: nConnection
-            }, 
-            function(error, response, body) {
-                assert.equal(response.statusCode, 400);
-                done();
-            });
-        });
-        it('incorrect "enabled"', function(done) {
-            let nConnection = JSON.parse(JSON.stringify(testData.connectionOK));            
-            nConnection.enabled = 'aaa';
-            request.post({
-                url: config.test_host + '/connections',  
-                json: nConnection
-            }, 
-            function(error, response, body) {
-                assert.equal(response.statusCode, 400);
-                done();
-            });
-        });
-        it('incorrect "login"', function(done) {
-            let nConnection = JSON.parse(JSON.stringify(testData.connectionOK));            
-            nConnection.login = true;
-            request.post({
-                url: config.test_host + '/connections',  
-                json: nConnection
-            }, 
-            function(error, response, body) {
-                assert.equal(response.statusCode, 400);
-                done();
-            });
-        });
-        it('incorrect "password"', function(done) {
-            let nConnection = JSON.parse(JSON.stringify(testData.connectionOK));            
-            nConnection.password = true;
-            request.post({
-                url: config.test_host + '/connections',  
-                json: nConnection
-            }, 
-            function(error, response, body) {
-                assert.equal(response.statusCode, 400);
-                done();
-            });
-        });             
-        it('incorrect "type"', function(done) {
-            let nConnection = JSON.parse(JSON.stringify(testData.connectionOK));            
-            nConnection.type = 'true';
-            request.post({
-                url: config.test_host + '/connections',  
-                json: nConnection
-            }, 
-            function(error, response, body) {
-                assert.equal(response.statusCode, 400);
-                done();
-            });
-        });                        
-
-
-        it('OK', function(done) {
-            let nConnection = JSON.parse(JSON.stringify(testData.connectionOK));            
-            request.post({
-                url: config.test_host + '/connections',  
-                json: nConnection
+                json: testData.connectionOK
             }, 
             function(error, response, body) {
                 assert.equal(response.statusCode, 201);
-                assert.equal(body.name, nConnection.name);
-                assert.equal(body.host, nConnection.host);
-                assert.equal(body.port, nConnection.port);
-                assert.equal(body.login, nConnection.login);
-                assert.equal(body.password, nConnection.password);
-                assert.equal(body.type, nConnection.type);
-                assert.equal(body.enabled, nConnection.enabled);
+                helper.compareObjects(body);
                 assert.exists(body._id);
                 id = body._id;
                 done();
@@ -115,10 +33,9 @@ describe('connection', function() {
         });
 
         it('create by id. error 405', function(done) {
-            let nConnection = JSON.parse(JSON.stringify(testData.connectionOK));
             request.post({
                 url: config.test_host + '/connections/' + id,  
-                json: nConnection
+                json: testData.connectionOK
             }, 
             function(error, response, body) {
                 assert.equal(response.statusCode, 405);
@@ -141,26 +58,17 @@ describe('connection', function() {
         });
         
         it('get. OK', function(done) {    
-            let nConnection = JSON.parse(JSON.stringify(testData.connectionOK));
             request.get({
                 url: config.test_host + '/connections/' + id, 
+                json: true
             },
             function(error, response, body) {
-                var parsedBody = JSON.parse(body);
-                assert.equal(response.statusCode, 200);
-                assert.equal(parsedBody.name, nConnection.name);
-                assert.equal(parsedBody.host, nConnection.host);
-                assert.equal(parsedBody.port, nConnection.port);
-                assert.equal(parsedBody.login, nConnection.login);
-                assert.equal(parsedBody.password, nConnection.password);
-                assert.equal(parsedBody.type, nConnection.type);
-                assert.equal(parsedBody.enabled, nConnection.enabled);
+                helper.compareObjects(body);
                 done();
             });
         });
 
-        it('count. OK', function(done) {
-            
+        it('count. OK', function(done) {            
             request.get({
                 url: config.test_host + '/connections/count',
                 json: true 
@@ -186,11 +94,11 @@ describe('connection', function() {
                 assert.equal(body[messageBox.common.updated], 1);
                 request.get({
                     url: config.test_host + '/connections/' + id, 
+                    json: true
                 },
                 function(error, response, body) {
                     assert.equal(response.statusCode, 200);
-                    var parsedBody = JSON.parse(body);
-                    assert.equal(parsedBody.name, 'new_name');
+                    assert.equal(body.name, 'new_name');
                     done();
                 });
             });
