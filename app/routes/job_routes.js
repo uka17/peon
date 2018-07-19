@@ -2,12 +2,12 @@
 var mongo = require('mongodb');
 var utools = require('../tools/utools');
 var validation = require('../tools/validation');
-var models = require('../models/app_models');
 const config = require('../../config/config');
 const messageBox = require('../../config/message_labels');
+var ver = '/v1.0';
 
 module.exports = function(app, dbclient) {
-  app.get('/jobs/count', (req, res) => {
+  app.get(ver + '/jobs/count', (req, res) => {
     //get jobs count
     try {
       dbclient.db(config.db_name).collection('job').countDocuments(req.body, function(err, count) {
@@ -25,7 +25,7 @@ module.exports = function(app, dbclient) {
       utools.handleServerException(e, config.user, dbclient, res);
     }
   });
-  app.get('/jobs', (req, res) => {
+  app.get(ver + '/jobs', (req, res) => {
     //get all jobs
     try {
       dbclient.db(config.db_name).collection('job').find(req.body).toArray(function(err, result) {
@@ -40,7 +40,7 @@ module.exports = function(app, dbclient) {
       utools.handleServerException(e, config.user, dbclient, res);
     }
   });
-  app.get('/jobs/:id', (req, res) => {    
+  app.get(ver + '/jobs/:id', (req, res) => {    
     //get job by id
     try {
       const where = { '_id': new mongo.ObjectID(req.params.id) };
@@ -56,7 +56,7 @@ module.exports = function(app, dbclient) {
       utools.handleServerException(e, config.user, dbclient, res);
     }
   });
-  app.post('/jobs', (req, res) => {
+  app.post(ver + '/jobs', (req, res) => {
     //create new job
     try {
       const job = req.body;
@@ -104,11 +104,11 @@ module.exports = function(app, dbclient) {
     }
   });
 
-  app.post('/jobs/:id', (req, res) => {
+  app.post(ver + '/jobs/:id', (req, res) => {
     res.sendStatus(405);
   });
   
-  app.patch('/jobs/:id', (req, res) => {
+  app.patch(ver + '/jobs/:id', (req, res) => {
     //update job by id
     try {
       var job = req.body;      
@@ -132,7 +132,7 @@ module.exports = function(app, dbclient) {
       utools.handleServerException(e, config.user, dbclient, res);
     }
   });
-  app.delete('/jobs/:id', (req, res) => {
+  app.delete(ver + '/jobs/:id', (req, res) => {
     //delete job by _id
     try {
       const where = { '_id': new mongo.ObjectID(req.params.id) };

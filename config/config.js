@@ -7,7 +7,7 @@ module.exports = {
     //mongodb_url: "mongodb://heroku:255320@ds255309.mlab.com:55309/heroku_wnpqsn45",    
     //Application
     port: process.env.PORT || 8080,
-    test_host: "http://localhost:8080",    
+    test_host: "http://localhost:8080/v1.0",    
     user: "test",
     debugMode: true
   };

@@ -2,12 +2,12 @@
 var mongo = require('mongodb');
 var utools = require('../tools/utools');
 var validation = require('../tools/validation');
-var models = require('../models/app_models');
 const config = require('../../config/config');
 const messageBox = require('../../config/message_labels');
+var ver = '/v1.0';
 
 module.exports = function(app, dbclient) {
-  app.get('/connections/count', (req, res) => {
+  app.get(ver + '/connections/count', (req, res) => {
     //get connections count
     try {
       dbclient.db(config.db_name).collection('connection').countDocuments(req.body, function(err, count) {
@@ -25,7 +25,7 @@ module.exports = function(app, dbclient) {
       utools.handleServerException(e, config.user, dbclient, res);
     }
   });
-  app.get('/connections', (req, res) => {
+  app.get(ver + '/connections', (req, res) => {
     //get all connections
     try {
       dbclient.db(config.db_name).collection('connection').find(req.body).toArray(function(err, result) {
@@ -40,7 +40,7 @@ module.exports = function(app, dbclient) {
       utools.handleServerException(e, config.user, dbclient, res);
     }
   });
-  app.get('/connections/:id', (req, res) => {    
+  app.get(ver + '/connections/:id', (req, res) => {    
     //get connection by id
     try {
       const where = { '_id': new mongo.ObjectID(req.params.id) };
@@ -56,7 +56,7 @@ module.exports = function(app, dbclient) {
       utools.handleServerException(e, config.user, dbclient, res);
     }
   });
-  app.post('/connections', (req, res) => {
+  app.post(ver + '/connections', (req, res) => {
     //create new connection
     try {
       const connection = req.body;
@@ -83,11 +83,11 @@ module.exports = function(app, dbclient) {
     }
   });
 
-  app.post('/connections/:id', (req, res) => {
+  app.post(ver + '/connections/:id', (req, res) => {
     res.sendStatus(405);
   });
   
-  app.patch('/connections/:id', (req, res) => {
+  app.patch(ver + '/connections/:id', (req, res) => {
     //update connection by id
     try {
       var connection = req.body;      
@@ -111,7 +111,7 @@ module.exports = function(app, dbclient) {
       utools.handleServerException(e, config.user, dbclient, res);
     }
   });
-  app.delete('/connections/:id', (req, res) => {
+  app.delete(ver + '/connections/:id', (req, res) => {
     //delete connection by _id
     try {
       const where = { '_id': new mongo.ObjectID(req.params.id) };

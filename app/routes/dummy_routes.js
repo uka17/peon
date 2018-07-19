@@ -17,4 +17,13 @@ module.exports = function(app, dbclient) {
       res.status(500).send({error: e.message});
     }
   });   
+  app.get('/', (req, res) => {
+    //index route
+    try {         
+      res.status(200).send({appDeployed: true});
+    }
+    catch(e) {
+      res.status(500).send({error: e.message});
+    }
+  });
 }

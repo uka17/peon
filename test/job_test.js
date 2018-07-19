@@ -4,6 +4,7 @@ const config = require('../config/config');
 var messageBox = require('../config/message_labels');
 var id;
 var testData = require('./test_data');
+var testHelper = require('../app/tools/test_helper');
 
 describe('job', function() {
     describe('create', function() {
@@ -144,24 +145,7 @@ describe('job', function() {
     });
     
     describe('cases for success job creation with test_data.js', function() {
-        //TODO Kill all jobs in testJobIdList
-        var testJobIdList = [];
-        testData.jobTestCaseOK.forEach(element => {
-            it(element.name, function(done) {  
-                request.post({
-                    url: config.test_host + '/jobs',  
-                    json: element
-                },                 
-                function(error, response, body) {
-                    assert.equal(response.statusCode, 201);
-                    assert.equal(body.name, element.name);
-                    assert.equal(body.description, element.description);
-                    assert.equal(body.enabled, element.enabled);
-                    assert.exists(body._id);
-                    testJobIdList.push(body._id);
-                    done();
-                });
-            }); 
-        });                 
+       var listHelper = new testHelper(testData.jobTestCaseOK);
+       listHelper.createFromList(config.test_host + '/jobs');
     });
 }); 
