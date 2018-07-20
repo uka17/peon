@@ -17,14 +17,19 @@ module.exports = function(app, dbclient) {
 };
 
 function execute() {
-  /*
-  request.get({
-    url: config.test_host + '/jobs/count', 
-    json: true
-  },
-  function(error, response, body) {
-      console.log(body);
+  let promis = new Promise((resolve, reject) => {
+    request.get({
+      url: config.test_host + '/jobs/count', 
+      json: true
+    },
+    function(error, response, body) {
+      if(body)  
+        resolve(body);
+      else
+        reject('Error');
+    });
   });
-  */
+  promis.then(resp => { console.log(resp)}, rej => { console.log(rej) })
 }
+
 var timerId = setInterval(execute, 1000);

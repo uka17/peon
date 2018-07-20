@@ -38,6 +38,7 @@ module.exports.jobTestCaseOK = [
         {
             name: 'weekly',
             enabled: true,
+            startDateTime: '2018-01-31T20:54:23.071Z',
             eachNWeek: 1,
             dayOfWeek: ['mon', 'wed', 'fri'],
             dailyFrequency: { occursOnceAt: '11:11:11'}
@@ -64,6 +65,7 @@ module.exports.jobTestCaseOK = [
         {
             name: 'weekly',
             enabled: true,
+            startDateTime: '2018-01-31T20:54:23.071Z',
             eachNWeek: 1,
             dayOfWeek: ['mon', 'wed', 'fri'],
             dailyFrequency: { occursOnceAt: '11:11:11'}
@@ -71,6 +73,7 @@ module.exports.jobTestCaseOK = [
         {
             name: 'dailyOnce',
             enabled: true,
+            startDateTime: '2018-01-31T20:54:23.071Z',
             eachNDay: 1,
             dailyFrequency: { occursOnceAt: '11:11:11'}
         }
@@ -89,6 +92,7 @@ module.exports.jobTestCaseOK = [
         {
             name: 'monthly',
             enabled: true,
+            startDateTime: '2018-01-31T20:54:23.071Z',
             month: ['jan', 'jul'],
             day: 1,
             dailyFrequency: { start: '11:11:11', occursEvery: {intervalValue: 1, intervalType: 'minute'}}
@@ -182,18 +186,21 @@ module.exports.oneTimeSchedule = {
 module.exports.dailyScheduleOnce = {
     name: 'dailyOnce',
     enabled: true,
+    startDateTime: '2018-01-31T20:54:23.071Z',
     eachNDay: 1,
     dailyFrequency: { occursOnceAt: '11:11:11'}
 };
 module.exports.dailyScheduleEvery = {
     name: 'dailyEvery',
     enabled: true,
+    startDateTime: '2018-01-31T20:54:23.071Z',
     eachNDay: 1,
     dailyFrequency: { start: '11:11:11', occursEvery: {intervalValue: 1, intervalType: 'minute'}}
 };
 module.exports.weeklySchedule = {
     name: 'weekly',
     enabled: true,
+    startDateTime: '2018-01-31T20:54:23.071Z',
     eachNWeek: 1,
     dayOfWeek: ['mon', 'wed', 'fri'],
     dailyFrequency: { occursOnceAt: '11:11:11'}
@@ -201,6 +208,7 @@ module.exports.weeklySchedule = {
 module.exports.monthlySchedule = {
     name: 'monthly',
     enabled: true,
+    startDateTime: '2018-01-31T20:54:23.071Z',
     month: ['jan', 'jul'],
     day: 1,
     dailyFrequency: { start: '11:11:11', occursEvery: {intervalValue: 1, intervalType: 'minute'}}

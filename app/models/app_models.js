@@ -23,7 +23,7 @@ module.exports.jobSchema = {
   additionalProperties: false
 };
 
-module.exports.jobSchemaRequired = ['name']
+module.exports.jobSchemaRequired = ['name', 'enabled']
 
 module.exports.stepSchema = {
   $id: 'http://example.com/step',
@@ -51,7 +51,7 @@ module.exports.stepSchema = {
   },
   additionalProperties: false
 };
-module.exports.stepSchemaRequired = ['name', 'connection', 'database', 'command', 'onSucceed', 'onFailure', 'retryAttempts']
+module.exports.stepSchemaRequired = ['name', 'enabled', 'connection', 'database', 'command', 'onSucceed', 'onFailure', 'retryAttempts']
 
 module.exports.connectionSchema = {
   $id: 'http://example.com/connection',
@@ -86,24 +86,27 @@ module.exports.scheduleSchema = {
         oneTime: {type: 'string', format: 'date-time'}
       },
       additionalProperties: false,
-      required: ['name', 'oneTime']  
+      required: ['name', 'enabled', 'oneTime']  
     },
     daily: {
       type: "object",
       properties: {
         name: {type: 'string'},
         enabled: {type: 'boolean'},
+        startDateTime: {type: 'string', format: 'date-time'},
         eachNDay: {type: 'integer', minimum: 1},
         dailyFrequency: {$ref: 'daily#/'}
       },
       additionalProperties: false,
-      required: ['name', 'eachNDay']
+      required: ['name', 'enabled',  'startDateTime', 'eachNDay', 'dailyFrequency']
     },
     weekly: {
       type: "object",
       properties: {
         name: {type: 'string'},
         enabled: {type: 'boolean'},
+        startDateTime: {type: 'string', format: 'date-time'},
+        endDateTime: {type: 'string', format: 'date-time'},
         eachNWeek: {type: 'integer', minimum: 1},
         dayOfWeek: {
           type: 'array',
@@ -114,13 +117,15 @@ module.exports.scheduleSchema = {
         dailyFrequency: {$ref: 'daily#/'}
       },
       additionalProperties: false,
-      required: ['name', 'eachNWeek', 'dayOfWeek']
+      required: ['name', 'enabled', 'startDateTime', 'eachNWeek', 'dayOfWeek', 'dailyFrequency']
     },
     monthly: {
       type: "object",
       properties: {
         name: {type: 'string'},
         enabled: {type: 'boolean'},
+        startDateTime: {type: 'string', format: 'date-time'},
+        endDateTime: {type: 'string', format: 'date-time'},
         month: {
           type: 'array',
           uniqueItems: true,
@@ -132,7 +137,7 @@ module.exports.scheduleSchema = {
         dailyFrequency: {$ref: 'daily#/'}
       },
       additionalProperties: false,
-      required: ['name', 'month', 'day']
+      required: ['name', 'enabled', 'startDateTime', 'month', 'day', 'dailyFrequency']
     }
   }
 }

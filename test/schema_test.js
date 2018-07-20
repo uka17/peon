@@ -437,13 +437,7 @@ describe('schema validation', function() {
                 assert.equal(DataVsSchemaResult(nOneTimeSchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
                 assert.include(DataVsSchemaErrors(nOneTimeSchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data should NOT have additional properties');
                 done();
-            })        
-            it('excluding noт mandatory field. OK', function(done) {                                            
-                let nOneTimeSchedule = JSON.parse(JSON.stringify(oneTimeSchedule));
-                delete nOneTimeSchedule.enabled;
-                assert.equal(DataVsSchemaResult(nOneTimeSchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), true);
-                done();
-            })                             
+            })                              
             it('requiered fileds "name" issue', function(done) {                                            
                 let nOneTimeSchedule = JSON.parse(JSON.stringify(oneTimeSchedule));
                 delete nOneTimeSchedule.name;
@@ -515,7 +509,7 @@ describe('schema validation', function() {
                 })        
                 it('excluding noт mandatory field. OK', function(done) {                                            
                     let nDailyScheduleOnce = JSON.parse(JSON.stringify(dailyScheduleOnce));
-                    delete nDailyScheduleOnce.enabled;
+                    delete nDailyScheduleOnce.endDateTime;
                     assert.equal(DataVsSchemaResult(nDailyScheduleOnce, schema.scheduleSchema, [schema.scheduleSchemaDaily]), true);
                     done();
                 })                             
@@ -752,7 +746,7 @@ describe('schema validation', function() {
             })        
             it('excluding noт mandatory field. OK', function(done) {                                            
                 let nWeeklySchedule = JSON.parse(JSON.stringify(weeklySchedule));
-                delete nWeeklySchedule.enabled;
+                delete nWeeklySchedule.endDateTime;
                 assert.equal(DataVsSchemaResult(nWeeklySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), true);
                 done();
             })                             
@@ -863,7 +857,7 @@ describe('schema validation', function() {
             })        
             it('excluding noт mandatory field. OK', function(done) {                                            
                 let nMonthlySchedule = JSON.parse(JSON.stringify(monthlySchedule));
-                delete nMonthlySchedule.enabled;
+                delete nMonthlySchedule.endDateTime;
                 assert.equal(DataVsSchemaResult(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), true);
                 done();
             })                             
