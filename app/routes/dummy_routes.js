@@ -5,7 +5,7 @@ var schema = require('../models/app_models');
 const config = require('../../config/config');
 var Ajv = require('ajv');
 var ajv = new Ajv();
-var validation = require('../tools/validation');
+var validation = require('../tools/validations');
 
 module.exports = function(app, dbclient) {
   app.get('/dummy', (req, res) => {

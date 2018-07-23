@@ -69,3 +69,66 @@ module.exports.renameProperty = function (obj, oldName, newName) {
     }
     return obj;
 };
+/**
+ * Returns new date based on date and added number of years, months, days, hours, minutes or seconds
+ * @param {date} date Date value to which days should be added
+ * @param {number} years Number of years to add
+ * @param {number} months Number of months to add
+ * @param {number} days Number of days to add
+ * @param {number} hours Number of hours to add
+ * @param {number} minutes Number of minutes to add
+ * @param {number} seconds Number of seconds to add
+ * @returns New date with added number of days
+ */
+function addDate(date, years, months, days, hours, minutes, seconds)
+{
+    return new Date(
+        date.getFullYear() + years,
+        date.getMonth() + months,
+        date.getDate() + days,
+        date.getHours() + hours,
+        date.getMinutes() + minutes,
+        date.getSeconds()) + seconds;
+}
+module.exports.calculateNextRun = (schedule) => {    
+    //oneTime
+    if(schedule.hasOwnProperty('oneTime')) {        
+        return schedule.oneTime;
+    }
+    //eachNDay 
+    if(schedule.hasOwnProperty('eachNDay')) {        
+        //calculating date
+        let newDateTime = schedule.startDateTime;
+        let currentDate = new Date();
+        while(newDateTime < currentDate) {
+            newDateTime = addDate(newDateTime, 0, 0, schedule.eachNDay, 0, 0, 0);
+        }
+        //add time
+        if(schedule.hasOwnProperty('occursOnceAt')) {
+            let time = schedule.dailyFrequency.occursOnceAt.split(':');
+            newDateTime.setHours(time[0]);
+            newDateTime.setMinutes(time[1]);
+            newDateTime.setSeconds(time[2]);
+            return newDateTime;
+        }
+        if(schedule.hasOwnProperty('occursEvery')) {
+            let time = schedule.dailyFrequency.start.split(':');
+            newDateTime.setHours(time[0]);
+            newDateTime.setMinutes(time[1]);
+            newDateTime.setSeconds(time[2]);
+            while(newDateTime < currentDate) {
+                switch(schedule.dailyFrequency.occursEvery.intervalType) {
+                    case 'minute':
+                        addDate(newDateTime, 0, 0, 0, 0, schedule.dailyFrequency.occursEvery.intervalValue, 0);
+                    break;
+                    case 'hour':
+                        addDate(newDateTime, 0, 0, 0, schedule.dailyFrequency.occursEvery.intervalValue, 0, 0);
+                    break;
+                }
+            }
+            return newDateTime;
+        }
+    }    
+    //eachNWeek
+    //month
+}

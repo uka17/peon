@@ -18,7 +18,8 @@ module.exports.jobSchema = {
     enabled: {type: 'boolean'},
     steps: { "type": "array"},
     schedules: { "type": "array"},
-    notifications: { "type": "array"}
+    notifications: { "type": "array"},
+    nextRun: {type: 'string', format: 'date-time'}
   },
   additionalProperties: false
 };
@@ -94,6 +95,7 @@ module.exports.scheduleSchema = {
         name: {type: 'string'},
         enabled: {type: 'boolean'},
         startDateTime: {type: 'string', format: 'date-time'},
+        endDateTime: {type: 'string', format: 'date-time'},
         eachNDay: {type: 'integer', minimum: 1},
         dailyFrequency: {$ref: 'daily#/'}
       },

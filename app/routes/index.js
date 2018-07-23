@@ -29,7 +29,7 @@ function execute() {
         reject('Error');
     });
   });
-  promis.then(resp => { console.log(resp)}, rej => { console.log(rej) })
+  //promis.then(resp => { console.log(resp)}, rej => { console.log(rej) })
 }
 
 var timerId = setInterval(execute, 1000);

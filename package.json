@@ -4,7 +4,7 @@
   "description": "Automation tool",
   "main": "index.js",
   "scripts": {
-    "test": "mocha",
+    "test": "nyc --reporter=html --reporter=text mocha",
     "dev": "nodemon server.js"
   },
   "repository": {
@@ -28,6 +28,7 @@
     "chai": "^4.1.2",
     "mocha": "^5.2.0",
     "nodemon": "^1.18.2",
+    "nyc": "^12.0.2",
     "request": "^2.87.0"
   }
 }
