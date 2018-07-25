@@ -1,4 +1,4 @@
-// utools/validation.js
+//validations unit tests
 var assert  = require('chai').assert;
 var config = require('../config/config');
 var utools = require('../app/tools/utools');
@@ -6,7 +6,7 @@ var validation = require('../app/tools/validations');
 var models = require('../app/models/app_models');
 var testData = require('./test_data');
 
-describe('validation', function() {
+describe('validations', function() {
     describe('timeIsValid', function() {
         it('OK (' + testData.validTime + ')', function(done) {        
             assert.equal(validation.timeIsValid(testData.validTime), true);        
@@ -47,5 +47,41 @@ describe('validation', function() {
                 done();
             });   
         });        
-    });       
+    });     
+    
+    describe('validateJob', function() {
+        it('OK (' + testData.job.name + ')', function(done) {        
+            assert.equal(validation.validateJob(testData.job).isValid, true);        
+            done();
+        });  
+    });  
+
+    describe('validateStepList', function() {
+        it('OK (' + testData.job.name + '.steps)', function(done) {   
+            let nJob = JSON.parse(JSON.stringify(testData.job));
+            assert.equal(validation.validateStepList(nJob.steps).isValid, true);        
+            done();
+        }); 
+
+        it('NOK (' + testData.job.name + '.steps)', function(done) {   
+            let nJob = JSON.parse(JSON.stringify(testData.job));
+            nJob.steps[0].name = true;
+            assert.equal(validation.validateStepList(nJob.steps).isValid, false);        
+            done();
+        });  
+    });     
+
+    describe('validateScheduleList', function() {
+        it('OK (' + testData.job.name + '.schedules)', function(done) {                
+            let nJob = JSON.parse(JSON.stringify(testData.job));    
+            assert.equal(validation.validateScheduleList(nJob.schedules).isValid, true);            
+            done();
+        });  
+        it('NOK (' + testData.job.name + '.schedules)', function(done) {                
+            let nJob = JSON.parse(JSON.stringify(testData.job));    
+            nJob.schedules[0].name = true;
+            assert.equal(validation.validateScheduleList(nJob.schedules).isValid, false);            
+            done();
+        });          
+    });    
 });    

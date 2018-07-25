@@ -19,6 +19,7 @@ module.exports = function(app, dbclient) {
 function execute() {
   let promis = new Promise((resolve, reject) => {
     request.get({
+      //v1.0?
       url: config.test_host + '/jobs/count', 
       json: true
     },

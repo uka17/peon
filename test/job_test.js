@@ -145,7 +145,7 @@ describe('job', function() {
     });
     
     describe('cases for success job creation with test_data.js', function() {
-       var listHelper = new testHelper(testData.jobTestCaseOK);
-       listHelper.createFromList(config.test_host + '/jobs');
+       var nTestHelper = new testHelper(testData.jobTestCaseOK);
+       nTestHelper.createFromList(config.test_host + '/jobs');
     });
 }); 

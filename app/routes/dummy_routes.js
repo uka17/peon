@@ -6,9 +6,10 @@ const config = require('../../config/config');
 var Ajv = require('ajv');
 var ajv = new Ajv();
 var validation = require('../tools/validations');
+var ver = '/v1.0';
 
 module.exports = function(app, dbclient) {
-  app.get('/dummy', (req, res) => {
+  app.get(ver + '/dummy', (req, res) => {
     //dummy
     try {         
       res.status(200).send({result: validation.dateTimeIsValid('2015-aa-25T12:00:00Z')});
@@ -17,6 +18,15 @@ module.exports = function(app, dbclient) {
       res.status(500).send({error: e.message});
     }
   });   
+  app.get(ver + '/dummyerror', (req, res) => {
+    //dummyerror
+    try {
+      throw 'dummyerror';
+    }
+    catch(e) {
+      utools.handleServerException(e, config.user, dbclient, res);
+    }
+  });  
   app.get('/', (req, res) => {
     //index route
     try {         
