@@ -97,7 +97,7 @@ describe('schema validation', function() {
         })       
         it('not all properties', function(done) {    
             let nJob = JSON.parse(JSON.stringify(testJob));
-            delete nJob.enabled;
+            delete nJob.description;
             assert.equal(DataVsSchemaResult(nJob, schema.jobSchema), true);
             done();
         })            

@@ -78,17 +78,19 @@ module.exports.renameProperty = function (obj, oldName, newName) {
  * @param {number} hours Number of hours to add
  * @param {number} minutes Number of minutes to add
  * @param {number} seconds Number of seconds to add
- * @returns New date with added number of days
+ * @returns {date} New date with added number of days
  */
-function addDate(date, years, months, days, hours, minutes, seconds)
+module.exports.addDate = (date, years, months, days, hours, minutes, seconds) =>
 {
-    return new Date(
+    let result = new Date(
         date.getFullYear() + years,
         date.getMonth() + months,
         date.getDate() + days,
         date.getHours() + hours,
         date.getMinutes() + minutes,
-        date.getSeconds()) + seconds;
+        date.getSeconds() + seconds
+    );
+    return result;
 }
 module.exports.calculateNextRun = (schedule) => {    
     //oneTime

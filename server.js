@@ -19,3 +19,5 @@ MongoClient.connect(config.mongodb_url, { useNewUrlParser: true }, (err, dbclien
     console.log('We are live on ' + port);
   });               
 })
+
+module.exports.app = app;

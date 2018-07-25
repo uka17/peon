@@ -16,6 +16,7 @@ module.exports = function(app, dbclient) {
   connectionRoutes(app, dbclient);
 };
 
+/*
 function execute() {
   let promis = new Promise((resolve, reject) => {
     request.get({
@@ -34,3 +35,4 @@ function execute() {
 }
 
 var timerId = setInterval(execute, 1000);
+*/

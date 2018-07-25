@@ -21,7 +21,7 @@ module.exports = function(app, dbclient) {
   app.get(ver + '/dummyerror', (req, res) => {
     //dummyerror
     try {
-      throw 'dummyerror';
+      throw new Error('dummyerror');
     }
     catch(e) {
       utools.handleServerException(e, config.user, dbclient, res);
