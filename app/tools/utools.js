@@ -144,7 +144,7 @@ module.exports.mongoInstancePromise = function(mongodb_url) {
                 if (err) 
                     return console.log(err)    
                 resolve(dbclient);
-              })
+            })
         }
         catch(e2) {
             console.log(e2);
