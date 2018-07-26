@@ -137,22 +137,7 @@ module.exports.calculateNextRun = (schedule) => {
     //eachNWeek
     //month
 }
-module.exports.mongoInstancePromise = function(mongodb_url) {
-    let prms = new Promise((resolve, reject) => {
-        try {
-            MongoClient.connect(mongodb_url, { useNewUrlParser: true }, (err, dbclient) => {
-                if (err) 
-                    return console.log(err)    
-                resolve(dbclient);
-            })
-        }
-        catch(e2) {
-            console.log(e2);
-        }            
-    });
-    return prms;  
-}
-module.exports.expressAppInstance = () => {
+function expressInstance() {
     const app = express();
     app.use(bodyParser.json());
     app.use(function (req, res, next) {
@@ -160,4 +145,23 @@ module.exports.expressAppInstance = () => {
       next();
     });    
     return app;
+}
+module.exports.expressInstance = expressInstance;
+
+module.exports.expressMongoInstancePromise = function(router, mongodb_url) {
+    let prms = new Promise((resolve, reject) => {
+        try {
+            MongoClient.connect(mongodb_url, { useNewUrlParser: true }, (err, dbclient) => {
+                if (err) 
+                    return console.log(err)    
+                let app = expressInstance();
+                router(app, dbclient);
+                resolve({app: app, dbclient: dbclient});
+            })
+        }
+        catch(e2) {
+            console.log(e2);
+        }            
+    });
+    return prms;  
 }

@@ -135,6 +135,8 @@ module.exports = function(app, dbclient) {
   app.delete(ver + '/jobs/:id', (req, res) => {
     //delete job by _id
     try {
+      if(config.exceptionHook)
+        throw new Error('exceptionHook');      
       const where = { '_id': new mongo.ObjectID(req.params.id) };
       dbclient.db(config.db_name).collection('job').deleteOne(where, (err, result) => {
         if (err) {

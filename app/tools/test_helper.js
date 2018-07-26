@@ -56,11 +56,15 @@ function testHelper(object) {
         });
     }
     /**
-     * Implement list of unit tests to compare each and every property of helper initial object and objectToCheck     
+     * Implement list of unit tests to compare each and every property of helper initial object and objectToCheck in a shallow mode (compares everything except objects)
      * @param {object} objectToCheck 
      */
+    //TODO Realize object comarison
     this.compareObjects = (objectToCheck) => {        
-        Object.keys(this._object).forEach(elem => assert.equal(this._object[elem], objectToCheck[elem]))
+        Object.keys(this._object).forEach(elem => { 
+            if(typeof this._object[elem] != 'object')
+                assert.equal(this._object[elem], objectToCheck[elem]);
+        })
     }
     /**
      * For each an every object in helper initial object array executes: object creation via POST to url, shallow check of created object, deletion of this object

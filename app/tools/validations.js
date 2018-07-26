@@ -54,7 +54,7 @@ module.exports.validateConnection = (connection) => {
 module.exports.validateStepList = (stepList) => {
     if(stepList) {
         models.stepSchema['required'] = models.stepSchemaRequired; 
-        for(i = 0; i < stepList.length; i++) {
+        for(let i = 0; i < stepList.length; i++) {
             let validationResult = validateObject(stepList[i], models.stepSchema);
             if(!validationResult.isValid) 
                 return validationResult;

@@ -1,34 +1,136 @@
 var assert  = require('chai').assert;
 const config = require('../config/config');
 var messageBox = require('../config/message_labels');
-var id;
+var jobId;
 var testData = require('./test_data');
 var testHelper = require('../app/tools/test_helper');
 var utools = require('../app/tools/utools');
 const request = require("supertest");
 var ver = '/v1.0';
 var job_routes = require('../app/routes/job_routes');
-var mongoPromise = utools.mongoInstancePromise(config.mongodb_url);
+var testHelper = require('../app/tools/test_helper');
+var jobTestHelper = new testHelper(testData.job);
  
-describe('job_test', function() {
-    it('incorrect "description"', () => {
-        return mongoPromise.then(dbclient => {
-            /*
-            let app = utools.expressAppInstance();
-            job_routes(app, dbclient);       
-            request(app)
-            .post(ver + '/jobs')            
-            .send({"name": "name", "description": true, "enabled": true})
-            .set('Accept', 'application/json')
-            .expect(500)
-            .end(function(err, res) { 
-                assert.include(res.body.requestValidationErrors, 'description1');
-            });    
-            */
-            if(dbclient) 
-                assert.equal(300, 200);
-        }); 
-    });   
+describe('job', function() {
+    describe('create', function() {
+        it('incorrect "description"', () => {
+            return utools.expressMongoInstancePromise(job_routes, config.mongodb_url).then(response => {                               
+                let nJob = JSON.parse(JSON.stringify(testData.job));
+                nJob.description = true;
+                request(response.app)
+                .post(ver + '/jobs')            
+                .send(nJob)
+                .set('Accept', 'application/json')
+                .end(function(err, res) { 
+                    assert.equal(res.status, 400);
+                    assert.include(res.body.requestValidationErrors, 'description');
+                    response.dbclient.close()
+                });                    
+            }); 
+        });   
+        it('successful POST', () => {
+            return utools.expressMongoInstancePromise(job_routes, config.mongodb_url).then(response => {                               
+                request(response.app)
+                    .post(ver + '/jobs')            
+                    .send(testData.job)
+                    .set('Accept', 'application/json')
+                    .end(function(err, res) { 
+                        assert.equal(res.status, 201);
+                        assert.equal(res.body.name, testData.job.name);
+                        jobId = res.body._id;
+                        response.dbclient.close()
+                    });                    
+            }); 
+        });  
+        it('failed POST (405)', () => {
+            return utools.expressMongoInstancePromise(job_routes, config.mongodb_url).then(response => {                               
+                request(response.app)
+                    .post(ver + '/jobs/' + jobId)            
+                    .send(testData.job)
+                    .set('Accept', 'application/json')
+                    .end(function(err, res) { 
+                        assert.equal(res.status, 405);
+                        response.dbclient.close()
+                    });                    
+            }); 
+        });          
+        it('successful count', () => {
+            return utools.expressMongoInstancePromise(job_routes, config.mongodb_url).then(response => {                               
+                request(response.app)
+                    .get(ver + '/jobs/count')            
+                    .set('Accept', 'application/json')
+                    .end(function(err, res) { 
+                        assert.equal(res.status, 200);
+                        assert.isAbove(res.body.count, 0);
+                        response.dbclient.close()
+                    });                    
+            }); 
+        });  
+        it('successful get', () => {
+            return utools.expressMongoInstancePromise(job_routes, config.mongodb_url).then(response => {                               
+                request(response.app)
+                    .get(ver + '/jobs/' + jobId)            
+                    .set('Accept', 'application/json')
+                    .end(function(err, res) { 
+                        assert.equal(res.status, 200);
+                        jobTestHelper.compareObjects(res.body);
+                        response.dbclient.close()
+                    });                    
+            }); 
+        });     
+        it('successful list', () => {
+            return utools.expressMongoInstancePromise(job_routes, config.mongodb_url).then(response => {                               
+                request(response.app)
+                    .get(ver + '/jobs')            
+                    .set('Accept', 'application/json')
+                    .end(function(err, res) { 
+                        assert.equal(res.statusCode, 200);
+                        assert.isAbove(res.body.length, 0);
+                        response.dbclient.close()
+                    });                    
+            }); 
+        });     
+        it('successful patch', () => {
+            return utools.expressMongoInstancePromise(job_routes, config.mongodb_url).then(response => {                               
+                let nJob = JSON.parse(JSON.stringify(testData.job));
+                nJob.description = 'new_description';
+                request(response.app)
+                    .patch(ver + '/jobs/' + jobId)            
+                    .send(testData.job)
+                    .set('Accept', 'application/json')
+                    .end(function(err, res) { 
+                        assert.equal(res.statusCode, 200);
+                        assert.equal(res.body[messageBox.common.updated], 1)
+                        response.dbclient.close()
+                    });                    
+            }); 
+        });             
+        it('successful delete', () => {
+            return utools.expressMongoInstancePromise(job_routes, config.mongodb_url).then(response => {                               
+                request(response.app)
+                    .delete(ver + '/jobs/' + jobId)            
+                    .set('Accept', 'application/json')
+                    .end(function(err, res) { 
+                        assert.equal(res.statusCode, 200);
+                        assert.equal(res.body[messageBox.common.deleted], 1)
+                        response.dbclient.close()
+                    });                    
+            }); 
+        });            
+        it('failed delete', () => {
+            return utools.expressMongoInstancePromise(job_routes, config.mongodb_url).then(response => {                               
+                config.exceptionHook = true;
+                request(response.app)
+                    .delete(ver + '/jobs/' + jobId)            
+                    .set('Accept', 'application/json')
+                    .end(function(err, res) { 
+                        assert.equal(res.statusCode, 500);
+                        response.dbclient.close()
+                        config.exceptionHook = false;
+                    });                    
+            }); 
+        });                              
+    });
 });
 
 
