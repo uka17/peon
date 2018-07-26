@@ -1,6 +1,9 @@
 const MongoClient = require('mongodb').MongoClient;
 const config = require('../../config/config');
 const messageBox = require('../../config/message_labels');
+const bodyParser = require('body-parser');
+const express = require('express');
+
 var toJSON = require( 'utils-error-to-json' );
 //#region Error handling
 /**
@@ -35,7 +38,7 @@ module.exports.handleServerException = function(e, createdBy, dbclient, res) {
         pr.then(
             response => res.status(500).send({error: messageBox.common.debugMessage, logId: response}),
             error => console.log(error)
-            );    
+        );    
     }
 }
 /**
@@ -133,4 +136,28 @@ module.exports.calculateNextRun = (schedule) => {
     }    
     //eachNWeek
     //month
+}
+module.exports.mongoInstancePromise = function(mongodb_url) {
+    let prms = new Promise((resolve, reject) => {
+        try {
+            MongoClient.connect(mongodb_url, { useNewUrlParser: true }, (err, dbclient) => {
+                if (err) 
+                    return console.log(err)    
+                resolve(dbclient);
+              })
+        }
+        catch(e2) {
+            console.log(e2);
+        }            
+    });
+    return prms;  
+}
+module.exports.expressAppInstance = () => {
+    const app = express();
+    app.use(bodyParser.json());
+    app.use(function (req, res, next) {
+      res.header("Content-Type",'application/json');
+      next();
+    });    
+    return app;
 }

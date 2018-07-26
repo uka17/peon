@@ -1,20 +1,33 @@
 //utools unit tests
 var assert  = require('chai').assert;
-let chai = require('chai');
-var config = require('../config/config');
+
 var utools = require('../app/tools/utools');
-var validation = require('../app/tools/validations');
-var models = require('../app/models/app_models');
-var testData = require('./test_data');
-const httpMocks = require("node-mocks-http");
-var app = require('../server').app;
 const request = require("supertest");
 var ver = '/v1.0';
-
+var ut_routes = require('../app/routes/ut_routes');
+const app = utools.expressAppInstance();
+ut_routes(app);
 
 describe('utools', function() {
     describe('errors handling', function() {
-
+        it('handleUserException ', function(done) {            
+            request(app)
+            .get(ver + '/handleUserException')            
+            .expect(400)
+            .end(function(err, res) { 
+                assert.include(res.body.error, 'error_message');
+                done();
+              });              
+        });
+        it('handleServerException ', function(done) {            
+            request(app)
+            .get(ver + '/handleServerException')            
+            .expect(500)
+            .end(function(err, res) { 
+                //assert.include(res.body.error, 'error_message');
+                done();
+              });              
+        });
     });
 
     describe('tools and helpers', function() {
