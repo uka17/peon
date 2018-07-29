@@ -3,19 +3,18 @@ const config = require('../config/config');
 var messageBox = require('../config/message_labels');
 var jobId;
 var testData = require('./test_data');
-var testHelper = require('../app/tools/test_helper');
+var testHelper = require('./test_helper');
 var utools = require('../app/tools/utools');
 const request = require("supertest");
 var ver = '/v1.0';
 var job_routes = require('../app/routes/job_routes');
-var testHelper = require('../app/tools/test_helper');
-var jobTestHelper = new testHelper(testData.job);
+var jobTestHelper = new testHelper(testData.jobOK);
  
 describe('job', function() {
     describe('create', function() {
         it('incorrect "description"', () => {
             return utools.expressMongoInstancePromise(job_routes, config.mongodb_url).then(response => {                               
-                let nJob = JSON.parse(JSON.stringify(testData.job));
+                let nJob = JSON.parse(JSON.stringify(testData.jobOK));
                 nJob.description = true;
                 request(response.app)
                 .post(ver + '/jobs')            
@@ -32,11 +31,11 @@ describe('job', function() {
             return utools.expressMongoInstancePromise(job_routes, config.mongodb_url).then(response => {                               
                 request(response.app)
                     .post(ver + '/jobs')            
-                    .send(testData.job)
+                    .send(testData.jobOK)
                     .set('Accept', 'application/json')
                     .end(function(err, res) { 
                         assert.equal(res.status, 201);
-                        assert.equal(res.body.name, testData.job.name);
+                        assert.equal(res.body.name, testData.jobOK.name);
                         jobId = res.body._id;
                         response.dbclient.close()
                     });                    
@@ -46,7 +45,7 @@ describe('job', function() {
             return utools.expressMongoInstancePromise(job_routes, config.mongodb_url).then(response => {                               
                 request(response.app)
                     .post(ver + '/jobs/' + jobId)            
-                    .send(testData.job)
+                    .send(testData.jobOK)
                     .set('Accept', 'application/json')
                     .end(function(err, res) { 
                         assert.equal(res.status, 405);
@@ -92,11 +91,11 @@ describe('job', function() {
         });     
         it('successful patch', () => {
             return utools.expressMongoInstancePromise(job_routes, config.mongodb_url).then(response => {                               
-                let nJob = JSON.parse(JSON.stringify(testData.job));
+                let nJob = JSON.parse(JSON.stringify(testData.jobOK));
                 nJob.description = 'new_description';
                 request(response.app)
                     .patch(ver + '/jobs/' + jobId)            
-                    .send(testData.job)
+                    .send(testData.jobOK)
                     .set('Accept', 'application/json')
                     .end(function(err, res) { 
                         assert.equal(res.statusCode, 200);
@@ -116,20 +115,7 @@ describe('job', function() {
                         response.dbclient.close()
                     });                    
             }); 
-        });            
-        it('failed delete', () => {
-            return utools.expressMongoInstancePromise(job_routes, config.mongodb_url).then(response => {                               
-                config.exceptionHook = true;
-                request(response.app)
-                    .delete(ver + '/jobs/' + jobId)            
-                    .set('Accept', 'application/json')
-                    .end(function(err, res) { 
-                        assert.equal(res.statusCode, 500);
-                        response.dbclient.close()
-                        config.exceptionHook = false;
-                    });                    
-            }); 
-        });                              
+        });                                    
     });
 });
 

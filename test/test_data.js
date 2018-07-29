@@ -1,7 +1,7 @@
 var mongo = require('mongodb');
 
 //job test data preparation
-module.exports.job = {
+module.exports.jobOK = {
     name: 'job',
     description: 'job description',
     enabled: true,
@@ -250,3 +250,13 @@ module.exports.invalidTimes = ['aa:11:11', '24:11:11', '11:60:11', '11:77:aa', '
 
 module.exports.validDateTime = '2015-03-25T12:00:00Z';
 module.exports.invalidDateTimes = ['2015-aa-25T12:00:00Z', '2015-13-25T12:00:00Z', '2015-03-32T12:00:00Z', '2015032512:00:00Z', 'aaa']
+//testHelper
+module.exports.testHelperCorrectObject = {
+    string: 'string_test',
+    number: 123.123,
+    integer: 123,
+    boolean: true,
+    array: [1, 2, 3],
+    object: {},
+    enum: 'enum'
+}

@@ -9,7 +9,7 @@ var testData = require('./test_data');
 //var fakeId = new mongo.ObjectID('0a9296f2496698264c23e180');
 
 //test data preparation
-var testJob = testData.job;
+var testJob = testData.jobOK;
 var testStep = testData.step;
 var oneTimeSchedule = testData.oneTimeSchedule;
 var dailyScheduleOnce = testData.dailyScheduleOnce;

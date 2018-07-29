@@ -50,21 +50,21 @@ describe('validations', function() {
     });     
     
     describe('validateJob', function() {
-        it('OK (' + testData.job.name + ')', function(done) {        
-            assert.equal(validation.validateJob(testData.job).isValid, true);        
+        it('OK (' + testData.jobOK.name + ')', function(done) {        
+            assert.equal(validation.validateJob(testData.jobOK).isValid, true);        
             done();
         });  
     });  
 
     describe('validateStepList', function() {
-        it('OK (' + testData.job.name + '.steps)', function(done) {   
-            let nJob = JSON.parse(JSON.stringify(testData.job));
+        it('OK (' + testData.jobOK.name + '.steps)', function(done) {   
+            let nJob = JSON.parse(JSON.stringify(testData.jobOK));
             assert.equal(validation.validateStepList(nJob.steps).isValid, true);        
             done();
         }); 
 
-        it('NOK (' + testData.job.name + '.steps)', function(done) {   
-            let nJob = JSON.parse(JSON.stringify(testData.job));
+        it('NOK (' + testData.jobOK.name + '.steps)', function(done) {   
+            let nJob = JSON.parse(JSON.stringify(testData.jobOK));
             nJob.steps[0].name = true;
             assert.equal(validation.validateStepList(nJob.steps).isValid, false);        
             done();
@@ -72,13 +72,13 @@ describe('validations', function() {
     });     
 
     describe('validateScheduleList', function() {
-        it('OK (' + testData.job.name + '.schedules)', function(done) {                
-            let nJob = JSON.parse(JSON.stringify(testData.job));    
+        it('OK (' + testData.jobOK.name + '.schedules)', function(done) {                
+            let nJob = JSON.parse(JSON.stringify(testData.jobOK));    
             assert.equal(validation.validateScheduleList(nJob.schedules).isValid, true);            
             done();
         });  
-        it('NOK (' + testData.job.name + '.schedules)', function(done) {                
-            let nJob = JSON.parse(JSON.stringify(testData.job));    
+        it('NOK (' + testData.jobOK.name + '.schedules)', function(done) {                
+            let nJob = JSON.parse(JSON.stringify(testData.jobOK));    
             nJob.schedules[0].name = true;
             assert.equal(validation.validateScheduleList(nJob.schedules).isValid, false);            
             done();

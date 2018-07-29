@@ -11,7 +11,7 @@ module.exports = function(app, dbclient) {
     //dummy
     try {         
       //res.status(200).send({result: validation.dateTimeIsValid('2015-aa-25T12:00:00Z')});
-      let nJob = JSON.parse(JSON.stringify(testData.job));
+      let nJob = JSON.parse(JSON.stringify(testData.jobOK));
       request(app)
       .post(ver + '/jobs')            
       .send(nJob)
