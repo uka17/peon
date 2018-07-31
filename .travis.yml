@@ -7,5 +7,7 @@ before_script:
 #- node server.js &
 notifications:
     slack: jobkeeper:xN4Q58R4KkuGUECxT4EVw8KF  
-after_success: npm run coverage    
+after_success: 
+- npm run ctest
+- npm run coverage   
   

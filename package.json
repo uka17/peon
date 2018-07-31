@@ -6,7 +6,7 @@
   "scripts": {
     "test": "mocha",
     "ctest": "nyc --reporter=html --reporter=text mocha",
-    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "coverage": "nyc report --reporter=text-lcov mocha | coveralls",
     "dev": "nodemon server.js"
   },
   "repository": {
