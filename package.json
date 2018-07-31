@@ -4,8 +4,8 @@
   "description": "Automation tool",
   "main": "index.js",
   "scripts": {
-    "test": "mocha",
-    "ctest": "nyc --reporter=html --reporter=text mocha",
+    "test": "nyc --reporter=html --reporter=text mocha",
+    "mtest": "mocha",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "dev": "nodemon server.js"
   },
