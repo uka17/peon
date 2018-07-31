@@ -5,8 +5,8 @@
 
 ###### Automation tool
 Web application for automatic SQL job execution which will contain all you need:
-..* Web based interface
-..* REST API for integration with your marvellous applications
-..* Deep and detailed logging for chasing diversionist and spies
-..* Useful documentation (actually will be created soon)
-..* Blackjack and whores are optional
+* Web based interface
+* REST API for integration with your marvellous applications
+* Deep and detailed logging for chasing diversionist and spies
+* Useful documentation (actually will be created soon)
+* Blackjack and whores are optional
