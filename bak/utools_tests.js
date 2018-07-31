@@ -19,14 +19,6 @@ describe('utools', function() {
                 done();
               });              
         });
-        it('handleServerException ', function(done) {            
-            request(app)
-            .get(ver + '/handleServerException')            
-            .end(function(err, res) { 
-                assert.equal(res.status, 500);
-                done();
-              });              
-        });
     });
 
     describe('tools and helpers', function() {
