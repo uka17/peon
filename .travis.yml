@@ -7,7 +7,7 @@ before_script:
 - mkdir ./.nyc_output
 - chmod 0777 ./.nyc_output
 script:
-- npm ctest    
+- npm run ctest    
 notifications:
     slack: jobkeeper:xN4Q58R4KkuGUECxT4EVw8KF  
 after_success: 
