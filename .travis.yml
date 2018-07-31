@@ -4,7 +4,8 @@ services:
 - mongodb
 before_script: 
 - chmod 0777 ./node_modules/.bin/mocha
-- chmod 0777 ./node_modules/.bin/nyc
+- mkdir ./.nyc_output
+- chmod 0777 ./.nyc_output
 notifications:
     slack: jobkeeper:xN4Q58R4KkuGUECxT4EVw8KF  
 after_success: 
