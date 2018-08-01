@@ -32,13 +32,48 @@ describe('utools', function() {
             assert.equal(utools.renameProperty(initial, 'name', 'new_name').toString(), expected.toString());
             done();
         });  
-        it('addDate', function(done) {
-            let initial = new Date(Date.parse('2018-01-31T02:02:02.071Z'));            
-            let expected = new Date(Date.parse('2018-01-31T01:01:01.071Z'));
-            expected = utools.addDate(expected, 0, 0, 0, 1, 1, 1);
+        it('addDate 1+', function(done) {
+            let expected = new Date(Date.parse('2018-01-31T02:02:02.071Z'));            
+            let initial = new Date(Date.parse('2018-01-31T01:01:01.071Z'));
+            initial = utools.addDate(initial, 0, 0, 0, 1, 1, 1);
             assert.equal(initial.toDateString(), expected.toDateString());
             done();
         });         
+        it('addDate 2+', function(done) {
+            let initial = new Date(Date.parse('2018-02-28T23:00:00.000Z'));            
+            let expected = new Date(Date.parse('2018-03-01T01:00:00.000Z'));
+            initial = utools.addDate(initial, 0, 0, 0, 2, 0, 0);
+            assert.equal(initial.toDateString(), expected.toDateString());
+            done();
+        });            
+        it('addDate 3+', function(done) {
+            let initial = new Date(Date.parse('2018-06-10T02:02:02.071Z'));            
+            let expected = new Date(Date.parse('2019-06-10T02:02:02.071Z'));
+            initial = utools.addDate(initial, 1, 0, 0, 0, 0, 0);
+            assert.equal(initial.toDateString(), expected.toDateString());
+            done();
+        });             
+        it('addDate 4-', function(done) {
+            let expected = new Date(Date.parse('2018-01-31T01:01:01.000Z'));            
+            let initial = new Date(Date.parse('2018-01-31T02:02:02.000Z'));
+            initial = utools.addDate(initial, 0, 0, 0, -1, -1, -1);
+            assert.equal(initial.toDateString(), expected.toDateString());
+            done();
+        });         
+        it('addDate 5-', function(done) {
+            let initial = new Date(Date.parse('2018-05-01T01:00:00.000Z'));            
+            let expected = new Date(Date.parse('2018-04-30T23:00:00.000Z'));
+            initial = utools.addDate(initial, 0, 0, 0, -2, 0, 0);
+            assert.equal(initial.toDateString(), expected.toDateString());
+            done();
+        });            
+        it('addDate 6-', function(done) {
+            let initial = new Date(Date.parse('2019-06-10T02:02:02.071Z'));            
+            let expected = new Date(Date.parse('2018-06-10T02:02:02.071Z'));
+            initial = utools.addDate(initial, -1, 0, 0, 0, 0, 0);
+            assert.equal(initial.toDateString(), expected.toDateString());
+            done();
+        });                 
     });
 
 });    

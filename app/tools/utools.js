@@ -74,7 +74,7 @@ module.exports.renameProperty = function (obj, oldName, newName) {
 };
 /**
  * Returns new date based on date and added number of years, months, days, hours, minutes or seconds
- * @param {date} date Date value to which days should be added
+ * @param {date} date Date value to which date-time intervals should be added
  * @param {number} years Number of years to add
  * @param {number} months Number of months to add
  * @param {number} days Number of days to add
