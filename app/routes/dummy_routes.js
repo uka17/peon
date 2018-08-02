@@ -11,16 +11,12 @@ module.exports = function(app, dbclient) {
     //dummy
     try {         
       //res.status(200).send({result: validation.dateTimeIsValid('2015-aa-25T12:00:00Z')});
-      let nJob = JSON.parse(JSON.stringify(testData.jobOK));
-      request(app)
-      .post(ver + '/jobs')            
-      .send(nJob)
-      .set('Accept', 'application/json')
-      .end(function(err, res) { 
-          assert.equal(res.status, 400);
-          assert.include(res.body.requestValidationErrors, 'description');
-          response.dbclient.close()
-      });  
+      let scheduleTestObject = testData.dailyScheduleOnceOK;
+      scheduleTestObject.startDateTime = utools.getDateTime();
+      scheduleTestObject.eachNDay = 1;
+      let nextHourDateTime = utools.addDate(utools.getDateTime(), 0, 0, 0, 1, 0, 0);
+      scheduleTestObject.dailyFrequency.occursOnceAt = utools.getTimefromDateTime(nextHourDateTime);
+      utools.calculateNextRun(scheduleTestObject);
     }
     catch(e) {
       res.status(500).send({error: e.message});

@@ -85,9 +85,9 @@ module.exports = function(app, dbclient) {
       if(!jobValidationResult.isValid)
         res.status(400).send({requestValidationErrors: jobValidationResult.errorList});
       else {
-        job.createdOn = utools.getTimestamp();     
+        job.createdOn = utools.getDateTime();     
         job.createdBy = config.user;       
-        job.modifiedOn = utools.getTimestamp();    
+        job.modifiedOn = utools.getDateTime();    
         job.modifiedBy = config.user;
 
         dbclient.db(config.db_name).collection('job').insert(job, (err, result) => {
@@ -112,7 +112,7 @@ module.exports = function(app, dbclient) {
     //update job by id
     try {
       var job = req.body;      
-      job.modifiedOn = utools.getTimestamp();
+      job.modifiedOn = utools.getDateTime();
       job.modifiedBy = config.user;      
 
       const where = { '_id': new mongo.ObjectID(req.params.id) };      

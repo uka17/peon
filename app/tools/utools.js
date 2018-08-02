@@ -22,7 +22,7 @@ module.exports.handleServerException = function(e, createdBy, dbclient, res) {
     else {
         let pr = new Promise((resolve, reject) => {
             try {
-                logItem = {error: toJSON(e), createdOn: getTimestamp(), cratedBy: createdBy};
+                logItem = {error: toJSON(e), createdOn: getDateTime(), cratedBy: createdBy};
                 dbclient.db(config.db_name).collection('log').insert(logItem, (err, result) => {
                     if (err)
                         reject(new Error(err));
@@ -53,12 +53,32 @@ module.exports.handleUserException = function(message, errorCode, res) {
 //#endregion
 /**
  * Return date-time in a proper format
- * @returns {datetime} Date-time
+ * @returns {object} Date-time
  */
-function getTimestamp() { 
+function getDateTime() { 
     return new Date();
 }
-module.exports.getTimestamp = getTimestamp;
+module.exports.getDateTime = getDateTime;
+/**
+ * Extract from date and time and return time in a format HH:MM:SS. Current date time will be taken in case if dateTime is not provided
+ * @param {object} dateTime Date and time object which should be used for time extraction
+ * @returns {string} Time in a format HH:MM:SS
+ */
+function getTimefromDateTime(dateTime) { 
+    let currentDateTime;
+    if(dateTime && dateTime instanceof Date)
+        currentDateTime = dateTime;
+    else
+        currentDateTime = getDateTime();
+    let hours = currentDateTime.getHours();
+    let minutes = currentDateTime.getMinutes();
+    let seconds = currentDateTime.getSeconds();
+    hours = hours < 10 ? '0' + hours : hours;
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+    seconds = seconds < 10 ? '0' + seconds : seconds;    
+    return hours + ':' + minutes + ':' + seconds;
+}
+module.exports.getTimefromDateTime = getTimefromDateTime;
 /**
  * Renames all properties in object which are equal to oldName
  * @param {object} obj Object to be modified
@@ -74,17 +94,16 @@ module.exports.renameProperty = function (obj, oldName, newName) {
 };
 /**
  * Returns new date based on date and added number of years, months, days, hours, minutes or seconds
- * @param {date} date Date value to which date-time intervals should be added
+ * @param {object} date Date value to which date-time intervals should be added
  * @param {number} years Number of years to add
  * @param {number} months Number of months to add
  * @param {number} days Number of days to add
  * @param {number} hours Number of hours to add
  * @param {number} minutes Number of minutes to add
  * @param {number} seconds Number of seconds to add
- * @returns {date} New date with added number of days
+ * @returns {object} New date with added number of days
  */
-module.exports.addDate = (date, years, months, days, hours, minutes, seconds) =>
-{  
+function addDate(date, years, months, days, hours, minutes, seconds) {  
     let result = new Date(
         date.getFullYear() + years,
         date.getMonth() + months,
@@ -95,6 +114,7 @@ module.exports.addDate = (date, years, months, days, hours, minutes, seconds) =>
     );
     return result;
 }
+module.exports.addDate = addDate;
 /**
  * Convert string represented date and time to native date-time format
  * @param {string} stringDateTime Date and time represented as a sting. Example: '2018-01-31T20:54:23.071Z'
@@ -102,17 +122,22 @@ module.exports.addDate = (date, years, months, days, hours, minutes, seconds) =>
  */
 function parseDateTime(stringDateTime) {
     let preDate = Date.parse(stringDateTime);
-    if(preDate != NaN)
-        return  new Date(preDate);
+    if(!isNaN(preDate)) 
+        return  new Date(preDate);            
     else
         return null;
 }
 module.exports.parseDateTime = parseDateTime;
+/**
+ * Calculates next run date and time 
+ * @param {object} schedule Schedule for which next run date and time should be calculated
+ * @returns {object} Next run date and time or null in case if next run date and time can not be calculated
+ */ 
 module.exports.calculateNextRun = (schedule) => {    
     //oneTime
     if(schedule.hasOwnProperty('oneTime')) {        
         let oneTime = parseDateTime(schedule.oneTime);
-        if(oneTime > getTimestamp())
+        if(oneTime > getDateTime())
             return oneTime;
         else
             return null;
@@ -120,25 +145,21 @@ module.exports.calculateNextRun = (schedule) => {
 
     //eachNDay 
     if(schedule.hasOwnProperty('eachNDay')) {        
-        //calculating date
-        let newDateTime = schedule.startDateTime;
-        let currentDate = new Date();
+        //calculating date without time
+        let currentDate = new Date((new Date()).setHours(0, 0, 0, 0));
+        let newDateTime = new Date(parseDateTime(schedule.startDateTime).setHours(0, 0, 0, 0));
         while(newDateTime < currentDate) {
             newDateTime = addDate(newDateTime, 0, 0, schedule.eachNDay, 0, 0, 0);
         }
         //add time
-        if(schedule.hasOwnProperty('occursOnceAt')) {
+        if(schedule.dailyFrequency.hasOwnProperty('occursOnceAt')) {
             let time = schedule.dailyFrequency.occursOnceAt.split(':');
-            newDateTime.setHours(time[0]);
-            newDateTime.setMinutes(time[1]);
-            newDateTime.setSeconds(time[2]);
+            newDateTime.setHours(time[0], time[1], time[2]);
             return newDateTime;
         }
         if(schedule.hasOwnProperty('occursEvery')) {
             let time = schedule.dailyFrequency.start.split(':');
-            newDateTime.setHours(time[0]);
-            newDateTime.setMinutes(time[1]);
-            newDateTime.setSeconds(time[2]);
+            newDateTime.setHours(time[0], time[1], time[2]);
             while(newDateTime < currentDate) {
                 switch(schedule.dailyFrequency.occursEvery.intervalType) {
                     case 'minute':
@@ -155,6 +176,10 @@ module.exports.calculateNextRun = (schedule) => {
     //eachNWeek
     //month
 }
+/**
+ * Returns new express instance, prepared for work with json
+ * @returns {object}
+ */
 function expressInstance() {
     const app = express();
     app.use(bodyParser.json());
@@ -166,10 +191,16 @@ function expressInstance() {
 }
 module.exports.expressInstance = expressInstance;
 
-module.exports.expressMongoInstancePromise = function(router, mongodb_url) {
+/**
+ * 
+ * @param {object} router Object with api routes description
+ * @param {string} mongodbUrl MongoDB connection URL
+ * @returns {object} Promise which will be resolved just after mongoDB connection
+ */
+module.exports.expressMongoInstancePromise = function(router, mongodbUrl) {
     let prms = new Promise((resolve, reject) => {
         try {
-            MongoClient.connect(mongodb_url, { useNewUrlParser: true }, (err, dbclient) => {
+            MongoClient.connect(mongodbUrl, { useNewUrlParser: true }, (err, dbclient) => {
                 if (err) 
                     return console.log(err)    
                 let app = expressInstance();

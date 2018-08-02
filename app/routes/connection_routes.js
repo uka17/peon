@@ -64,9 +64,9 @@ module.exports = function(app, dbclient) {
       if(!connectionValidationResult.isValid)
         res.status(400).send({requestValidationErrors: connectionValidationResult.errorList});
       else {
-        connection.createdOn = utools.getTimestamp();     
+        connection.createdOn = utools.getDateTime();     
         connection.createdBy = config.user;       
-        connection.modifiedOn = utools.getTimestamp();    
+        connection.modifiedOn = utools.getDateTime();    
         connection.modifiedBy = config.user;
 
         dbclient.db(config.db_name).collection('connection').insert(connection, (err, result) => {
@@ -91,7 +91,7 @@ module.exports = function(app, dbclient) {
     //update connection by id
     try {
       var connection = req.body;      
-      connection.modifiedOn = utools.getTimestamp();
+      connection.modifiedOn = utools.getDateTime();
       connection.modifiedBy = config.user;      
 
       const where = { '_id': new mongo.ObjectID(req.params.id) };      

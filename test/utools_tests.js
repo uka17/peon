@@ -25,10 +25,25 @@ describe('utools', function() {
     });
 
     describe('small tools and helpers', function() {
-        it('getTimestamp ', function(done) {
-            assert.equal(utools.getTimestamp().toString(), new Date());
+        it('getDateTime ', function(done) {            
+            assert.equalDate(utools.getDateTime(), new Date());
+            assert.equalTime(utools.getDateTime(), new Date());
             done();
         });   
+        it('getTimefromDateTime. date provided and leading zeroes', function(done) {
+            let dateTime = utools.parseDateTime('2018-01-31T02:03:04.071Z');
+            assert.equal(utools.getTimefromDateTime(dateTime), '05:03:04'); //UTC+3
+            done();
+        });           
+        it('getTimefromDateTime. date provided and no leading zeroes', function(done) {
+            let dateTime = utools.parseDateTime('2018-01-31T12:13:14.071Z');
+            assert.equal(utools.getTimefromDateTime(dateTime), '15:13:14'); //UTC+3
+            done();
+        });                   
+        it('getTimefromDateTime. date is not provided', function(done) {
+            assert.equal(utools.getTimefromDateTime(), (new Date()).toTimeString().substr(0,8)); //UTC+3
+            done();
+        });           
         it('renameProperty', function(done) {
             let expected = {new_name: 'obj_name', val: 1};
             let initial = {name: 'obj_name', val: 1};
@@ -77,33 +92,56 @@ describe('utools', function() {
             assert.equal(initial.toDateString(), expected.toDateString());
             done();
         });                 
+        it('parseDateTime. success', function(done) {
+            let dateTime = new Date(Date.parse('2019-06-10T02:02:02.071Z'));
+            assert.equalDate(utools.parseDateTime('2019-06-10T02:02:02.071Z'), dateTime);
+            assert.equalTime(utools.parseDateTime('2019-06-10T02:02:02.071Z'), dateTime);
+            done();
+        });        
+        it('parseDateTime. failure', function(done) {
+            assert.isNull(utools.parseDateTime(true));
+            done();
+        });                  
     });
 
     describe('calculateNextRun', function() {
         describe('oneTime', function() {
             it('success. added time', function(done) {
-                let oneTimeTestObject = require('./test_data').oneTimeScheduleOK;
-                oneTimeTestObject.oneTime = utools.addDate(utools.getTimestamp(), 0, 0, 0, 3, 0, 0);
-                let nextRun = oneTimeTestObject.oneTime;
-                assert.equalDate(utools.calculateNextRun(oneTimeTestObject), nextRun);
-                assert.equalTime(utools.calculateNextRun(oneTimeTestObject), nextRun);
+                let scheduleTestObject = require('./test_data').oneTimeScheduleOK;
+                scheduleTestObject.oneTime = utools.addDate(utools.getDateTime(), 0, 0, 0, 3, 0, 0);
+                let nextRun = scheduleTestObject.oneTime;
+                assert.equalDate(utools.calculateNextRun(scheduleTestObject), nextRun);
+                assert.equalTime(utools.calculateNextRun(scheduleTestObject), nextRun);
                 done();
             });         
             it('success. added date', function(done) {
-                let oneTimeTestObject = require('./test_data').oneTimeScheduleOK;
-                oneTimeTestObject.oneTime = utools.addDate(utools.getTimestamp(), 0, 0, 1, 0, 0, 0);
-                let nextRun = oneTimeTestObject.oneTime;
-                assert.equalDate(utools.calculateNextRun(oneTimeTestObject), nextRun);
-                assert.equalTime(utools.calculateNextRun(oneTimeTestObject), nextRun);
+                let scheduleTestObject = require('./test_data').oneTimeScheduleOK;
+                scheduleTestObject.oneTime = utools.addDate(utools.getDateTime(), 0, 0, 1, 0, 0, 0);
+                let nextRun = scheduleTestObject.oneTime;
+                assert.equalDate(utools.calculateNextRun(scheduleTestObject), nextRun);
+                assert.equalTime(utools.calculateNextRun(scheduleTestObject), nextRun);
                 done();
             });      
             it('failure. not a date', function(done) {
-                let oneTimeTestObject = require('./test_data').oneTimeScheduleOK;
-                oneTimeTestObject.oneTime = true;
-                let nextRun = oneTimeTestObject.oneTime;
-                assert.isNull(utools.calculateNextRun(oneTimeTestObject));
+                let scheduleTestObject = require('./test_data').oneTimeScheduleOK;
+                scheduleTestObject.oneTime = true;
+                assert.isNull(utools.calculateNextRun(scheduleTestObject));
                 done();
             });                                               
         });
+
+        describe('eachNDay. occursOnceAt', function() {
+            it('success', function(done) {
+                let scheduleTestObject = require('./test_data').dailyScheduleOnceOK;
+                scheduleTestObject.startDateTime = utools.getDateTime();
+                scheduleTestObject.eachNDay = 1;
+                let nextHourDateTime = utools.addDate(utools.getDateTime(), 0, 0, 0, 0, 0, 5); //test will fail between 23:55:00 and 00:00:00
+                scheduleTestObject.dailyFrequency.occursOnceAt = utools.getTimefromDateTime(nextHourDateTime);
+                assert.equalDate(utools.calculateNextRun(scheduleTestObject), nextHourDateTime);
+                assert.equalTime(utools.calculateNextRun(scheduleTestObject), nextHourDateTime);
+                done();
+            });      
+        });
+
     });
 });    
