@@ -10,12 +10,12 @@ var testData = require('./test_data');
 
 //test data preparation
 var testJob = testData.jobOK;
-var testStep = testData.step;
-var oneTimeSchedule = testData.oneTimeSchedule;
-var dailyScheduleOnce = testData.dailyScheduleOnce;
-var dailyScheduleEvery = testData.dailyScheduleEvery;
-var weeklySchedule = testData.weeklySchedule;
-var monthlySchedule = testData.monthlySchedule;
+var testStep = testData.stepOK;
+var oneTimeSchedule = testData.oneTimeScheduleOK;
+var dailyScheduleOnce = testData.dailyScheduleOnceOK;
+var dailyScheduleEvery = testData.dailyScheduleEveryOK;
+var weeklySchedule = testData.weeklyScheduleOK;
+var monthlySchedule = testData.monthlyScheduleOK;
 //---
 /**
  * Returns result of object validation across one or several nested schemas

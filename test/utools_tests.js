@@ -21,7 +21,7 @@ describe('utools', function() {
         });
     });
 
-    describe('tools and helpers', function() {
+    describe('small tools and helpers', function() {
         it('getTimestamp ', function(done) {
             assert.equal(utools.getTimestamp().toString(), new Date());
             done();
@@ -76,4 +76,10 @@ describe('utools', function() {
         });                 
     });
 
+    describe('calculateNextRun', function() {
+        it('getTimestamp ', function(done) {
+            assert.equal(utools.getTimestamp().toString(), new Date());
+            done();
+        }); 
+    });
 });    

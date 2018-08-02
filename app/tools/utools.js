@@ -55,7 +55,7 @@ module.exports.handleUserException = function(message, errorCode, res) {
  * Return date-time in a proper format
  * @returns {datetime} Date-time
  */
-var getTimestamp = () => { 
+function getTimestamp() { 
     return new Date();
 }
 module.exports.getTimestamp = getTimestamp;
@@ -98,8 +98,13 @@ module.exports.addDate = (date, years, months, days, hours, minutes, seconds) =>
 module.exports.calculateNextRun = (schedule) => {    
     //oneTime
     if(schedule.hasOwnProperty('oneTime')) {        
-        return schedule.oneTime;
+        let oneTime = new Date(Date.parse(schedule.oneTime));
+        if(oneTime > getTimestamp())
+            return oneTime;
+        else
+            return null;
     }
+
     //eachNDay 
     if(schedule.hasOwnProperty('eachNDay')) {        
         //calculating date

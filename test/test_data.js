@@ -132,7 +132,7 @@ module.exports.jobTestCaseOK = [
 }
 ]
 //step test data preparation
-module.exports.step = {
+module.exports.stepOK = {
     name: 'step',
     enabled: true,      
     connection: new mongo.ObjectID('0a9296f2496698264c23e180'),
@@ -209,26 +209,26 @@ module.exports.connectionNOK = [
     }                
 ];
 //schedule test data preparation
-module.exports.oneTimeSchedule = {
+module.exports.oneTimeScheduleOK = {
     name: 'oneTime',
     enabled: true,
     oneTime: '2018-01-31T20:54:23.071Z'
 };
-module.exports.dailyScheduleOnce = {
+module.exports.dailyScheduleOnceOK = {
     name: 'dailyOnce',
     enabled: true,
     startDateTime: '2018-01-31T20:54:23.071Z',
     eachNDay: 1,
     dailyFrequency: { occursOnceAt: '11:11:11'}
 };
-module.exports.dailyScheduleEvery = {
+module.exports.dailyScheduleEveryOK = {
     name: 'dailyEvery',
     enabled: true,
     startDateTime: '2018-01-31T20:54:23.071Z',
     eachNDay: 1,
     dailyFrequency: { start: '11:11:11', occursEvery: {intervalValue: 1, intervalType: 'minute'}}
 };
-module.exports.weeklySchedule = {
+module.exports.weeklyScheduleOK = {
     name: 'weekly',
     enabled: true,
     startDateTime: '2018-01-31T20:54:23.071Z',
@@ -236,7 +236,7 @@ module.exports.weeklySchedule = {
     dayOfWeek: ['mon', 'wed', 'fri'],
     dailyFrequency: { occursOnceAt: '11:11:11'}
 };
-module.exports.monthlySchedule = {
+module.exports.monthlyScheduleOK = {
     name: 'monthly',
     enabled: true,
     startDateTime: '2018-01-31T20:54:23.071Z',
