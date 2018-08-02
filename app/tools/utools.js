@@ -84,7 +84,7 @@ module.exports.renameProperty = function (obj, oldName, newName) {
  * @returns {date} New date with added number of days
  */
 module.exports.addDate = (date, years, months, days, hours, minutes, seconds) =>
-{
+{  
     let result = new Date(
         date.getFullYear() + years,
         date.getMonth() + months,
@@ -95,10 +95,23 @@ module.exports.addDate = (date, years, months, days, hours, minutes, seconds) =>
     );
     return result;
 }
+/**
+ * Convert string represented date and time to native date-time format
+ * @param {string} stringDateTime Date and time represented as a sting. Example: '2018-01-31T20:54:23.071Z'
+ * @returns {datetime} Date and time in a native format
+ */
+function parseDateTime(stringDateTime) {
+    let preDate = Date.parse(stringDateTime);
+    if(preDate != NaN)
+        return  new Date(preDate);
+    else
+        return null;
+}
+module.exports.parseDateTime = parseDateTime;
 module.exports.calculateNextRun = (schedule) => {    
     //oneTime
     if(schedule.hasOwnProperty('oneTime')) {        
-        let oneTime = new Date(Date.parse(schedule.oneTime));
+        let oneTime = parseDateTime(schedule.oneTime);
         if(oneTime > getTimestamp())
             return oneTime;
         else
