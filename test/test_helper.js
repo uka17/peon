@@ -58,5 +58,4 @@ function testHelper(object) {
     }
    
 }
-
 module.exports = testHelper;

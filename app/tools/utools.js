@@ -145,32 +145,43 @@ module.exports.calculateNextRun = (schedule) => {
 
     //eachNDay 
     if(schedule.hasOwnProperty('eachNDay')) {        
-        //calculating date without time
         let currentDate = new Date((new Date()).setHours(0, 0, 0, 0));
         let newDateTime = new Date(parseDateTime(schedule.startDateTime).setHours(0, 0, 0, 0));
+        let endDateTime = schedule.endDateTime ? new Date(parseDateTime(schedule.endDateTime)) : undefined;
         while(newDateTime < currentDate) {
             newDateTime = addDate(newDateTime, 0, 0, schedule.eachNDay, 0, 0, 0);
-        }
-        //add time
+        }        
         if(schedule.dailyFrequency.hasOwnProperty('occursOnceAt')) {
             let time = schedule.dailyFrequency.occursOnceAt.split(':');
             newDateTime.setHours(time[0], time[1], time[2]);
-            return newDateTime;
+            if(newDateTime < getDateTime())
+                //happened today, but already missed
+                newDateTime = addDate(newDateTime, 0, 0, schedule.eachNDay, 0, 0, 0);
+            
+            if(newDateTime > endDateTime)
+                return null;
+            else
+                return newDateTime;                            
         }
-        if(schedule.hasOwnProperty('occursEvery')) {
+
+        if(schedule.dailyFrequency.hasOwnProperty('occursEvery')) {
             let time = schedule.dailyFrequency.start.split(':');
             newDateTime.setHours(time[0], time[1], time[2]);
-            while(newDateTime < currentDate) {
+            while(newDateTime < getDateTime()) {
                 switch(schedule.dailyFrequency.occursEvery.intervalType) {
                     case 'minute':
-                        addDate(newDateTime, 0, 0, 0, 0, schedule.dailyFrequency.occursEvery.intervalValue, 0);
+                        newDateTime = addDate(newDateTime, 0, 0, 0, 0, schedule.dailyFrequency.occursEvery.intervalValue, 0);
                     break;
                     case 'hour':
-                        addDate(newDateTime, 0, 0, 0, schedule.dailyFrequency.occursEvery.intervalValue, 0, 0);
+                        newDateTime = addDate(newDateTime, 0, 0, 0, schedule.dailyFrequency.occursEvery.intervalValue, 0, 0);
                     break;
                 }
             }
-            return newDateTime;
+        
+            if(newDateTime > endDateTime)
+                return null;
+            else
+                return newDateTime;   
         }
     }    
     //eachNWeek

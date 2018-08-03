@@ -31,13 +31,13 @@ describe('utools', function() {
             done();
         });   
         it('getTimefromDateTime. date provided and leading zeroes', function(done) {
-            let dateTime = utools.parseDateTime('2018-01-31T02:03:04.071Z');
-            assert.equal(utools.getTimefromDateTime(dateTime), '05:03:04'); //UTC+3
+            let dateTime = utools.parseDateTime('2018-01-31T02:03:04.071+03:00');
+            assert.equal(utools.getTimefromDateTime(dateTime), '02:03:04');
             done();
         });           
         it('getTimefromDateTime. date provided and no leading zeroes', function(done) {
-            let dateTime = utools.parseDateTime('2018-01-31T12:13:14.071Z');
-            assert.equal(utools.getTimefromDateTime(dateTime), '15:13:14'); //UTC+3
+            let dateTime = utools.parseDateTime('2018-01-31T12:13:14.071+03:00');
+            assert.equal(utools.getTimefromDateTime(dateTime), '12:13:14');
             done();
         });                   
         it('getTimefromDateTime. date is not provided', function(done) {
@@ -131,17 +131,196 @@ describe('utools', function() {
         });
 
         describe('eachNDay. occursOnceAt', function() {
-            it('success', function(done) {
+            it('success. run at now+5min', function(done) {
                 let scheduleTestObject = require('./test_data').dailyScheduleOnceOK;
                 scheduleTestObject.startDateTime = utools.getDateTime();
                 scheduleTestObject.eachNDay = 1;
-                let nextHourDateTime = utools.addDate(utools.getDateTime(), 0, 0, 0, 0, 0, 5); //test will fail between 23:55:00 and 00:00:00
-                scheduleTestObject.dailyFrequency.occursOnceAt = utools.getTimefromDateTime(nextHourDateTime);
-                assert.equalDate(utools.calculateNextRun(scheduleTestObject), nextHourDateTime);
-                assert.equalTime(utools.calculateNextRun(scheduleTestObject), nextHourDateTime);
+                let nextRunDateTime = utools.addDate(utools.getDateTime(), 0, 0, 0, 0, 0, 5); //test will fail between 23:55:00 and 00:00:00
+                scheduleTestObject.dailyFrequency.occursOnceAt = utools.getTimefromDateTime(nextRunDateTime);
+                let calculationResult = utools.calculateNextRun(scheduleTestObject);
+                console.log('str: ', scheduleTestObject.startDateTime);
+                console.log('end: ', scheduleTestObject.endDateTime);
+                console.log('crn: ', utools.getDateTime());                
+                console.log('int: ', scheduleTestObject.eachNDay);
+                console.log('clc: ', calculationResult);
+                console.log('exp: ', nextRunDateTime);                
+                assert.equalDate(calculationResult, nextRunDateTime);
+                assert.equalTime(calculationResult, nextRunDateTime);
                 done();
             });      
+            it('success. run every 7 days at now+15min', function(done) {
+                let scheduleTestObject = require('./test_data').dailyScheduleOnceOK;
+                scheduleTestObject.startDateTime = utools.addDate(utools.getDateTime(), 0, 0, -15, 0, 0, 0);
+                scheduleTestObject.eachNDay = 7;
+                let nextRunDateTime = utools.addDate(utools.getDateTime(), 0, 0, 6, 0, 0, 15); 
+                scheduleTestObject.dailyFrequency.occursOnceAt = utools.getTimefromDateTime(nextRunDateTime);
+                let calculationResult = utools.calculateNextRun(scheduleTestObject);
+                console.log('str: ', scheduleTestObject.startDateTime);
+                console.log('end: ', scheduleTestObject.endDateTime);
+                console.log('crn: ', utools.getDateTime());                
+                console.log('int: ', scheduleTestObject.eachNDay);
+                console.log('clc: ', calculationResult);
+                console.log('exp: ', nextRunDateTime);                
+                assert.equalDate(calculationResult, nextRunDateTime);
+                assert.equalTime(calculationResult, nextRunDateTime);
+                done();
+            });             
+            it('success. run at now+1day-1hour', function(done) {
+                let scheduleTestObject = require('./test_data').dailyScheduleOnceOK;
+                scheduleTestObject.startDateTime = utools.addDate(utools.getDateTime(), 0, 0, -1, -1, 0, 0);
+                scheduleTestObject.eachNDay = 1;
+                let nextRunDateTime = utools.addDate(utools.getDateTime(), 0, 0, 1, -1, 0, 0);
+                scheduleTestObject.dailyFrequency.occursOnceAt = utools.getTimefromDateTime(nextRunDateTime);
+                let calculationResult = utools.calculateNextRun(scheduleTestObject);
+                console.log('str: ', scheduleTestObject.startDateTime);
+                console.log('end: ', scheduleTestObject.endDateTime);
+                console.log('crn: ', utools.getDateTime());                
+                console.log('int: ', scheduleTestObject.eachNDay);
+                console.log('clc: ', calculationResult);
+                console.log('exp: ', nextRunDateTime);                
+                assert.equalDate(calculationResult, nextRunDateTime);
+                assert.equalTime(calculationResult, nextRunDateTime);
+                done();
+            });               
+            it('failure. endDateTime restriction', function(done) {
+                let scheduleTestObject = require('./test_data').dailyScheduleOnceOK;
+                scheduleTestObject.startDateTime = utools.addDate(utools.getDateTime(), 0, 0, -1, -1, 0, 0);
+                scheduleTestObject.eachNDay = 1;
+                scheduleTestObject.endDateTime = utools.getDateTime();
+                let nextRunDateTime = utools.addDate(utools.getDateTime(), 0, 0, 1, -1, 0, 0);
+                scheduleTestObject.dailyFrequency.occursOnceAt = utools.getTimefromDateTime(nextRunDateTime);
+                let calculationResult = utools.calculateNextRun(scheduleTestObject);
+                console.log('str: ', scheduleTestObject.startDateTime);
+                console.log('end: ', scheduleTestObject.endDateTime);
+                console.log('crn: ', utools.getDateTime());                
+                console.log('int: ', scheduleTestObject.eachNDay);
+                console.log('clc: ', calculationResult);
+                console.log('exp: ', nextRunDateTime);              
+                assert.isNull(calculationResult);
+                done();
+            });                     
         });
 
+        describe('eachNDay. occursEvery', function() {
+            it('success. run every 15 minutes starting 10:07:00', function(done) {
+                //test data preparation
+                let scheduleTestObject = require('./test_data').dailyScheduleEveryOK;
+                scheduleTestObject.startDateTime = utools.parseDateTime('2018-01-01T10:00:00.000Z');
+                scheduleTestObject.eachNDay = 1;                
+                scheduleTestObject.dailyFrequency.start = '10:07:00';
+                scheduleTestObject.dailyFrequency.occursEvery.intervalType = 'minute';
+                scheduleTestObject.dailyFrequency.occursEvery.intervalValue = 15;
+                //calculate test case data
+                let calculationResult = utools.calculateNextRun(scheduleTestObject);
+                //manual calculation for validation
+                let time = scheduleTestObject.dailyFrequency.start.split(':');
+                let nextRunDateTime = new Date(utools.getDateTime().setHours(time[0], time[1], time[2], 0));
+                while(nextRunDateTime < utools.getDateTime()) {
+                    nextRunDateTime = utools.addDate(nextRunDateTime, 0, 0, 0, 0, scheduleTestObject.dailyFrequency.occursEvery.intervalValue, 0);
+                }
+                //log
+                console.log('str: ', scheduleTestObject.startDateTime);
+                console.log('end: ', scheduleTestObject.endDateTime);
+                console.log('crn: ', utools.getDateTime());                
+                console.log('int: ', scheduleTestObject.eachNDay);
+                console.log('frc: ', scheduleTestObject.dailyFrequency.start, scheduleTestObject.dailyFrequency.occursEvery.intervalType, scheduleTestObject.dailyFrequency.occursEvery.intervalValue);
+                console.log('clc: ', calculationResult);
+                console.log('exp: ', nextRunDateTime);   
+                //assertion
+                assert.equalDate(calculationResult, nextRunDateTime);
+                assert.equalTime(calculationResult, nextRunDateTime);
+                done();
+            });          
+            it('success. run every 5 hours starting 05:55:00', function(done) {
+                //test data preparation
+                let scheduleTestObject = require('./test_data').dailyScheduleEveryOK;
+                scheduleTestObject.startDateTime = utools.parseDateTime('2018-01-01T10:00:00.000Z');
+                scheduleTestObject.eachNDay = 1;                
+                scheduleTestObject.dailyFrequency.start = '05:55:00';
+                scheduleTestObject.dailyFrequency.occursEvery.intervalType = 'hour';
+                scheduleTestObject.dailyFrequency.occursEvery.intervalValue = 5;
+                //calculate test case data
+                let calculationResult = utools.calculateNextRun(scheduleTestObject);
+                //manual calculation for validation
+                let time = scheduleTestObject.dailyFrequency.start.split(':');
+                let nextRunDateTime = new Date(utools.getDateTime().setHours(time[0], time[1], time[2], 0));
+                while(nextRunDateTime < utools.getDateTime()) {
+                    nextRunDateTime = utools.addDate(nextRunDateTime, 0, 0, 0, scheduleTestObject.dailyFrequency.occursEvery.intervalValue, 0, 0);
+                }
+                //log
+                console.log('str: ', scheduleTestObject.startDateTime);
+                console.log('end: ', scheduleTestObject.endDateTime);
+                console.log('crn: ', utools.getDateTime());                
+                console.log('int: ', scheduleTestObject.eachNDay);
+                console.log('frc: ', scheduleTestObject.dailyFrequency.start, scheduleTestObject.dailyFrequency.occursEvery.intervalType, scheduleTestObject.dailyFrequency.occursEvery.intervalValue);
+                console.log('clc: ', calculationResult);
+                console.log('exp: ', nextRunDateTime);   
+                //assertion
+                assert.equalDate(calculationResult, nextRunDateTime);
+                assert.equalTime(calculationResult, nextRunDateTime);
+                done();
+            });           
+            /*
+            it('success. run every 2 hours starting 09:18:36, each 12 days', function(done) {
+                //test data preparation
+                let scheduleTestObject = require('./test_data').dailyScheduleEveryOK;
+                scheduleTestObject.startDateTime = utools.parseDateTime('2018-01-01T10:00:00.000Z');
+                scheduleTestObject.eachNDay = 12;                
+                scheduleTestObject.dailyFrequency.start = '09:18:36';
+                scheduleTestObject.dailyFrequency.occursEvery.intervalType = 'hour';
+                scheduleTestObject.dailyFrequency.occursEvery.intervalValue = 2;
+                //calculate test case data
+                let currentDate = new Date((new Date()).setHours(0, 0, 0, 0));
+                let calculationResult = utools.calculateNextRun(scheduleTestObject);
+                //manual calculation for validation
+                let nextRunDateTime = new Date(scheduleTestObject.startDateTime.setHours(0, 0, 0));
+                //date
+                while(nextRunDateTime < currentDate) {
+                    nextRunDateTime = utools.addDate(nextRunDateTime, 0, 0, 0, scheduleTestObject.dailyFrequency.occursEvery.intervalValue, 0, 0);
+                }
+                //time
+                let time = scheduleTestObject.dailyFrequency.start.split(':');
+                nextRunDateTime = new Date(utools.getDateTime().setHours(time[0], time[1], time[2], 0));
+                while(nextRunDateTime < utools.getDateTime()) {
+                    nextRunDateTime = utools.addDate(nextRunDateTime, 0, 0, 0, scheduleTestObject.dailyFrequency.occursEvery.intervalValue, 0, 0);
+                }
+                //log
+                console.log('str: ', scheduleTestObject.startDateTime);
+                console.log('end: ', scheduleTestObject.endDateTime);
+                console.log('crn: ', utools.getDateTime());                
+                console.log('int: ', scheduleTestObject.eachNDay);
+                console.log('frc: ', scheduleTestObject.dailyFrequency.start, scheduleTestObject.dailyFrequency.occursEvery.intervalType, scheduleTestObject.dailyFrequency.occursEvery.intervalValue);
+                console.log('clc: ', calculationResult);
+                console.log('exp: ', nextRunDateTime);   
+                //assertion
+                assert.equalDate(calculationResult, nextRunDateTime);
+                assert.equalTime(calculationResult, nextRunDateTime);
+                done();
+            });    
+            */ 
+            it('failure. run every 59 minutes starting 10:10:10, endDateTime restriction', function(done) {
+                //test data preparation
+                let scheduleTestObject = require('./test_data').dailyScheduleEveryOK;
+                scheduleTestObject.startDateTime = utools.parseDateTime('2018-01-01T10:00:00.000Z');
+                scheduleTestObject.eachNDay = 1;                
+                scheduleTestObject.dailyFrequency.start = '10:10:10';
+                scheduleTestObject.dailyFrequency.occursEvery.intervalType = 'minute';
+                scheduleTestObject.dailyFrequency.occursEvery.intervalValue = 59;
+                scheduleTestObject.endDateTime = utools.getDateTime();
+                //calculate test case data
+                let calculationResult = utools.calculateNextRun(scheduleTestObject);
+                //log
+                console.log('str: ', scheduleTestObject.startDateTime);
+                console.log('end: ', scheduleTestObject.endDateTime);
+                console.log('crn: ', utools.getDateTime());                
+                console.log('int: ', scheduleTestObject.eachNDay);
+                console.log('frc: ', scheduleTestObject.dailyFrequency.start, scheduleTestObject.dailyFrequency.occursEvery.intervalType, scheduleTestObject.dailyFrequency.occursEvery.intervalValue);
+                console.log('clc: ', calculationResult);
+                //assertion
+                assert.isNull(calculationResult);
+                done();
+            });             
+            //todo eachNDays>1        
+        });
     });
 });    
