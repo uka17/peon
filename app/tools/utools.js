@@ -70,9 +70,9 @@ function getTimefromDateTime(dateTime) {
         currentDateTime = dateTime;
     else
         currentDateTime = getDateTime();
-    let hours = currentDateTime.getHours();
-    let minutes = currentDateTime.getMinutes();
-    let seconds = currentDateTime.getSeconds();
+    let hours = currentDateTime.getUTCHours();
+    let minutes = currentDateTime.getUTCMinutes();
+    let seconds = currentDateTime.getUTCSeconds();
     hours = hours < 10 ? '0' + hours : hours;
     minutes = minutes < 10 ? '0' + minutes : minutes;
     seconds = seconds < 10 ? '0' + seconds : seconds;    
@@ -117,8 +117,8 @@ function addDate(date, years, months, days, hours, minutes, seconds) {
 module.exports.addDate = addDate;
 /**
  * Convert string represented date and time to native date-time format
- * @param {string} stringDateTime Date and time represented as a sting. Example: '2018-01-31T20:54:23.071Z'
- * @returns {datetime} Date and time in a native format
+ * @param {string} stringDateTime UTC date and time represented as a sting. Example: '2018-01-31T20:54:23.071Z'
+ * @returns {datetime} Date and time object
  */
 function parseDateTime(stringDateTime) {
     let preDate = Date.parse(stringDateTime);

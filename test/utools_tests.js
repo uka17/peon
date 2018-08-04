@@ -31,17 +31,17 @@ describe('utools', function() {
             done();
         });   
         it('getTimefromDateTime. date provided and leading zeroes', function(done) {
-            let dateTime = utools.parseDateTime('2018-01-31T02:03:04.071+03:00');
+            let dateTime = utools.parseDateTime('2018-01-31T02:03:04.071Z');
             assert.equal(utools.getTimefromDateTime(dateTime), '02:03:04');
             done();
         });           
-        it('getTimefromDateTime. date provided and no leading zeroes', function(done) {
-            let dateTime = utools.parseDateTime('2018-01-31T12:13:14.071+03:00');
+        it('getTimefromDateTime. date provided and no need to add leading zeroes', function(done) {
+            let dateTime = utools.parseDateTime('2018-01-31T12:13:14.071Z');
             assert.equal(utools.getTimefromDateTime(dateTime), '12:13:14');
             done();
         });                   
         it('getTimefromDateTime. date is not provided', function(done) {
-            assert.equal(utools.getTimefromDateTime(), (new Date()).toTimeString().substr(0,8)); //UTC+3
+            assert.include( (new Date()).toUTCString(), utools.getTimefromDateTime()); 
             done();
         });           
         it('renameProperty', function(done) {
@@ -82,7 +82,8 @@ describe('utools', function() {
             let initial = utools.parseDateTime('2018-05-01T01:00:00.000Z');            
             let expected = utools.parseDateTime('2018-04-30T23:00:00.000Z');
             initial = utools.addDate(initial, 0, 0, 0, -2, 0, 0);
-            assert.equal(initial.toDateString(), expected.toDateString());
+            assert.equalDate(initial, expected);
+            assert.equalTime(initial, expected);
             done();
         });            
         it('addDate 6-', function(done) {
@@ -103,7 +104,7 @@ describe('utools', function() {
             done();
         });                  
     });
-
+/*
     describe('calculateNextRun', function() {
         describe('oneTime', function() {
             it('success. added time', function(done) {
@@ -260,27 +261,27 @@ describe('utools', function() {
                 assert.equalTime(calculationResult, nextRunDateTime);
                 done();
             });           
-            /*
             it('success. run every 2 hours starting 09:18:36, each 12 days', function(done) {
                 //test data preparation
                 let scheduleTestObject = require('./test_data').dailyScheduleEveryOK;
-                scheduleTestObject.startDateTime = utools.parseDateTime('2018-01-01T10:00:00.000Z');
+                scheduleTestObject.startDateTime = utools.parseDateTime('2018-07-01T12:00:00.000Z');
                 scheduleTestObject.eachNDay = 12;                
                 scheduleTestObject.dailyFrequency.start = '09:18:36';
                 scheduleTestObject.dailyFrequency.occursEvery.intervalType = 'hour';
                 scheduleTestObject.dailyFrequency.occursEvery.intervalValue = 2;
                 //calculate test case data
-                let currentDate = new Date((new Date()).setHours(0, 0, 0, 0));
                 let calculationResult = utools.calculateNextRun(scheduleTestObject);
                 //manual calculation for validation
-                let nextRunDateTime = new Date(scheduleTestObject.startDateTime.setHours(0, 0, 0));
+                let currentDate = new Date(utools.getDateTime().setHours(0, 0, 0, 0));
+                let nextRunDateTime = new Date(scheduleTestObject.startDateTime);
+                nextRunDateTime.setHours(0, 0, 0);
                 //date
                 while(nextRunDateTime < currentDate) {
-                    nextRunDateTime = utools.addDate(nextRunDateTime, 0, 0, 0, scheduleTestObject.dailyFrequency.occursEvery.intervalValue, 0, 0);
+                    nextRunDateTime = utools.addDate(nextRunDateTime, 0, 0, scheduleTestObject.eachNDay, 0, 0, 0);
                 }
                 //time
                 let time = scheduleTestObject.dailyFrequency.start.split(':');
-                nextRunDateTime = new Date(utools.getDateTime().setHours(time[0], time[1], time[2], 0));
+                nextRunDateTime = new Date(nextRunDateTime.setHours(time[0], time[1], time[2], 0));
                 while(nextRunDateTime < utools.getDateTime()) {
                     nextRunDateTime = utools.addDate(nextRunDateTime, 0, 0, 0, scheduleTestObject.dailyFrequency.occursEvery.intervalValue, 0, 0);
                 }
@@ -297,7 +298,6 @@ describe('utools', function() {
                 assert.equalTime(calculationResult, nextRunDateTime);
                 done();
             });    
-            */ 
             it('failure. run every 59 minutes starting 10:10:10, endDateTime restriction', function(done) {
                 //test data preparation
                 let scheduleTestObject = require('./test_data').dailyScheduleEveryOK;
@@ -323,4 +323,5 @@ describe('utools', function() {
             //todo eachNDays>1        
         });
     });
+    */
 });    
