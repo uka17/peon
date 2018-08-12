@@ -12,10 +12,9 @@ module.exports = function(app, dbclient) {
     try {         
       //res.status(200).send({result: validation.dateTimeIsValid('2015-aa-25T12:00:00Z')});
       let scheduleTestObject = testData.dailyScheduleOnceOK;
-      scheduleTestObject.startDateTime = utools.addDate(utools.getDateTime(), 0, 0, -1, -1, 0, 0);
+      scheduleTestObject.startDateTime = utools.getDateTime();
       scheduleTestObject.eachNDay = 1;
-      scheduleTestObject.endDateTime = utools.getDateTime();
-      let nextRunDateTime = utools.addDate(utools.getDateTime(), 0, 0, 1, -1, 0, 0);
+      let nextRunDateTime = utools.addDate(utools.getDateTime(), 0, 0, 0, 0, 0, 5); //test will fail between 23:55:00 and 00:00:00
       scheduleTestObject.dailyFrequency.occursOnceAt = utools.getTimefromDateTime(nextRunDateTime);
       let calculationResult = utools.calculateNextRun(scheduleTestObject);
     }

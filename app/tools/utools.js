@@ -73,6 +73,9 @@ function getTimefromDateTime(dateTime) {
     let hours = currentDateTime.getUTCHours();
     let minutes = currentDateTime.getUTCMinutes();
     let seconds = currentDateTime.getUTCSeconds();
+    //let hours = currentDateTime.getHours();
+    //let minutes = currentDateTime.getMinutes();
+    //let seconds = currentDateTime.getSeconds();
     hours = hours < 10 ? '0' + hours : hours;
     minutes = minutes < 10 ? '0' + minutes : minutes;
     seconds = seconds < 10 ? '0' + seconds : seconds;    
@@ -108,9 +111,9 @@ function addDate(date, years, months, days, hours, minutes, seconds) {
         date.getFullYear() + years,
         date.getMonth() + months,
         date.getDate() + days,
-        date.getHours() + hours,
-        date.getMinutes() + minutes,
-        date.getSeconds() + seconds
+        date.getUTCHours() + hours,
+        date.getUTCMinutes() + minutes,
+        date.getUTCSeconds() + seconds
     );
     return result;
 }
@@ -154,6 +157,7 @@ module.exports.calculateNextRun = (schedule) => {
         if(schedule.dailyFrequency.hasOwnProperty('occursOnceAt')) {
             let time = schedule.dailyFrequency.occursOnceAt.split(':');
             newDateTime.setHours(time[0], time[1], time[2]);
+            console.log(newDateTime, getDateTime())
             if(newDateTime < getDateTime())
                 //happened today, but already missed
                 newDateTime = addDate(newDateTime, 0, 0, schedule.eachNDay, 0, 0, 0);

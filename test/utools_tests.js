@@ -104,7 +104,7 @@ describe('utools', function() {
             done();
         });                  
     });
-/*
+
     describe('calculateNextRun', function() {
         describe('oneTime', function() {
             it('success. added time', function(done) {
@@ -323,5 +323,4 @@ describe('utools', function() {
             //todo eachNDays>1        
         });
     });
-    */
 });    
