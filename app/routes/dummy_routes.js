@@ -14,9 +14,9 @@ module.exports = function(app, dbclient) {
       let scheduleTestObject = testData.dailyScheduleOnceOK;
       scheduleTestObject.startDateTime = utools.getDateTime();
       scheduleTestObject.eachNDay = 1;
-      let nextRunDateTime = utools.addDate(utools.getDateTime(), 0, 0, 0, 0, 0, 5); //test will fail between 23:55:00 and 00:00:00
+      let nextRunDateTime = utools.addDate(utools.getDateTime(), 0, 0, 0, 0, 5, 0); //test will fail between 23:55:00 and 00:00:00
       scheduleTestObject.dailyFrequency.occursOnceAt = utools.getTimefromDateTime(nextRunDateTime);
-      let calculationResult = utools.calculateNextRun(scheduleTestObject);
+      res.status(200).send({result: utools.calculateNextRun(scheduleTestObject)});
     }
     catch(e) {
       res.status(500).send({error: e.message});

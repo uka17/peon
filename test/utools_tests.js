@@ -51,31 +51,35 @@ describe('utools', function() {
             done();
         });  
         it('addDate 1+', function(done) {
-            let expected = utools.parseDateTime('2018-01-31T02:02:02.071Z');            
+            let expected = utools.parseDateTime('2018-01-31T02:02:02.071Z');        
             let initial = utools.parseDateTime('2018-01-31T01:01:01.071Z');
             initial = utools.addDate(initial, 0, 0, 0, 1, 1, 1);
-            assert.equal(initial.toDateString(), expected.toDateString());
+            assert.equalDate(initial, expected);
+            assert.equalTime(initial, expected);
             done();
         });         
         it('addDate 2+', function(done) {
             let initial = utools.parseDateTime('2018-02-28T23:00:00.000Z');            
             let expected = utools.parseDateTime('2018-03-01T01:00:00.000Z');
             initial = utools.addDate(initial, 0, 0, 0, 2, 0, 0);
-            assert.equal(initial.toDateString(), expected.toDateString());
+            assert.equalDate(initial, expected);
+            assert.equalTime(initial, expected);
             done();
         });            
         it('addDate 3+', function(done) {
             let initial = utools.parseDateTime('2018-06-10T02:02:02.071Z');            
             let expected = utools.parseDateTime('2019-06-10T02:02:02.071Z');
             initial = utools.addDate(initial, 1, 0, 0, 0, 0, 0);
-            assert.equal(initial.toDateString(), expected.toDateString());
+            assert.equalDate(initial, expected);
+            assert.equalTime(initial, expected);
             done();
         });             
         it('addDate 4-', function(done) {
             let expected = utools.parseDateTime('2018-01-31T01:01:01.000Z');            
             let initial = utools.parseDateTime('2018-01-31T02:02:02.000Z');
             initial = utools.addDate(initial, 0, 0, 0, -1, -1, -1);
-            assert.equal(initial.toDateString(), expected.toDateString());
+            assert.equalDate(initial, expected);
+            assert.equalTime(initial, expected);
             done();
         });         
         it('addDate 5-', function(done) {
@@ -90,7 +94,8 @@ describe('utools', function() {
             let initial = utools.parseDateTime('2019-06-10T02:02:02.071Z');            
             let expected = utools.parseDateTime('2018-06-10T02:02:02.071Z');
             initial = utools.addDate(initial, -1, 0, 0, 0, 0, 0);
-            assert.equal(initial.toDateString(), expected.toDateString());
+            assert.equalDate(initial, expected);
+            assert.equalTime(initial, expected);
             done();
         });                 
         it('parseDateTime. success', function(done) {
@@ -136,7 +141,8 @@ describe('utools', function() {
                 let scheduleTestObject = require('./test_data').dailyScheduleOnceOK;
                 scheduleTestObject.startDateTime = utools.getDateTime();
                 scheduleTestObject.eachNDay = 1;
-                let nextRunDateTime = utools.addDate(utools.getDateTime(), 0, 0, 0, 0, 0, 5); //test will fail between 23:55:00 and 00:00:00
+                let nextRunDateTime = utools.addDate(utools.getDateTime(), 0, 0, 0, 0, 5, 0);
+                //nextRunDateTime.setMilliseconds(0);
                 scheduleTestObject.dailyFrequency.occursOnceAt = utools.getTimefromDateTime(nextRunDateTime);
                 let calculationResult = utools.calculateNextRun(scheduleTestObject);
                 console.log('str: ', scheduleTestObject.startDateTime);
@@ -153,7 +159,8 @@ describe('utools', function() {
                 let scheduleTestObject = require('./test_data').dailyScheduleOnceOK;
                 scheduleTestObject.startDateTime = utools.addDate(utools.getDateTime(), 0, 0, -15, 0, 0, 0);
                 scheduleTestObject.eachNDay = 7;
-                let nextRunDateTime = utools.addDate(utools.getDateTime(), 0, 0, 6, 0, 0, 15); 
+                let nextRunDateTime = utools.addDate(utools.getDateTime(), 0, 0, 6, 0, 15, 0); 
+                //nextRunDateTime.setMilliseconds(0);
                 scheduleTestObject.dailyFrequency.occursOnceAt = utools.getTimefromDateTime(nextRunDateTime);
                 let calculationResult = utools.calculateNextRun(scheduleTestObject);
                 console.log('str: ', scheduleTestObject.startDateTime);
@@ -171,6 +178,7 @@ describe('utools', function() {
                 scheduleTestObject.startDateTime = utools.addDate(utools.getDateTime(), 0, 0, -1, -1, 0, 0);
                 scheduleTestObject.eachNDay = 1;
                 let nextRunDateTime = utools.addDate(utools.getDateTime(), 0, 0, 1, -1, 0, 0);
+                //nextRunDateTime.setMilliseconds(0);
                 scheduleTestObject.dailyFrequency.occursOnceAt = utools.getTimefromDateTime(nextRunDateTime);
                 let calculationResult = utools.calculateNextRun(scheduleTestObject);
                 console.log('str: ', scheduleTestObject.startDateTime);
@@ -189,6 +197,7 @@ describe('utools', function() {
                 scheduleTestObject.eachNDay = 1;
                 scheduleTestObject.endDateTime = utools.getDateTime();
                 let nextRunDateTime = utools.addDate(utools.getDateTime(), 0, 0, 1, -1, 0, 0);
+                //nextRunDateTime.setMilliseconds(0);
                 scheduleTestObject.dailyFrequency.occursOnceAt = utools.getTimefromDateTime(nextRunDateTime);
                 let calculationResult = utools.calculateNextRun(scheduleTestObject);
                 console.log('str: ', scheduleTestObject.startDateTime);

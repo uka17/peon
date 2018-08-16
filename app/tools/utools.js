@@ -107,14 +107,14 @@ module.exports.renameProperty = function (obj, oldName, newName) {
  * @returns {object} New date with added number of days
  */
 function addDate(date, years, months, days, hours, minutes, seconds) {  
-    let result = new Date(
-        date.getFullYear() + years,
-        date.getMonth() + months,
-        date.getDate() + days,
-        date.getUTCHours() + hours,
-        date.getUTCMinutes() + minutes,
-        date.getUTCSeconds() + seconds
-    );
+    let result = new Date();
+    result.setFullYear(date.getFullYear() + years);
+    result.setMonth(date.getMonth() + months);
+    result.setDate(date.getDate() + days);
+    result.setHours(date.getHours() + hours);
+    result.setMinutes(date.getMinutes() + minutes);
+    result.setSeconds(date.getSeconds() + seconds);
+    result.setMilliseconds(date.getMilliseconds());
     return result;
 }
 module.exports.addDate = addDate;
@@ -126,7 +126,7 @@ module.exports.addDate = addDate;
 function parseDateTime(stringDateTime) {
     let preDate = Date.parse(stringDateTime);
     if(!isNaN(preDate)) 
-        return  new Date(preDate);            
+        return new Date(preDate);            
     else
         return null;
 }
@@ -139,7 +139,7 @@ module.exports.parseDateTime = parseDateTime;
 module.exports.calculateNextRun = (schedule) => {    
     //oneTime
     if(schedule.hasOwnProperty('oneTime')) {        
-        let oneTime = parseDateTime(schedule.oneTime);
+        let oneTime = schedule.oneTime;
         if(oneTime > getDateTime())
             return oneTime;
         else
@@ -149,23 +149,27 @@ module.exports.calculateNextRun = (schedule) => {
     //eachNDay 
     if(schedule.hasOwnProperty('eachNDay')) {        
         let currentDate = new Date((new Date()).setHours(0, 0, 0, 0));
-        let newDateTime = new Date(parseDateTime(schedule.startDateTime).setHours(0, 0, 0, 0));
-        let endDateTime = schedule.endDateTime ? new Date(parseDateTime(schedule.endDateTime)) : undefined;
+        //due to save milliseconds and not link newDateTime object with schedule.startDateTime
+        let newDateTime = new Date(parseDateTime(schedule.startDateTime));
+        newDateTime.setHours(0, 0, 0, 0);
+        let endDateTime = schedule.endDateTime ? schedule.endDateTime : undefined;
         while(newDateTime < currentDate) {
             newDateTime = addDate(newDateTime, 0, 0, schedule.eachNDay, 0, 0, 0);
         }        
         if(schedule.dailyFrequency.hasOwnProperty('occursOnceAt')) {
             let time = schedule.dailyFrequency.occursOnceAt.split(':');
-            newDateTime.setHours(time[0], time[1], time[2]);
-            console.log(newDateTime, getDateTime())
+            newDateTime.setUTCHours(time[0], time[1], time[2]); //it should put time in UTC, but it puts it in local
             if(newDateTime < getDateTime())
                 //happened today, but already missed
                 newDateTime = addDate(newDateTime, 0, 0, schedule.eachNDay, 0, 0, 0);
             
             if(newDateTime > endDateTime)
                 return null;
-            else
-                return newDateTime;                            
+            else {
+                //return milliseconds back
+                newDateTime.setMilliseconds(schedule.startDateTime.getMilliseconds());
+                return newDateTime;   
+            }                         
         }
 
         if(schedule.dailyFrequency.hasOwnProperty('occursEvery')) {
