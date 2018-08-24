@@ -213,7 +213,7 @@ describe('schedule', function() {
                 let calculationResult = schedule.calculateNextRun(scheduleTestObject);
                 //manual calculation for validation
                 let time = scheduleTestObject.dailyFrequency.start.split(':');
-                let nextRunDateTime = new Date(getDateTime().setHours(time[0], time[1], time[2], 0));
+                let nextRunDateTime = new Date(getDateTime().setUTCHours(time[0], time[1], time[2], 0));
                 while(nextRunDateTime < getDateTime()) {
                     nextRunDateTime = addDate(nextRunDateTime, 0, 0, 0, 0, scheduleTestObject.dailyFrequency.occursEvery.intervalValue, 0);
                 }
@@ -242,7 +242,9 @@ describe('schedule', function() {
                 let calculationResult = schedule.calculateNextRun(scheduleTestObject);
                 //manual calculation for validation
                 let time = scheduleTestObject.dailyFrequency.start.split(':');
-                let nextRunDateTime = new Date(getDateTime().setHours(time[0], time[1], time[2], 0));
+                let nextRunDateTime = new Date(getDateTime().setUTCHours(time[0], time[1], time[2], 0));
+                //correct timzeone shift
+                nextRunDateTime = addDate(nextRunDateTime, 0, 0, 0, 0, nextRunDateTime.getTimezoneOffset(), 0);
                 while(nextRunDateTime < getDateTime()) {
                     nextRunDateTime = addDate(nextRunDateTime, 0, 0, 0, scheduleTestObject.dailyFrequency.occursEvery.intervalValue, 0, 0);
                 }
@@ -270,16 +272,18 @@ describe('schedule', function() {
                 //calculate test case data
                 let calculationResult = schedule.calculateNextRun(scheduleTestObject);
                 //manual calculation for validation
-                let currentDate = new Date(getDateTime().setHours(0, 0, 0, 0));
+                let currentDate = new Date(getDateTime().setUTCHours(0, 0, 0, 0));
                 let nextRunDateTime = new Date(scheduleTestObject.startDateTime);
-                nextRunDateTime.setHours(0, 0, 0);
+                nextRunDateTime.setUTCHours(0, 0, 0);
                 //date
                 while(nextRunDateTime < currentDate) {
                     nextRunDateTime = addDate(nextRunDateTime, 0, 0, scheduleTestObject.eachNDay, 0, 0, 0);
                 }
                 //time
                 let time = scheduleTestObject.dailyFrequency.start.split(':');
-                nextRunDateTime = new Date(nextRunDateTime.setHours(time[0], time[1], time[2], 0));
+                nextRunDateTime = new Date(nextRunDateTime.setUTCHours(time[0], time[1], time[2], 0));
+                //correct timzeone shift
+                nextRunDateTime = addDate(nextRunDateTime, 0, 0, 0, 0, nextRunDateTime.getTimezoneOffset(), 0);
                 while(nextRunDateTime < getDateTime()) {
                     nextRunDateTime = addDate(nextRunDateTime, 0, 0, 0, scheduleTestObject.dailyFrequency.occursEvery.intervalValue, 0, 0);
                 }
