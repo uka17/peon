@@ -11,6 +11,7 @@ module.exports = function(app, dbclient) {
     //get jobs count
     try {
       dbclient.db(config.db_name).collection('job').countDocuments(req.body, function(err, count) {
+        /* istanbul ignore if */
         if (err) {        
           utools.handleServerException(err, config.user, dbclient, res);
         } 
@@ -22,6 +23,7 @@ module.exports = function(app, dbclient) {
       });
     }
     catch(e) {
+      /* istanbul ignore next */
       utools.handleServerException(e, config.user, dbclient, res);
     }
   });
@@ -29,6 +31,7 @@ module.exports = function(app, dbclient) {
     //get all jobs
     try {
       dbclient.db(config.db_name).collection('job').find(req.body).toArray(function(err, result) {
+        /* istanbul ignore if */
         if (err) {
           utools.handleServerException(err, config.user, dbclient, res);
         } else {        
@@ -37,6 +40,7 @@ module.exports = function(app, dbclient) {
       });
     }
     catch(e) {
+      /* istanbul ignore next */
       utools.handleServerException(e, config.user, dbclient, res);
     }
   });
@@ -45,6 +49,7 @@ module.exports = function(app, dbclient) {
     try {
       const where = { '_id': new mongo.ObjectID(req.params.id) };
       dbclient.db(config.db_name).collection('job').findOne(where, (err, item) => {
+        /* istanbul ignore if */
         if (err) {
           utools.handleServerException(err, config.user, dbclient, res);
         } else {
@@ -53,6 +58,7 @@ module.exports = function(app, dbclient) {
       });
     }
     catch(e) {
+      /* istanbul ignore next */
       utools.handleServerException(e, config.user, dbclient, res);
     }
   });
@@ -91,6 +97,7 @@ module.exports = function(app, dbclient) {
         job.modifiedBy = config.user;
 
         dbclient.db(config.db_name).collection('job').insert(job, (err, result) => {
+          /* istanbul ignore if */
           if (err) { 
             utools.handleServerException(err, config.user, dbclient, res);
           } else {
@@ -100,6 +107,7 @@ module.exports = function(app, dbclient) {
       }
     }
     catch(e) {
+      /* istanbul ignore next */
       utools.handleServerException(e, config.user, dbclient, res);
     }
   });
@@ -119,6 +127,7 @@ module.exports = function(app, dbclient) {
       const update = { $set: job};
 
       dbclient.db(config.db_name).collection('job').updateOne(where, update, (err, result) => {
+        /* istanbul ignore if */
         if (err) {
           utools.handleServerException(err, config.user, dbclient, res);
         } else {
@@ -129,6 +138,7 @@ module.exports = function(app, dbclient) {
       });
     }
     catch(e) {
+      /* istanbul ignore next */
       utools.handleServerException(e, config.user, dbclient, res);
     }
   });
@@ -137,6 +147,7 @@ module.exports = function(app, dbclient) {
     try {
       const where = { '_id': new mongo.ObjectID(req.params.id) };
       dbclient.db(config.db_name).collection('job').deleteOne(where, (err, result) => {
+        /* istanbul ignore if */
         if (err) {
           utools.handleServerException(err, config.user, dbclient, res);
         } else {
@@ -147,6 +158,7 @@ module.exports = function(app, dbclient) {
       });
     }
     catch(e) {
+      /* istanbul ignore next */
       utools.handleServerException(e, config.user, dbclient, res);
     }
   });    

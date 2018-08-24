@@ -11,6 +11,7 @@ module.exports = function(app, dbclient) {
     //get connections count
     try {
       dbclient.db(config.db_name).collection('connection').countDocuments(req.body, function(err, count) {
+        /* istanbul ignore if */
         if (err) {        
           utools.handleServerException(err, config.user, dbclient, res);
         } 
@@ -20,8 +21,9 @@ module.exports = function(app, dbclient) {
           res.status(200).send(resObject);
         } 
       });
-    }
+    }    
     catch(e) {
+      /* istanbul ignore next */
       utools.handleServerException(e, config.user, dbclient, res);
     }
   });
@@ -29,14 +31,16 @@ module.exports = function(app, dbclient) {
     //get all connections
     try {
       dbclient.db(config.db_name).collection('connection').find(req.body).toArray(function(err, result) {
+        /* istanbul ignore if */
         if (err) {
           utools.handleServerException(err, config.user, dbclient, res);
         } else {        
           res.status(200).send(result);
         } 
       });
-    }
+    }    
     catch(e) {
+      /* istanbul ignore next */
       utools.handleServerException(e, config.user, dbclient, res);
     }
   });
@@ -45,6 +49,7 @@ module.exports = function(app, dbclient) {
     try {
       const where = { '_id': new mongo.ObjectID(req.params.id) };
       dbclient.db(config.db_name).collection('connection').findOne(where, (err, item) => {
+        /* istanbul ignore if */
         if (err) {
           utools.handleServerException(err, config.user, dbclient, res);
         } else {
@@ -53,6 +58,7 @@ module.exports = function(app, dbclient) {
       });
     }
     catch(e) {
+      /* istanbul ignore next */
       utools.handleServerException(e, config.user, dbclient, res);
     }
   });
@@ -70,6 +76,7 @@ module.exports = function(app, dbclient) {
         connection.modifiedBy = config.user;
 
         dbclient.db(config.db_name).collection('connection').insert(connection, (err, result) => {
+        /* istanbul ignore if */
         if (err) { 
           utools.handleServerException(err, config.user, dbclient, res);
         } else {
@@ -79,6 +86,7 @@ module.exports = function(app, dbclient) {
       }
     }
     catch(e) {
+      /* istanbul ignore next */
       utools.handleServerException(e, config.user, dbclient, res);
     }
   });
@@ -98,6 +106,7 @@ module.exports = function(app, dbclient) {
       const update = { $set: connection};
 
       dbclient.db(config.db_name).collection('connection').updateOne(where, update, (err, result) => {
+        /* istanbul ignore if */
         if (err) {
           utools.handleServerException(err, config.user, dbclient, res);
         } else {
@@ -108,6 +117,7 @@ module.exports = function(app, dbclient) {
       });
     }
     catch(e) {
+      /* istanbul ignore next */
       utools.handleServerException(e, config.user, dbclient, res);
     }
   });
@@ -116,6 +126,7 @@ module.exports = function(app, dbclient) {
     try {
       const where = { '_id': new mongo.ObjectID(req.params.id) };
       dbclient.db(config.db_name).collection('connection').deleteOne(where, (err, result) => {
+        /* istanbul ignore if */
         if (err) {
           utools.handleServerException(err, config.user, dbclient, res);
         } else {
@@ -126,6 +137,7 @@ module.exports = function(app, dbclient) {
       });
     }
     catch(e) {
+      /* istanbul ignore next */
       utools.handleServerException(e, config.user, dbclient, res);
     }
   });    

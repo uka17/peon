@@ -45,7 +45,7 @@ module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, refer
                 .end(function(err, res) { 
                     assert.equal(res.status, 400);
                     assert.include(res.body.requestValidationErrors, referenceFieldName);
-                    response.dbclient.close()
+                    response.dbclient.close();
                 });                    
             }); 
         });   

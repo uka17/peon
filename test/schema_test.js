@@ -398,7 +398,7 @@ describe('schema validation', function() {
 
     describe('schedule', function() {
         describe('oneTime', function() {
-            it('initial validation. OK', function(done) {                            
+            it('initial validation. OK', function(done) {        
                 let nOneTimeSchedule = JSON.parse(JSON.stringify(oneTimeSchedule));
                 assert.equal(DataVsSchemaResult(nOneTimeSchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), true);
                 done();

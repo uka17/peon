@@ -14,11 +14,13 @@ var toJSON = require( 'utils-error-to-json' );
  * @param {object} dbclient DB connections instance
  * @param {object} res Response handler
  */
-module.exports.handleServerException = function(e, createdBy, dbclient, res) {
+/* istanbul ignore next */
+module.exports.handleServerException = function(e, createdBy, dbclient, res) {    
+    /* istanbul ignore next */
     if(config.debugMode) {
         console.log(e);
         res.status(500).send(toJSON(e));
-    }
+    }    
     else {
         let pr = new Promise((resolve, reject) => {
             try {
@@ -52,6 +54,20 @@ module.exports.handleUserException = function(message, errorCode, res) {
 }
 //#endregion
 /**
+ * Renames all properties in object which are equal to oldName
+ * @param {object} obj Object to be modified
+ * @param {string} oldName Name of property to be renamed
+ * @param {string} newName New name for property
+ */
+module.exports.renameProperty = function (obj, oldName, newName) {
+    /* istanbul ignore else */
+    if (obj.hasOwnProperty(oldName)) {
+        obj[newName] = obj[oldName];
+        delete obj[oldName];
+    } 
+    return obj;
+};
+/**
  * Return date-time in a proper format
  * @returns {object} Date-time
  */
@@ -59,142 +75,6 @@ function getDateTime() {
     return new Date();
 }
 module.exports.getDateTime = getDateTime;
-/**
- * Extract from date and time and return time in a format HH:MM:SS. Current date time will be taken in case if dateTime is not provided
- * @param {object} dateTime Date and time object which should be used for time extraction
- * @returns {string} Time in a format HH:MM:SS
- */
-function getTimefromDateTime(dateTime) { 
-    let currentDateTime;
-    if(dateTime && dateTime instanceof Date)
-        currentDateTime = dateTime;
-    else
-        currentDateTime = getDateTime();
-    let hours = currentDateTime.getUTCHours();
-    let minutes = currentDateTime.getUTCMinutes();
-    let seconds = currentDateTime.getUTCSeconds();
-    //let hours = currentDateTime.getHours();
-    //let minutes = currentDateTime.getMinutes();
-    //let seconds = currentDateTime.getSeconds();
-    hours = hours < 10 ? '0' + hours : hours;
-    minutes = minutes < 10 ? '0' + minutes : minutes;
-    seconds = seconds < 10 ? '0' + seconds : seconds;    
-    return hours + ':' + minutes + ':' + seconds;
-}
-module.exports.getTimefromDateTime = getTimefromDateTime;
-/**
- * Renames all properties in object which are equal to oldName
- * @param {object} obj Object to be modified
- * @param {string} oldName Name of property to be renamed
- * @param {string} newName New name for property
- */
-module.exports.renameProperty = function (obj, oldName, newName) {
-    if (obj.hasOwnProperty(oldName)) {
-        obj[newName] = obj[oldName];
-        delete obj[oldName];
-    }
-    return obj;
-};
-/**
- * Returns new date based on date and added number of years, months, days, hours, minutes or seconds
- * @param {object} date Date value to which date-time intervals should be added
- * @param {number} years Number of years to add
- * @param {number} months Number of months to add
- * @param {number} days Number of days to add
- * @param {number} hours Number of hours to add
- * @param {number} minutes Number of minutes to add
- * @param {number} seconds Number of seconds to add
- * @returns {object} New date with added number of days
- */
-function addDate(date, years, months, days, hours, minutes, seconds) {  
-    let result = new Date();
-    result.setFullYear(date.getFullYear() + years);
-    result.setMonth(date.getMonth() + months);
-    result.setDate(date.getDate() + days);
-    result.setHours(date.getHours() + hours);
-    result.setMinutes(date.getMinutes() + minutes);
-    result.setSeconds(date.getSeconds() + seconds);
-    result.setMilliseconds(date.getMilliseconds());
-    return result;
-}
-module.exports.addDate = addDate;
-/**
- * Convert string represented date and time to native date-time format
- * @param {string} stringDateTime UTC date and time represented as a sting. Example: '2018-01-31T20:54:23.071Z'
- * @returns {datetime} Date and time object
- */
-function parseDateTime(stringDateTime) {
-    let preDate = Date.parse(stringDateTime);
-    if(!isNaN(preDate)) 
-        return new Date(preDate);            
-    else
-        return null;
-}
-module.exports.parseDateTime = parseDateTime;
-/**
- * Calculates next run date and time 
- * @param {object} schedule Schedule for which next run date and time should be calculated
- * @returns {object} Next run date and time or null in case if next run date and time can not be calculated
- */ 
-module.exports.calculateNextRun = (schedule) => {    
-    //oneTime
-    if(schedule.hasOwnProperty('oneTime')) {        
-        let oneTime = schedule.oneTime;
-        if(oneTime > getDateTime())
-            return oneTime;
-        else
-            return null;
-    }
-
-    //eachNDay 
-    if(schedule.hasOwnProperty('eachNDay')) {        
-        let currentDate = new Date((new Date()).setUTCHours(0, 0, 0, 0));
-        //due to save milliseconds and not link newDateTime object with schedule.startDateTime
-        let newDateTime = new Date(parseDateTime(schedule.startDateTime));
-        newDateTime.setUTCHours(0, 0, 0, 0);
-        let endDateTime = schedule.endDateTime ? schedule.endDateTime : undefined;
-        while(newDateTime < currentDate) {
-            newDateTime = addDate(newDateTime, 0, 0, schedule.eachNDay, 0, 0, 0);
-        }        
-        if(schedule.dailyFrequency.hasOwnProperty('occursOnceAt')) {
-            let time = schedule.dailyFrequency.occursOnceAt.split(':');
-            newDateTime.setUTCHours(time[0], time[1], time[2]); //it should put time in UTC, but it puts it in local
-            if(newDateTime < getDateTime())
-                //happened today, but already missed
-                newDateTime = addDate(newDateTime, 0, 0, schedule.eachNDay, 0, 0, 0);
-            
-            if(newDateTime > endDateTime)
-                return null;
-            else {
-                //return milliseconds back
-                newDateTime.setMilliseconds(schedule.startDateTime.getMilliseconds());
-                return newDateTime;   
-            }                         
-        }
-
-        if(schedule.dailyFrequency.hasOwnProperty('occursEvery')) {
-            let time = schedule.dailyFrequency.start.split(':');
-            newDateTime.setHours(time[0], time[1], time[2]);
-            while(newDateTime < getDateTime()) {
-                switch(schedule.dailyFrequency.occursEvery.intervalType) {
-                    case 'minute':
-                        newDateTime = addDate(newDateTime, 0, 0, 0, 0, schedule.dailyFrequency.occursEvery.intervalValue, 0);
-                    break;
-                    case 'hour':
-                        newDateTime = addDate(newDateTime, 0, 0, 0, schedule.dailyFrequency.occursEvery.intervalValue, 0, 0);
-                    break;
-                }
-            }
-        
-            if(newDateTime > endDateTime)
-                return null;
-            else
-                return newDateTime;   
-        }
-    }    
-    //eachNWeek
-    //month
-}
 /**
  * Returns new express instance, prepared for work with json
  * @returns {object}
@@ -220,6 +100,7 @@ module.exports.expressMongoInstancePromise = function(router, mongodbUrl) {
     let prms = new Promise((resolve, reject) => {
         try {
             MongoClient.connect(mongodbUrl, { useNewUrlParser: true }, (err, dbclient) => {
+                /* istanbul ignore next */
                 if (err) {                    
                     console.log(err);
                     return null;
@@ -230,7 +111,9 @@ module.exports.expressMongoInstancePromise = function(router, mongodbUrl) {
             })
         }
         catch(e2) {
+            /* istanbul ignore next */
             console.log(e2);
+            /* istanbul ignore next */
             return null;
         }            
     });
