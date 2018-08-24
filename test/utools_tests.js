@@ -13,7 +13,7 @@ ut_routes(app);
 
 describe('utools', function() {
     describe('errors handling', function() {
-        it('handleUserException ', function(done) {            
+        it('handleUserException', function(done) {            
             request(app)
             .get(ver + '/handleUserException')            
             .end(function(err, res) { 
@@ -21,6 +21,21 @@ describe('utools', function() {
                 assert.include(res.body.error, 'error_message');
                 done();
               });              
+        });
+    });
+
+    describe('expressMongoInstancePromise', function() {
+        it('isPromise ', function(done) {            
+            let prms = utools.expressMongoInstancePromise(ut_routes);
+            assert.equal(typeof prms.then, 'function');
+            done();
+        });
+    });
+    describe('expressInstance', function() {
+        it('isObject ', function(done) {            
+            let expr = utools.expressInstance();
+            assert.equal(typeof expr._router, 'function');
+            done();
         });
     });
 
@@ -136,14 +151,12 @@ describe('utools', function() {
             });                                               
         });
 
-        //TODO constatnt run rime
-        describe('eachNDay. occursOnceAt', function() {
+        describe('eachNDay. occursOnceAt', function() {           
             it('success. run at now+5min', function(done) {
                 let scheduleTestObject = require('./test_data').dailyScheduleOnceOK;
                 scheduleTestObject.startDateTime = utools.getDateTime();
                 scheduleTestObject.eachNDay = 1;
                 let nextRunDateTime = utools.addDate(utools.getDateTime(), 0, 0, 0, 0, 5, 0);
-                //nextRunDateTime.setMilliseconds(0);
                 scheduleTestObject.dailyFrequency.occursOnceAt = utools.getTimefromDateTime(nextRunDateTime);
                 let calculationResult = utools.calculateNextRun(scheduleTestObject);
                 console.log('str: ', scheduleTestObject.startDateTime);
@@ -156,12 +169,29 @@ describe('utools', function() {
                 assert.equalTime(calculationResult, nextRunDateTime);
                 done();
             });      
+            it('success. run at 23:59:59', function(done) {
+                let scheduleTestObject = require('./test_data').dailyScheduleOnceOK;
+                scheduleTestObject.startDateTime = utools.addDate(utools.getDateTime(), 0, 0, -15, 0, 0, 0);
+                scheduleTestObject.eachNDay = 1;
+                let nextRunDateTime = utools.getDateTime();
+                nextRunDateTime.setUTCHours(23, 59, 59);
+                scheduleTestObject.dailyFrequency.occursOnceAt = '23:59:59';
+                let calculationResult = utools.calculateNextRun(scheduleTestObject);
+                console.log('str: ', scheduleTestObject.startDateTime);
+                console.log('end: ', scheduleTestObject.endDateTime);
+                console.log('crn: ', utools.getDateTime());                
+                console.log('int: ', scheduleTestObject.eachNDay);
+                console.log('clc: ', calculationResult);
+                console.log('exp: ', nextRunDateTime);                
+                assert.equalDate(calculationResult, nextRunDateTime);
+                assert.equalTime(calculationResult, nextRunDateTime);
+                done();
+            });                
             it('success. run every 7 days at now+15min', function(done) {
                 let scheduleTestObject = require('./test_data').dailyScheduleOnceOK;
                 scheduleTestObject.startDateTime = utools.addDate(utools.getDateTime(), 0, 0, -15, 0, 0, 0);
                 scheduleTestObject.eachNDay = 7;
                 let nextRunDateTime = utools.addDate(utools.getDateTime(), 0, 0, 6, 0, 15, 0); 
-                //nextRunDateTime.setMilliseconds(0);
                 scheduleTestObject.dailyFrequency.occursOnceAt = utools.getTimefromDateTime(nextRunDateTime);
                 let calculationResult = utools.calculateNextRun(scheduleTestObject);
                 console.log('str: ', scheduleTestObject.startDateTime);
@@ -179,7 +209,6 @@ describe('utools', function() {
                 scheduleTestObject.startDateTime = utools.addDate(utools.getDateTime(), 0, 0, -1, -1, 0, 0);
                 scheduleTestObject.eachNDay = 1;
                 let nextRunDateTime = utools.addDate(utools.getDateTime(), 0, 0, 1, -1, 0, 0);
-                //nextRunDateTime.setMilliseconds(0);
                 scheduleTestObject.dailyFrequency.occursOnceAt = utools.getTimefromDateTime(nextRunDateTime);
                 let calculationResult = utools.calculateNextRun(scheduleTestObject);
                 console.log('str: ', scheduleTestObject.startDateTime);
@@ -198,7 +227,6 @@ describe('utools', function() {
                 scheduleTestObject.eachNDay = 1;
                 scheduleTestObject.endDateTime = utools.getDateTime();
                 let nextRunDateTime = utools.addDate(utools.getDateTime(), 0, 0, 1, -1, 0, 0);
-                //nextRunDateTime.setMilliseconds(0);
                 scheduleTestObject.dailyFrequency.occursOnceAt = utools.getTimefromDateTime(nextRunDateTime);
                 let calculationResult = utools.calculateNextRun(scheduleTestObject);
                 console.log('str: ', scheduleTestObject.startDateTime);

@@ -12,6 +12,7 @@ module.exports = function(app, dbclient) {
     try {         
       //res.status(200).send({result: validation.dateTimeIsValid('2015-aa-25T12:00:00Z')});
       let scheduleTestObject = testData.dailyScheduleOnceOK;
+      let expr = utools.expressInstance();
       scheduleTestObject.startDateTime = utools.addDate(utools.getDateTime(), 0, 0, -15, 0, 0, 0);
       scheduleTestObject.eachNDay = 7;
       let nextRunDateTime = utools.addDate(utools.getDateTime(), 0, 0, 6, 0, 15, 0); 

@@ -220,8 +220,10 @@ module.exports.expressMongoInstancePromise = function(router, mongodbUrl) {
     let prms = new Promise((resolve, reject) => {
         try {
             MongoClient.connect(mongodbUrl, { useNewUrlParser: true }, (err, dbclient) => {
-                if (err) 
-                    return console.log(err)    
+                if (err) {                    
+                    console.log(err);
+                    return null;
+                }
                 let app = expressInstance();
                 router(app, dbclient);
                 resolve({app: app, dbclient: dbclient});
@@ -229,6 +231,7 @@ module.exports.expressMongoInstancePromise = function(router, mongodbUrl) {
         }
         catch(e2) {
             console.log(e2);
+            return null;
         }            
     });
     return prms;  
