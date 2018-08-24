@@ -136,6 +136,7 @@ describe('utools', function() {
             });                                               
         });
 
+        //TODO constatnt run rime
         describe('eachNDay. occursOnceAt', function() {
             it('success. run at now+5min', function(done) {
                 let scheduleTestObject = require('./test_data').dailyScheduleOnceOK;

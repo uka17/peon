@@ -148,10 +148,10 @@ module.exports.calculateNextRun = (schedule) => {
 
     //eachNDay 
     if(schedule.hasOwnProperty('eachNDay')) {        
-        let currentDate = new Date((new Date()).setHours(0, 0, 0, 0));
+        let currentDate = new Date((new Date()).setUTCHours(0, 0, 0, 0));
         //due to save milliseconds and not link newDateTime object with schedule.startDateTime
         let newDateTime = new Date(parseDateTime(schedule.startDateTime));
-        newDateTime.setHours(0, 0, 0, 0);
+        newDateTime.setUTCHours(0, 0, 0, 0);
         let endDateTime = schedule.endDateTime ? schedule.endDateTime : undefined;
         while(newDateTime < currentDate) {
             newDateTime = addDate(newDateTime, 0, 0, schedule.eachNDay, 0, 0, 0);
