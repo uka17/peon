@@ -81,28 +81,27 @@
         ],
         "definitions": {
             "once": {
-            "type": "object", 
-            "properties": { "occursOnceAt": {"type": "string", "format": "time"}},
-            "additionalProperties": false,
-            "required": ["occursOnceAt"]
+                "type": "object", 
+                "properties": { "occursOnceAt": {"type": "string", "format": "time"}},
+                "additionalProperties": false,
+                "required": ["occursOnceAt"]
             },
             "every": {
-            "type": "object", 
-            "properties": {
-                "start": {"type": "string", "format": "time"},
-                "occursEvery": { 
                 "type": "object", 
-                "properties": { 
-                    
-                    "intervalValue": {"type": "integer", "minimum": 0},
-                    "intervalType": { "type": "string", "enum": ["minute", "hour"] }            
+                "properties": {
+                    "start": {"type": "string", "format": "time"},
+                    "occursEvery": { 
+                        "type": "object", 
+                        "properties": {                         
+                            "intervalValue": {"type": "integer", "minimum": 0},
+                            "intervalType": { "type": "string", "enum": ["minute", "hour"] }            
+                        },
+                        "additionalProperties": false,
+                        "required": ["intervalValue", "intervalType"]
+                    }
                 },
                 "additionalProperties": false,
-                "required": ["intervalValue", "intervalType"]
-                }
-            },
-            "additionalProperties": false,
-            "required": ["start", "occursEvery"]
+                "required": ["start", "occursEvery"]
             }
         }
     }
