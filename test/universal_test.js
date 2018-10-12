@@ -1,3 +1,4 @@
+var objectId;   
 /**
  * Imlements set of unit tests for standart api route, which incudes all basic CRUD actions like: list, count, post, get, patch, delete.
  * @param {string} apiRoute URL for api part including version. Starts with /. Example: '/v1.0/job'
@@ -13,8 +14,7 @@ module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, refer
     var messageBox = require('../config/message_labels');    
     var utools = require('../app/tools/utools');
     var testHelper = require('./test_helper');
-    var objectTestHelper = new testHelper(testReferenceObject);
-    let objectId;   
+    var objectTestHelper = new testHelper(testReferenceObject);    
 
     describe('api test for: ' + apiRoute, function() {
         it(`incorrect '${referenceFieldName}' type, expected type is '${referenceFieldType}'`, () => {
