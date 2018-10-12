@@ -89,6 +89,7 @@ module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, refer
         });  
         it('successful get', () => {
             return utools.expressMongoInstancePromise(routeObject, config.mongodb_url).then(response => {                               
+                console.log(objectId);
                 request(response.app)
                     .get(apiRoute + '/' + objectId)            
                     .set('Accept', 'application/json')
