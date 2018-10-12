@@ -14,7 +14,7 @@ module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, refer
     var utools = require('../app/tools/utools');
     var testHelper = require('./test_helper');
     var objectTestHelper = new testHelper(testReferenceObject);
-    var objectId;   
+    let objectId;   
 
     describe('api test for: ' + apiRoute, function() {
         it(`incorrect '${referenceFieldName}' type, expected type is '${referenceFieldType}'`, () => {
@@ -89,7 +89,6 @@ module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, refer
         });  
         it('successful get', () => {
             return utools.expressMongoInstancePromise(routeObject, config.mongodb_url).then(response => {                               
-                console.log(objectId);
                 request(response.app)
                     .get(apiRoute + '/' + objectId)            
                     .set('Accept', 'application/json')
