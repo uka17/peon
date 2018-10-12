@@ -58,6 +58,7 @@ module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, refer
                     .end(function(err, res) { 
                         assert.equal(res.status, 201);
                         assert.equal(res.body[referenceFieldName], testReferenceObject[referenceFieldName]);
+                        console.log(Date.now());
                         objectId = res.body._id;
                         response.dbclient.close()
                     });                    
@@ -89,6 +90,7 @@ module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, refer
         });  
         it('successful get', () => {
             return utools.expressMongoInstancePromise(routeObject, config.mongodb_url).then(response => {                               
+                console.log(Date.now());
                 request(response.app)
                     .get(apiRoute + '/' + objectId)            
                     .set('Accept', 'application/json')
