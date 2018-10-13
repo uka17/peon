@@ -17,6 +17,22 @@ module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, refer
     var objectTestHelper = new testHelper(testReferenceObject);    
 
     describe('api test for: ' + apiRoute, function() {
+        before(() => {
+            return utools.expressMongoInstancePromise(routeObject, config.mongodb_url).then(response => {                               
+                request(response.app)
+                    .post(apiRoute)            
+                    .send(testReferenceObject)
+                    .set('Accept', 'application/json')
+                    .end(function(err, res) { 
+                        assert.equal(res.status, 201);
+                        assert.equal(res.body[referenceFieldName], testReferenceObject[referenceFieldName]);
+                        console.log(Date.now());
+                        objectId = res.body._id;
+                        response.dbclient.close()
+                    });                    
+            }); 
+        });
+
         it(`incorrect '${referenceFieldName}' type, expected type is '${referenceFieldType}'`, () => {
             return utools.expressMongoInstancePromise(routeObject, config.mongodb_url).then(response => {                               
                 let nObject = JSON.parse(JSON.stringify(testReferenceObject));
@@ -49,6 +65,7 @@ module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, refer
                 });                    
             }); 
         });   
+
         it('successful POST', () => {
             return utools.expressMongoInstancePromise(routeObject, config.mongodb_url).then(response => {                               
                 request(response.app)
