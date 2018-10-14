@@ -10,7 +10,7 @@ var getTimefromDateTime = require('../app/schedule/date_time').getTimefromDateTi
 var schedule = require('../app/schedule/schedule');
 var oneTimeScheduleOK = JSON.parse(JSON.stringify(require('./test_data').oneTimeScheduleOK));
 
-describe('schedule', function() {
+describe.only('schedule', function() {
     describe('small tools and helpers', function() {
         it('getTimefromDateTime. date provided and leading zeroes', function(done) {
             let nDateTime = parseDateTime('2018-01-31T02:03:04.071Z');

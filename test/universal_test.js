@@ -17,6 +17,7 @@ module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, refer
     var objectTestHelper = new testHelper(testReferenceObject);    
 
     describe('api test for: ' + apiRoute, function() {
+        //sometimes test for creation of objectId is being executed late and objectId becomes undefined
         before(() => {
             return utools.expressMongoInstancePromise(routeObject, config.mongodb_url).then(response => {                               
                 request(response.app)

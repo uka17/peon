@@ -42,7 +42,7 @@
                     "dayOfWeek": {
                         "type": "array",
                         "uniqueItems": true,
-                        "items": { "enum": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] },
+                        "items": { "enum": ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] },
                         "additionalItems": false
                     },
                     "dailyFrequency": {"$ref": "daily#/"}
