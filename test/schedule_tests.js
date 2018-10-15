@@ -244,7 +244,6 @@ describe.only('schedule', function() {
                 let time = scheduleTestObject.dailyFrequency.start.split(':');
                 let nextRunDateTime = new Date(getDateTime().setUTCHours(time[0], time[1], time[2], 0));
                 //correct timzeone shift
-                nextRunDateTime = addDate(nextRunDateTime, 0, 0, 0, 0, nextRunDateTime.getTimezoneOffset(), 0);
                 while(nextRunDateTime < getDateTime()) {
                     nextRunDateTime = addDate(nextRunDateTime, 0, 0, 0, scheduleTestObject.dailyFrequency.occursEvery.intervalValue, 0, 0);
                 }
@@ -260,7 +259,43 @@ describe.only('schedule', function() {
                 assert.equalDate(calculationResult, nextRunDateTime);
                 assert.equalTime(calculationResult, nextRunDateTime);
                 done();
-            });           
+            });    
+            it('success. run every 11 hours starting 05:00:00 (date owerwhelming)', function(done) {
+                //test data preparation
+                let scheduleTestObject = require('./test_data').dailyScheduleEveryOK;
+                scheduleTestObject.startDateTime = parseDateTime('2018-01-01T10:00:00.000Z');
+                scheduleTestObject.eachNDay = 1;                
+                scheduleTestObject.dailyFrequency.start = '05:00:00';
+                scheduleTestObject.dailyFrequency.occursEvery.intervalType = 'hour';
+                scheduleTestObject.dailyFrequency.occursEvery.intervalValue = 11;
+                //calculate test case data
+                let calculationResult = schedule.calculateNextRun(scheduleTestObject);
+                //manual calculation for validation
+                let time = scheduleTestObject.dailyFrequency.start.split(':');
+                let nextRunDateTime = new Date(getDateTime().setUTCHours(time[0], time[1], time[2], 0));
+                //correct timzeone shift
+                let currentDay = nextRunDateTime.getDate();
+                while(nextRunDateTime < getDateTime()) {
+                    nextRunDateTime = addDate(nextRunDateTime, 0, 0, 0, scheduleTestObject.dailyFrequency.occursEvery.intervalValue, 0, 0);
+                    //date overwhelming caused next day
+                    if(currentDay != nextRunDateTime.getDate()) {
+                        nextRunDateTime = addDate(nextRunDateTime, 0, 0, scheduleTestObject.eachNDay - 1, 0, 0, 0);
+                        nextRunDateTime = new Date(nextRunDateTime.setUTCHours(time[0], time[1], time[2], scheduleTestObject.startDateTime.getMilliseconds()));
+                    }
+                }
+                //log
+                console.log('str: ', scheduleTestObject.startDateTime);
+                console.log('end: ', scheduleTestObject.endDateTime);
+                console.log('crn: ', getDateTime());                
+                console.log('int: ', scheduleTestObject.eachNDay);
+                console.log('frc: ', scheduleTestObject.dailyFrequency.start, scheduleTestObject.dailyFrequency.occursEvery.intervalType, scheduleTestObject.dailyFrequency.occursEvery.intervalValue);
+                console.log('clc: ', calculationResult);
+                console.log('exp: ', nextRunDateTime);   
+                //assertion
+                assert.equalDate(calculationResult, nextRunDateTime);                
+                assert.equalTime(calculationResult, nextRunDateTime);
+                done();
+            });                    
             it('success. run every 2 hours starting 09:18:36, each 12 days', function(done) {
                 //test data preparation
                 let scheduleTestObject = require('./test_data').dailyScheduleEveryOK;
@@ -282,8 +317,6 @@ describe.only('schedule', function() {
                 //time
                 let time = scheduleTestObject.dailyFrequency.start.split(':');
                 nextRunDateTime = new Date(nextRunDateTime.setUTCHours(time[0], time[1], time[2], 0));
-                //correct timzeone shift
-                nextRunDateTime = addDate(nextRunDateTime, 0, 0, 0, 0, nextRunDateTime.getTimezoneOffset(), 0);
                 while(nextRunDateTime < getDateTime()) {
                     nextRunDateTime = addDate(nextRunDateTime, 0, 0, 0, scheduleTestObject.dailyFrequency.occursEvery.intervalValue, 0, 0);
                 }
@@ -299,7 +332,50 @@ describe.only('schedule', function() {
                 assert.equalDate(calculationResult, nextRunDateTime);
                 assert.equalTime(calculationResult, nextRunDateTime);
                 done();
-            });    
+            });   
+            it('success. run every 23 hours starting 19:00:00, each 3 days (date owerwhelming)', function(done) {
+                //test data preparation
+                let scheduleTestObject = require('./test_data').dailyScheduleEveryOK;
+                scheduleTestObject.startDateTime = addDate(getDateTime(), 0, 0, -3, 0, 0, 0);
+                scheduleTestObject.eachNDay = 3;                
+                scheduleTestObject.dailyFrequency.start = '19:00:00';
+                scheduleTestObject.dailyFrequency.occursEvery.intervalType = 'hour';
+                scheduleTestObject.dailyFrequency.occursEvery.intervalValue = 23;
+                //calculate test case data
+                let calculationResult = schedule.calculateNextRun(scheduleTestObject);
+                //manual calculation for validation
+                let currentDate = new Date(getDateTime().setUTCHours(0, 0, 0, 0));
+                let nextRunDateTime = new Date(scheduleTestObject.startDateTime);
+                nextRunDateTime.setUTCHours(0, 0, 0);
+                //date
+                while(nextRunDateTime < currentDate) {
+                    nextRunDateTime = addDate(nextRunDateTime, 0, 0, scheduleTestObject.eachNDay, 0, 0, 0);
+                }
+                //time
+                let time = scheduleTestObject.dailyFrequency.start.split(':');
+                nextRunDateTime = new Date(nextRunDateTime.setUTCHours(time[0], time[1], time[2], scheduleTestObject.startDateTime.getMilliseconds()));
+                let currentDay = nextRunDateTime.getDate();
+                while(nextRunDateTime < getDateTime()) {
+                    nextRunDateTime = addDate(nextRunDateTime, 0, 0, 0, scheduleTestObject.dailyFrequency.occursEvery.intervalValue, 0, 0);
+                    //date overwhelming caused next interval day
+                    if(currentDay != nextRunDateTime.getDate()) {
+                        nextRunDateTime = addDate(nextRunDateTime, 0, 0, scheduleTestObject.eachNDay - 1, 0, 0, 0);
+                        nextRunDateTime = new Date(nextRunDateTime.setUTCHours(time[0], time[1], time[2], scheduleTestObject.startDateTime.getMilliseconds()));
+                    }
+                }
+                //log
+                console.log('str: ', scheduleTestObject.startDateTime);
+                console.log('end: ', scheduleTestObject.endDateTime);
+                console.log('crn: ', getDateTime());                
+                console.log('int: ', scheduleTestObject.eachNDay);
+                console.log('frc: ', scheduleTestObject.dailyFrequency.start, scheduleTestObject.dailyFrequency.occursEvery.intervalType, scheduleTestObject.dailyFrequency.occursEvery.intervalValue);
+                console.log('clc: ', calculationResult);
+                console.log('exp: ', nextRunDateTime);   
+                //assertion
+                assert.equalDate(calculationResult, nextRunDateTime);
+                assert.equalTime(calculationResult, nextRunDateTime);
+                done();
+            });               
             it('failure. run every 59 minutes starting 10:10:10, endDateTime restriction', function(done) {
                 //test data preparation
                 let scheduleTestObject = require('./test_data').dailyScheduleEveryOK;
