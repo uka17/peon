@@ -12,8 +12,7 @@ var parseDateTime = require('./date_time').parseDateTime;
 function calculateTimeOfRun(schedule, newDateTime) {  
     if(schedule.dailyFrequency.hasOwnProperty('occursOnceAt')) {
         let time = schedule.dailyFrequency.occursOnceAt.split(':');
-        //milliseconds should be removed?
-        newDateTime.setUTCHours(time[0], time[1], time[2], schedule.startDateTime.getMilliseconds()); //it should put time in UTC, but it puts it in local
+        newDateTime.setUTCHours(time[0], time[1], time[2], 0); //it should put time in UTC, but it puts it in local
         if(newDateTime < getDateTime())
             //happened today, but already missed
             newDateTime = addDate(newDateTime, 0, 0, schedule.eachNDay, 0, 0, 0);
@@ -24,7 +23,7 @@ function calculateTimeOfRun(schedule, newDateTime) {
     if(schedule.dailyFrequency.hasOwnProperty('occursEvery')) {
         let time = schedule.dailyFrequency.start.split(':');
         //milliseconds should be removed?
-        newDateTime.setUTCHours(time[0], time[1], time[2], schedule.startDateTime.getMilliseconds());
+        newDateTime.setUTCHours(time[0], time[1], time[2], 0);
         //remember initial day for overwhelming check
         let initialDay = newDateTime.getDate();
         while(newDateTime < getDateTime()) {
@@ -39,7 +38,7 @@ function calculateTimeOfRun(schedule, newDateTime) {
             }
             if(initialDay < newDateTime.getDate()) {
                 newDateTime = addDate(newDateTime, 0, 0, schedule.eachNDay - 1, 0, 0, 0);
-                newDateTime.setUTCHours(time[0], time[1], time[2], schedule.startDateTime.getMilliseconds());
+                newDateTime.setUTCHours(time[0], time[1], time[2], 0);
             }
         }
         return newDateTime;   

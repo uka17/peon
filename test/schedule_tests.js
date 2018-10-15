@@ -117,6 +117,7 @@ describe.only('schedule', function() {
                 scheduleTestObject.startDateTime = getDateTime();
                 scheduleTestObject.eachNDay = 1;
                 let nextRunDateTime = addDate(getDateTime(), 0, 0, 0, 0, 5, 0);
+                nextRunDateTime.setMilliseconds(0);
                 scheduleTestObject.dailyFrequency.occursOnceAt = getTimefromDateTime(nextRunDateTime);
                 let calculationResult = schedule.calculateNextRun(scheduleTestObject);
                 console.log('str: ', scheduleTestObject.startDateTime);
@@ -134,7 +135,7 @@ describe.only('schedule', function() {
                 scheduleTestObject.startDateTime = addDate(getDateTime(), 0, 0, -15, 0, 0, 0);
                 scheduleTestObject.eachNDay = 1;
                 let nextRunDateTime = getDateTime();
-                nextRunDateTime.setUTCHours(23, 59, 59);
+                nextRunDateTime.setUTCHours(23, 59, 59, 0);
                 scheduleTestObject.dailyFrequency.occursOnceAt = '23:59:59';
                 let calculationResult = schedule.calculateNextRun(scheduleTestObject);
                 console.log('str: ', scheduleTestObject.startDateTime);
@@ -152,6 +153,7 @@ describe.only('schedule', function() {
                 scheduleTestObject.startDateTime = addDate(getDateTime(), 0, 0, -15, 0, 0, 0);
                 scheduleTestObject.eachNDay = 7;
                 let nextRunDateTime = addDate(getDateTime(), 0, 0, 6, 0, 15, 0); 
+                nextRunDateTime.setMilliseconds(0);
                 scheduleTestObject.dailyFrequency.occursOnceAt = getTimefromDateTime(nextRunDateTime);
                 let calculationResult = schedule.calculateNextRun(scheduleTestObject);
                 console.log('str: ', scheduleTestObject.startDateTime);
@@ -169,6 +171,7 @@ describe.only('schedule', function() {
                 scheduleTestObject.startDateTime = addDate(getDateTime(), 0, 0, -1, -1, 0, 0);
                 scheduleTestObject.eachNDay = 1;
                 let nextRunDateTime = addDate(getDateTime(), 0, 0, 1, -1, 0, 0);
+                nextRunDateTime.setMilliseconds(0);
                 scheduleTestObject.dailyFrequency.occursOnceAt = getTimefromDateTime(nextRunDateTime);
                 let calculationResult = schedule.calculateNextRun(scheduleTestObject);
                 console.log('str: ', scheduleTestObject.startDateTime);
@@ -280,7 +283,7 @@ describe.only('schedule', function() {
                     //date overwhelming caused next day
                     if(currentDay != nextRunDateTime.getDate()) {
                         nextRunDateTime = addDate(nextRunDateTime, 0, 0, scheduleTestObject.eachNDay - 1, 0, 0, 0);
-                        nextRunDateTime = new Date(nextRunDateTime.setUTCHours(time[0], time[1], time[2], scheduleTestObject.startDateTime.getMilliseconds()));
+                        nextRunDateTime = new Date(nextRunDateTime.setUTCHours(time[0], time[1], time[2], 0));
                     }
                 }
                 //log
@@ -353,14 +356,14 @@ describe.only('schedule', function() {
                 }
                 //time
                 let time = scheduleTestObject.dailyFrequency.start.split(':');
-                nextRunDateTime = new Date(nextRunDateTime.setUTCHours(time[0], time[1], time[2], scheduleTestObject.startDateTime.getMilliseconds()));
+                nextRunDateTime = new Date(nextRunDateTime.setUTCHours(time[0], time[1], time[2], 0));
                 let currentDay = nextRunDateTime.getDate();
                 while(nextRunDateTime < getDateTime()) {
                     nextRunDateTime = addDate(nextRunDateTime, 0, 0, 0, scheduleTestObject.dailyFrequency.occursEvery.intervalValue, 0, 0);
                     //date overwhelming caused next interval day
                     if(currentDay != nextRunDateTime.getDate()) {
                         nextRunDateTime = addDate(nextRunDateTime, 0, 0, scheduleTestObject.eachNDay - 1, 0, 0, 0);
-                        nextRunDateTime = new Date(nextRunDateTime.setUTCHours(time[0], time[1], time[2], scheduleTestObject.startDateTime.getMilliseconds()));
+                        nextRunDateTime = new Date(nextRunDateTime.setUTCHours(time[0], time[1], time[2], 0));
                     }
                 }
                 //log
