@@ -12,7 +12,7 @@ var parseDateTime = require('./date_time').parseDateTime;
 function calculateTimeOfRun(schedule, newDateTime) {  
     if(schedule.dailyFrequency.hasOwnProperty('occursOnceAt')) {
         let time = schedule.dailyFrequency.occursOnceAt.split(':');
-        newDateTime.setUTCHours(time[0], time[1], time[2], 0); //it should put time in UTC, but it puts it in local
+        newDateTime.setUTCHours(time[0], time[1], time[2]); //it should put time in UTC, but it puts it in local
         if(newDateTime < getDateTime())
             //happened today, but already missed
             newDateTime = addDate(newDateTime, 0, 0, schedule.eachNDay, 0, 0, 0);
@@ -38,7 +38,7 @@ function calculateTimeOfRun(schedule, newDateTime) {
             }
             if(initialDay < newDateTime.getDate()) {
                 newDateTime = addDate(newDateTime, 0, 0, schedule.eachNDay - 1, 0, 0, 0);
-                newDateTime.setUTCHours(time[0], time[1], time[2], 0);
+                newDateTime.setUTCHours(time[0], time[1], time[2]);
             }
         }
         return newDateTime;   
@@ -71,6 +71,11 @@ module.exports.calculateNextRun = (schedule) => {
         }        
         //as far as day was found - start to search moment in a day for run
         result = calculateTimeOfRun(schedule, newDateTime);
+
+        if(newDateTime < getDateTime() && schedule.dailyFrequency.hasOwnProperty('occursOnceAt'))
+            //happened today, but already missed
+            newDateTime = addDate(newDateTime, 0, 0, schedule.eachNDay, 0, 0, 0);
+        
     }    
     //eachNWeek
     if(schedule.hasOwnProperty('eachNWeek')) {        
