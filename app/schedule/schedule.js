@@ -78,9 +78,7 @@ module.exports.calculateNextRun = (schedule) => {
         
     }    
     //eachNWeek
-    if(schedule.hasOwnProperty('eachNWeek')) {        
-        //searching for a day of run        
-        let currentDate = new Date((new Date()).setUTCHours(0, 0, 0, 0));
+    if(schedule.hasOwnProperty('eachNWeek')) {               
         //due to save milliseconds and not link newDateTime object with schedule.startDateTime
         let newDateTime = new Date(parseDateTime(schedule.startDateTime));
 
@@ -88,18 +86,20 @@ module.exports.calculateNextRun = (schedule) => {
         let dayOfWeek = newDateTime.getDay();
         if(dayOfWeek > 0) 
             newDateTime = addDate(newDateTime, 0, 0, -dayOfWeek, 0, 0, 0);
-
+        console.log(newDateTime);
         //find Sunday of current week    
-        let currentWeekSunday = currentDate.getDay();
-        if(currentWeekSunday > 0) 
-            currentWeekStartDay = addDate(currentDate, 0, 0, -currentWeekSunday, 0, 0, 0);            
+        let currentDate = new Date((new Date()).setUTCHours(0, 0, 0, 0));
+        let currentWeekSunday;
+        if(currentDate.getDay() > 0) 
+            currentWeekSunday = addDate(currentDate, 0, 0, -currentDate.getDay(), 0, 0, 0);            
         else
-            currentWeekStartDay = currentDate;
-        
+            currentWeekSunday = currentDate;
+        console.log(currentWeekSunday);
         //find Sunday of week where next run day(s) are        
-        while(newDateTime < currentWeekStartDay) {
-            newDateTime = addDate(newDateTime, 0, 0, 7, 0, 0, 0);
+        while(newDateTime < currentWeekSunday) {
+            newDateTime = addDate(newDateTime, 0, 0, 7*schedule.eachNWeek, 0, 0, 0);
         }                
+        return newDateTime;
 
         //as far as week was found - start to search day for execution
         newDateTime.setUTCHours(0, 0, 0, 0);
