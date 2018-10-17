@@ -13,14 +13,11 @@ module.exports = function(app, dbclient) {
     //dummy
     try {         
       //res.status(200).send({result: validation.dateTimeIsValid('2015-aa-25T12:00:00Z')});
-      let scheduleTestObject = testData.dailyScheduleEveryOK;
-      scheduleTestObject.startDateTime = parseDateTime('2018-01-01T10:00:00.000Z');
-      scheduleTestObject.eachNDay = 1;                
-      scheduleTestObject.dailyFrequency.start = '05:00:00';
-      scheduleTestObject.dailyFrequency.occursEvery.intervalType = 'hour';
-      scheduleTestObject.dailyFrequency.occursEvery.intervalValue = 12;
-      //calculate test case data
-      let calculationResult = schedule.calculateNextRun(scheduleTestObject);
+      let scheduleTestObject = testData.weeklyScheduleOK;
+      scheduleTestObject.startDateTime = parseDateTime('2084-01-20T10:00:00.000Z');
+      scheduleTestObject.dayOfWeek = ['wed', 'fri'];
+      scheduleTestObject.eachNWeek = 1;
+      calculationResult = schedule.calculateNextRun(scheduleTestObject);
       res.status(200).send({result: calculationResult});
     }
     catch(e) {

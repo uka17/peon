@@ -25,7 +25,7 @@ function calculateTimeOfRun(schedule, newDateTime) {
         //milliseconds should be removed?
         newDateTime.setUTCHours(time[0], time[1], time[2], 0);
         //remember initial day for overwhelming check
-        let initialDay = newDateTime.getDate();
+        let initialDay = newDateTime.getUTCDate();
         while(newDateTime < getDateTime()) {
             //TODO nice to have interval like 03:30 (both hour and minutes)
             switch(schedule.dailyFrequency.occursEvery.intervalType) {
@@ -36,7 +36,7 @@ function calculateTimeOfRun(schedule, newDateTime) {
                     newDateTime = addDate(newDateTime, 0, 0, 0, schedule.dailyFrequency.occursEvery.intervalValue, 0, 0);
                 break;
             }
-            if(initialDay < newDateTime.getDate()) {
+            if(initialDay < newDateTime.getUTCDate()) {
                 newDateTime = addDate(newDateTime, 0, 0, schedule.eachNDay - 1, 0, 0, 0);
                 newDateTime.setUTCHours(time[0], time[1], time[2]);
             }
@@ -72,43 +72,53 @@ module.exports.calculateNextRun = (schedule) => {
         //as far as day was found - start to search moment in a day for run
         result = calculateTimeOfRun(schedule, newDateTime);
 
-        if(newDateTime < getDateTime() && schedule.dailyFrequency.hasOwnProperty('occursOnceAt'))
+        if(result < getDateTime() && schedule.dailyFrequency.hasOwnProperty('occursOnceAt'))
             //happened today, but already missed
-            newDateTime = addDate(newDateTime, 0, 0, schedule.eachNDay, 0, 0, 0);
+            result = addDate(result, 0, 0, schedule.eachNDay, 0, 0, 0);
         
     }    
     //eachNWeek
     if(schedule.hasOwnProperty('eachNWeek')) {               
         //due to save milliseconds and not link newDateTime object with schedule.startDateTime
         let newDateTime = new Date(parseDateTime(schedule.startDateTime));
+        newDateTime.setUTCHours(0, 0, 0, 0);
 
         //make start point as Sunday of start week
-        let dayOfWeek = newDateTime.getDay();
+        let dayOfWeek = newDateTime.getUTCDay();
         if(dayOfWeek > 0) 
             newDateTime = addDate(newDateTime, 0, 0, -dayOfWeek, 0, 0, 0);
         console.log(newDateTime);
         //find Sunday of current week    
         let currentDate = new Date((new Date()).setUTCHours(0, 0, 0, 0));
         let currentWeekSunday;
-        if(currentDate.getDay() > 0) 
-            currentWeekSunday = addDate(currentDate, 0, 0, -currentDate.getDay(), 0, 0, 0);            
+        if(currentDate.getUTCDay() > 0) 
+            currentWeekSunday = addDate(currentDate, 0, 0, -currentDate.getUTCDay(), 0, 0, 0);            
         else
             currentWeekSunday = currentDate;
         console.log(currentWeekSunday);
         //find Sunday of week where next run day(s) are        
+        //!!! Sunday can be in the past, but rund day in future
         while(newDateTime < currentWeekSunday) {
             newDateTime = addDate(newDateTime, 0, 0, 7*schedule.eachNWeek, 0, 0, 0);
-        }                
+        }          
+     
+        //as far as begining of the week was found - start to search day for execution
+        while(newDateTime < schedule.startDateTime) {
+            let weekDayList = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+            let weekDayLastIndex = 0;
+            for (let i = 0; i < schedule.dayOfWeek.length; i++) {
+                let weekDayIndex = weekDayList.indexOf(schedule.dayOfWeek[i]);
+                if(weekDayIndex != -1) {
+                    newDateTime = addDate(newDateTime, 0, 0, weekDayIndex - weekDayLastIndex, 0, 0, 0);
+                    weekDayLastIndex = weekDayIndex;
+                    if(newDateTime >= getDateTime() && newDateTime > schedule.startDateTime)
+                        break;
+                }
+            }                
+        }         
         return newDateTime;
 
-        //as far as week was found - start to search day for execution
-        newDateTime.setUTCHours(0, 0, 0, 0);
-        let weekDayList = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
-        for (let i = 0; i < weekDayList.length; i++) {
-            if(currentDate.getDay()) {
-                let i = 0;
-            }
-        }
+
 
         //as far as day was found - start to search moment in a day for run
         result = calculateTimeOfRun(schedule, newDateTime);

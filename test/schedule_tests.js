@@ -281,11 +281,11 @@ describe.only('schedule', function() {
                 let time = scheduleTestObject.dailyFrequency.start.split(':');
                 let nextRunDateTime = new Date(getDateTime().setUTCHours(time[0], time[1], time[2], 0));
                 //correct timzeone shift
-                let currentDay = nextRunDateTime.getDate();
+                let currentDay = nextRunDateTime.getUTCDate();
                 while(nextRunDateTime < getDateTime()) {
                     nextRunDateTime = addDate(nextRunDateTime, 0, 0, 0, scheduleTestObject.dailyFrequency.occursEvery.intervalValue, 0, 0);
                     //date overwhelming caused next day
-                    if(currentDay != nextRunDateTime.getDate()) {
+                    if(currentDay != nextRunDateTime.getUTCDate()) {
                         nextRunDateTime = addDate(nextRunDateTime, 0, 0, scheduleTestObject.eachNDay - 1, 0, 0, 0);
                         nextRunDateTime = new Date(nextRunDateTime.setUTCHours(time[0], time[1], time[2], 0));
                     }
@@ -312,7 +312,7 @@ describe.only('schedule', function() {
                 let nextRunDateTime = new Date(scheduleTestObject.startDateTime);
                 nextRunDateTime.setUTCHours(0, 0, 0);
                 //date
-                while(nextRunDateTime < currentDate) {
+                while(nextRunDateTime < currentDate) {                
                     nextRunDateTime = addDate(nextRunDateTime, 0, 0, scheduleTestObject.eachNDay, 0, 0, 0);
                 }
                 //time
@@ -349,11 +349,11 @@ describe.only('schedule', function() {
                 //time
                 let time = scheduleTestObject.dailyFrequency.start.split(':');
                 nextRunDateTime = new Date(nextRunDateTime.setUTCHours(time[0], time[1], time[2], 0));
-                let currentDay = nextRunDateTime.getDate();
+                let currentDay = nextRunDateTime.getUTCDate();
                 while(nextRunDateTime < getDateTime()) {
                     nextRunDateTime = addDate(nextRunDateTime, 0, 0, 0, scheduleTestObject.dailyFrequency.occursEvery.intervalValue, 0, 0);
                     //date overwhelming caused next interval day
-                    if(currentDay != nextRunDateTime.getDate()) {
+                    if(currentDay != nextRunDateTime.getUTCDate()) {
                         nextRunDateTime = addDate(nextRunDateTime, 0, 0, scheduleTestObject.eachNDay - 1, 0, 0, 0);
                         nextRunDateTime = new Date(nextRunDateTime.setUTCHours(time[0], time[1], time[2], 0));
                     }
@@ -384,7 +384,31 @@ describe.only('schedule', function() {
             //todo eachNDays>1        
         });
 
-        describe('eachNWeek. occursOnceAt', function() {           
+        describe('eachNWeek. occursOnceAt', function() {     
+            it('success. run every 1st week (future)', function(done) {
+                /*
+                    name: 'weekly',
+                    enabled: true,
+                    startDateTime: '2018-01-31T20:54:23.071Z',
+                    eachNWeek: 1,
+                    dayOfWeek: ['mon', 'wed', 'fri'],
+                    dailyFrequency: { occursOnceAt: '11:11:11'}
+                */
+                let scheduleTestObject = require('./test_data').weeklyScheduleOK;
+                scheduleTestObject.startDateTime = parseDateTime('2084-01-20T10:00:00.000Z');
+                scheduleTestObject.dayOfWeek = ['wed', 'fri'];
+                scheduleTestObject.eachNWeek = 1;
+                /*
+                let nextRunDateTime = addDate(getDateTime(), 0, 0, 0, 0, 5, 0);
+                nextRunDateTime.setMilliseconds(0);
+                scheduleTestObject.dailyFrequency.occursOnceAt = getTimefromDateTime(nextRunDateTime);
+                let calculationResult = schedule.calculateNextRun(scheduleTestObject);   
+                assert.equalDate(calculationResult, nextRunDateTime);
+                assert.equalTime(calculationResult, nextRunDateTime);
+                */                
+                logSchedule(scheduleTestObject, schedule.calculateNextRun(scheduleTestObject), 2, true);
+                done();
+            });                    
             it('success. run every 3rd week', function(done) {
                 /*
                     name: 'weekly',
