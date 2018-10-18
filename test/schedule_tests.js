@@ -394,6 +394,7 @@ describe.only('schedule', function() {
                     dayOfWeek: ['mon', 'wed', 'fri'],
                     dailyFrequency: { occursOnceAt: '11:11:11'}
                 */
+                
                 let scheduleTestObject = require('./test_data').weeklyScheduleOK;
                 scheduleTestObject.startDateTime = parseDateTime('2084-01-20T10:00:00.000Z');
                 scheduleTestObject.dayOfWeek = ['wed', 'fri'];
@@ -418,10 +419,11 @@ describe.only('schedule', function() {
                     dayOfWeek: ['mon', 'wed', 'fri'],
                     dailyFrequency: { occursOnceAt: '11:11:11'}
                 */
+               //21-27 Oct, 24 Oct
                 let scheduleTestObject = require('./test_data').weeklyScheduleOK;
                 scheduleTestObject.startDateTime = parseDateTime('2018-09-01T10:00:00.000Z');
-                scheduleTestObject.endDateTime = addDate(getDateTime(), 0, 2, 0, 0, 5, 0);
                 scheduleTestObject.eachNWeek = 3;
+                //scheduleTestObject.dayOfWeek = ['wed', 'fri'];
                 /*
                 let nextRunDateTime = addDate(getDateTime(), 0, 0, 0, 0, 5, 0);
                 nextRunDateTime.setMilliseconds(0);

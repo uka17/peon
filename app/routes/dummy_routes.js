@@ -14,9 +14,9 @@ module.exports = function(app, dbclient) {
     try {         
       //res.status(200).send({result: validation.dateTimeIsValid('2015-aa-25T12:00:00Z')});
       let scheduleTestObject = testData.weeklyScheduleOK;
-      scheduleTestObject.startDateTime = parseDateTime('2084-01-20T10:00:00.000Z');
       scheduleTestObject.dayOfWeek = ['wed', 'fri'];
-      scheduleTestObject.eachNWeek = 1;
+      scheduleTestObject.startDateTime = parseDateTime('2018-09-01T10:00:00.000Z');
+      scheduleTestObject.eachNWeek = 3;
       calculationResult = schedule.calculateNextRun(scheduleTestObject);
       res.status(200).send({result: calculationResult});
     }
