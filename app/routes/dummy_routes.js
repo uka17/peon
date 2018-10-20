@@ -6,6 +6,8 @@ var ver = '/v1.0';
 const request = require("supertest");
 var testData = require('../../test/test_data');
 var parseDateTime = require('../schedule/date_time').parseDateTime;
+var getDateTime = utools.getDateTime;
+var addDate = require('../schedule/date_time').addDate;
 var schedule = require('../schedule/schedule');
 
 module.exports = function(app, dbclient) {
@@ -14,9 +16,9 @@ module.exports = function(app, dbclient) {
     try {         
       //res.status(200).send({result: validation.dateTimeIsValid('2015-aa-25T12:00:00Z')});
       let scheduleTestObject = testData.weeklyScheduleOK;
-      scheduleTestObject.dayOfWeek = ['wed', 'fri'];
-      scheduleTestObject.startDateTime = parseDateTime('2018-09-01T10:00:00.000Z');
+      scheduleTestObject.startDateTime = addDate(getDateTime(), 0, 0, -35, 0, 0, 0);
       scheduleTestObject.eachNWeek = 3;
+      scheduleTestObject.dayOfWeek = ['wed', 'fri'];
       calculationResult = schedule.calculateNextRun(scheduleTestObject);
       res.status(200).send({result: calculationResult});
     }

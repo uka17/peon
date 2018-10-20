@@ -34,6 +34,28 @@ function calculateTimeOfRun(schedule, newDateTime) {
         return newDateTime;   
     }
 }
+/**
+ * 
+ * @param {object} schedule Schedule for which next run time should be calculated
+ * @param {object} sunday Date of sunday (0 day of week)
+ */
+function calculateWeekDayOfRun(schedule, sunday) {
+    let result = sunday;
+    let weekDayList = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+    let weekDayLastIndex = 0;
+    for (let i = 0; i < schedule.dayOfWeek.length; i++) {
+        let weekDayIndex = weekDayList.indexOf(schedule.dayOfWeek[i]);
+        if(weekDayIndex != -1) {
+            result = addDate(result, 0, 0, weekDayIndex - weekDayLastIndex, 0, 0, 0);
+            weekDayLastIndex = weekDayIndex;
+            //day calculating time found - don't go next
+            result = calculateTimeOfRun(schedule, result);
+            if(result > getDateTime() && result > schedule.startDateTime)
+                return result;
+        }        
+    }   
+    return sunday;
+}
 
 /**
  * Calculates next run date and time 
@@ -81,42 +103,24 @@ module.exports.calculateNextRun = (schedule) => {
         let newDateTime = new Date(parseDateTime(schedule.startDateTime));
         newDateTime.setUTCHours(0, 0, 0, 0);
         //find Sunday of start week 
-        let dayOfWeek = newDateTime.getUTCDay();
-        if(dayOfWeek > 0) 
-            newDateTime = addDate(newDateTime, 0, 0, -dayOfWeek, 0, 0, 0);
+        newDateTime = addDate(newDateTime, 0, 0, -newDateTime.getUTCDay(), 0, 0, 0);
         //make start point as Sunday of start week + (eachNWeek-1) weeks due to find first sunday for checking            
         newDateTime = addDate(newDateTime, 0, 0, 7*(schedule.eachNWeek - 1), 0, 0, 0);
         //find Sunday of current week    
         let currentDate = new Date((new Date()).setUTCHours(0, 0, 0, 0));
-        let currentWeekSunday;
-        if(currentDate.getUTCDay() > 0) 
-            currentWeekSunday = addDate(currentDate, 0, 0, -currentDate.getUTCDay(), 0, 0, 0);            
-        else
-            currentWeekSunday = currentDate;
+        let currentWeekSunday = addDate(currentDate, 0, 0, -currentDate.getUTCDay(), 0, 0, 0);            
         //find Sunday of week where next run day(s) are        
         while(newDateTime < currentWeekSunday) {
             newDateTime = addDate(newDateTime, 0, 0, 7*schedule.eachNWeek, 0, 0, 0);
         }          
-     
-        //as far as begining of the week was found - start to search day for execution
-        //DAY ALREADY IN FURTURE, NEED to FIND correct week day
-        while(newDateTime < schedule.startDateTime || newDateTime < getDateTime()) {
-            let weekDayList = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
-            let weekDayLastIndex = 0;
-            for (let i = 0; i < schedule.dayOfWeek.length; i++) {
-                let weekDayIndex = weekDayList.indexOf(schedule.dayOfWeek[i]);
-                if(weekDayIndex != -1) {
-                    newDateTime = addDate(newDateTime, 0, 0, weekDayIndex - weekDayLastIndex, 0, 0, 0);
-                    weekDayLastIndex = weekDayIndex;
-                    //day found - calculating time
-                    result = calculateTimeOfRun(schedule, newDateTime);
-                    if(newDateTime > getDateTime() && newDateTime > schedule.startDateTime)
-                        break;
-                }
-            }   
-            newDateTime = addDate(newDateTime, 0, 0, 7*schedule.eachNWeek, 0, 0, 0);             
-        }         
         
+        newDateTime = calculateWeekDayOfRun(schedule, newDateTime);
+        //as far as begining of the week was found - start to search day for execution
+        while(newDateTime < schedule.startDateTime || newDateTime < getDateTime()) {
+            newDateTime = addDate(newDateTime, 0, 0, 7*schedule.eachNWeek, 0, 0, 0);   
+            newDateTime = calculateWeekDayOfRun(schedule, newDateTime);       
+        }         
+        result = newDateTime;
         /*
         if(initialDay < result.getUTCDate()  && schedule.dailyFrequency.hasOwnProperty('occursEvery')) {
             //day overwhelming after adding interval

@@ -385,55 +385,68 @@ describe.only('schedule', function() {
         });
 
         describe('eachNWeek. occursOnceAt', function() {     
-            it('success. run every 1st week (future)', function(done) {
-                /*
-                    name: 'weekly',
-                    enabled: true,
-                    startDateTime: '2018-01-31T20:54:23.071Z',
-                    eachNWeek: 1,
-                    dayOfWeek: ['mon', 'wed', 'fri'],
-                    dailyFrequency: { occursOnceAt: '11:11:11'}
-                */
-                
+            /*
+                name: 'weekly',
+                enabled: true,
+                startDateTime: '2018-01-31T20:54:23.071Z',
+                eachNWeek: 1,
+                dayOfWeek: ['mon', 'wed', 'fri'],
+                dailyFrequency: { occursOnceAt: '11:11:11'}
+            */
+            it('success. run every 1st week (future)', function(done) {               
                 let scheduleTestObject = require('./test_data').weeklyScheduleOK;
                 scheduleTestObject.startDateTime = parseDateTime('2084-01-20T10:00:00.000Z');
                 scheduleTestObject.dayOfWeek = ['wed', 'fri'];
                 scheduleTestObject.eachNWeek = 1;
-                /*
-                let nextRunDateTime = addDate(getDateTime(), 0, 0, 0, 0, 5, 0);
-                nextRunDateTime.setMilliseconds(0);
-                scheduleTestObject.dailyFrequency.occursOnceAt = getTimefromDateTime(nextRunDateTime);
                 let calculationResult = schedule.calculateNextRun(scheduleTestObject);   
+                let nextRunDateTime = parseDateTime('2084-01-21T11:11:11.000Z');
+                logSchedule(scheduleTestObject, calculationResult, nextRunDateTime);
                 assert.equalDate(calculationResult, nextRunDateTime);
                 assert.equalTime(calculationResult, nextRunDateTime);
-                */                
-                logSchedule(scheduleTestObject, schedule.calculateNextRun(scheduleTestObject), 2, true);
                 done();
-            });                    
-            it('success. run every 3rd week', function(done) {
-                /*
-                    name: 'weekly',
-                    enabled: true,
-                    startDateTime: '2018-01-31T20:54:23.071Z',
-                    eachNWeek: 1,
-                    dayOfWeek: ['mon', 'wed', 'fri'],
-                    dailyFrequency: { occursOnceAt: '11:11:11'}
-                */
+            });        
+            it('success. run every 1st week at sun (future)', function(done) {               
+                let scheduleTestObject = require('./test_data').weeklyScheduleOK;
+                scheduleTestObject.startDateTime = parseDateTime('2084-01-20T10:00:00.000Z');
+                scheduleTestObject.dayOfWeek = ['sun'];
+                scheduleTestObject.eachNWeek = 1;
+                let calculationResult = schedule.calculateNextRun(scheduleTestObject);   
+                let nextRunDateTime = parseDateTime('2084-01-23T11:11:11.000Z');
+                logSchedule(scheduleTestObject, calculationResult, nextRunDateTime);
+                assert.equalDate(calculationResult, nextRunDateTime);
+                assert.equalTime(calculationResult, nextRunDateTime);
+                done();
+            });                        
+            it('success. run every 2st week (future)', function(done) {               
+                let scheduleTestObject = require('./test_data').weeklyScheduleOK;
+                scheduleTestObject.startDateTime = parseDateTime('2084-01-20T10:00:00.000Z');
+                scheduleTestObject.dayOfWeek = ['mon', 'wed', 'fri'];
+                scheduleTestObject.eachNWeek = 2;
+                let calculationResult = schedule.calculateNextRun(scheduleTestObject);   
+                let nextRunDateTime = parseDateTime('2084-01-24T11:11:11.000Z');
+                logSchedule(scheduleTestObject, calculationResult, nextRunDateTime);
+                assert.equalDate(calculationResult, nextRunDateTime);
+                assert.equalTime(calculationResult, nextRunDateTime);
+                done();
+            });                      
+            it('success. run every 3rd week (on Monday this test fails)', function(done) {
                //21-27 Oct, 24 Oct
                 let scheduleTestObject = require('./test_data').weeklyScheduleOK;
-                scheduleTestObject.startDateTime = parseDateTime('2018-09-01T10:00:00.000Z');
+                scheduleTestObject.startDateTime = addDate(getDateTime(), 0, 0, -35, 0, 0, 0);
                 scheduleTestObject.eachNWeek = 3;
-                //scheduleTestObject.dayOfWeek = ['wed', 'fri'];
-                /*
-                let nextRunDateTime = addDate(getDateTime(), 0, 0, 0, 0, 5, 0);
-                nextRunDateTime.setMilliseconds(0);
-                scheduleTestObject.dailyFrequency.occursOnceAt = getTimefromDateTime(nextRunDateTime);
-                let calculationResult = schedule.calculateNextRun(scheduleTestObject);   
+                scheduleTestObject.dayOfWeek = ['mon'];
+                //find Sunday
+                let currentDate = getDateTime();
+                currentWeekSunday = addDate(currentDate, 0, 0, -currentDate.getUTCDay(), 0, 0, 0);            
+                //find week for run
+                let nextRunDateTime = addDate(currentWeekSunday, 0, 0, 21, 11, 11, 11);
+                //find Sunday of week where to run
+                nextRunDateTime = addDate(nextRunDateTime, 0, 0, -nextRunDateTime.getUTCDay()+1, 0, 0, 0);
+                nextRunDateTime.setUTCHours(11, 11, 11, 0);
+                let calculationResult = schedule.calculateNextRun(scheduleTestObject); 
+                logSchedule(scheduleTestObject, calculationResult, nextRunDateTime);
                 assert.equalDate(calculationResult, nextRunDateTime);
-                assert.equalTime(calculationResult, nextRunDateTime);
-                */
-                
-                logSchedule(scheduleTestObject, schedule.calculateNextRun(scheduleTestObject), 2, true);
+                assert.equalTime(calculationResult, nextRunDateTime);                
                 done();
             });                          
         });        
