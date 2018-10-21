@@ -429,7 +429,7 @@ describe.only('schedule', function() {
                 assert.equalTime(calculationResult, nextRunDateTime);
                 done();
             });                      
-            it('success. run every 3rd week (on Monday this test fails)', function(done) {
+            it('success. run every 3rd week', function(done) {
                //21-27 Oct, 24 Oct
                 let scheduleTestObject = require('./test_data').weeklyScheduleOK;
                 scheduleTestObject.startDateTime = addDate(getDateTime(), 0, 0, -35, 0, 0, 0);
@@ -439,16 +439,65 @@ describe.only('schedule', function() {
                 let currentDate = getDateTime();
                 currentWeekSunday = addDate(currentDate, 0, 0, -currentDate.getUTCDay(), 0, 0, 0);            
                 //find week for run
-                let nextRunDateTime = addDate(currentWeekSunday, 0, 0, 21, 11, 11, 11);
+                let addedRunPeriod = currentDate.getUTCDay() == 0 ? 0 : 21;
+                let nextRunDateTime = addDate(currentWeekSunday, 0, 0, addedRunPeriod, 11, 11, 11);
                 //find Sunday of week where to run
                 nextRunDateTime = addDate(nextRunDateTime, 0, 0, -nextRunDateTime.getUTCDay()+1, 0, 0, 0);
                 nextRunDateTime.setUTCHours(11, 11, 11, 0);
                 let calculationResult = schedule.calculateNextRun(scheduleTestObject); 
-                logSchedule(scheduleTestObject, calculationResult, nextRunDateTime);
+                logSchedule(scheduleTestObject, calculationResult, nextRunDateTime, true);
                 assert.equalDate(calculationResult, nextRunDateTime);
                 assert.equalTime(calculationResult, nextRunDateTime);                
                 done();
-            });                          
+            });                  
+            it('success. run every 1st week, everyday, every 2 hours', function(done) {               
+                let scheduleTestObject = require('./test_data').weeklyScheduleOK;
+                scheduleTestObject.startDateTime = parseDateTime('2018-01-01T10:00:00.000Z');
+                scheduleTestObject.dayOfWeek = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+                scheduleTestObject.eachNWeek = 1;
+                scheduleTestObject.dailyFrequency = { 
+                "start": "00:15:00",
+                "occursEvery": 
+                    {   
+                        "intervalType": "hour",
+                        "intervalValue": 2
+                    }
+                };
+                let calculationResult = schedule.calculateNextRun(scheduleTestObject);   
+                let xHour = getDateTime().getUTCHours();
+                xHour = xHour%2 == 0 ? 2 : 1;
+                let nextRunDateTime = getDateTime();
+                nextRunDateTime.setUTCHours(nextRunDateTime.getUTCHours(), 15, 0, 0);                
+                nextRunDateTime = addDate(nextRunDateTime, 0, 0, 0, xHour, 0, 0);
+                logSchedule(scheduleTestObject, calculationResult, nextRunDateTime, true);
+                assert.equalDate(calculationResult, nextRunDateTime);
+                assert.equalTime(calculationResult, nextRunDateTime);
+                done();
+            });              
+            it('success. run every 1st week, everyday, every 13 hours (overwhelming)', function(done) {               
+                let scheduleTestObject = require('./test_data').weeklyScheduleOK;
+                scheduleTestObject.startDateTime = parseDateTime('2018-01-01T10:00:00.000Z');
+                scheduleTestObject.dayOfWeek = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+                scheduleTestObject.eachNWeek = 1;
+                scheduleTestObject.dailyFrequency = { 
+                    "start": "13:00:00",
+                    "occursEvery": 
+                        {   
+                            "intervalType": "hour",
+                            "intervalValue": 13
+                        }
+                    };
+                let calculationResult = schedule.calculateNextRun(scheduleTestObject);   
+                let nextRunDateTime = getDateTime();    
+                let xHour = getDateTime().getUTCHours(); 
+                nextRunDateTime.setUTCHours(13, 0, 0, 0);                                           
+                if(xHour >= 13)              
+                    nextRunDateTime = addDate(nextRunDateTime, 0, 0, 1, 0, 0, 0);
+                logSchedule(scheduleTestObject, calculationResult, nextRunDateTime, true);
+                assert.equalDate(calculationResult, nextRunDateTime);
+                assert.equalTime(calculationResult, nextRunDateTime);
+                done();
+            });                       
         });        
     });
 });    

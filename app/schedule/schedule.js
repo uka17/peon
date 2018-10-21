@@ -6,55 +6,65 @@ var parseDateTime = require('./date_time').parseDateTime;
 /**
  * Calculates next run time for already calculated day
  * @param {object} schedule Schedule for which next run time should be calculated
- * @param {object} newDateTime Day of next run with 00:00 time
- * @returns {object} Next run date and time or null in case if next run date and time can not be calculated
+ * @param {object} runDate Day of next run with 00:00 time
+ * @returns {object} Next run date and time or null in case if next run time is out of runDate range (e.g. attempt to calculate 'each 13 hours' at 19:00)
  */
-function calculateTimeOfRun(schedule, newDateTime) {  
+function calculateTimeOfRun(schedule, runDate) {  
+    let runDateTime = runDate;
+
     if(schedule.dailyFrequency.hasOwnProperty('occursOnceAt')) {
         let time = schedule.dailyFrequency.occursOnceAt.split(':');
-        newDateTime.setUTCHours(time[0], time[1], time[2]); //it should put time in UTC, but it puts it in local        
-        return newDateTime;                     
+        runDateTime.setUTCHours(time[0], time[1], time[2]); //it should put time in UTC, but it puts it in local        
+        return runDateTime;                     
     }
 
     if(schedule.dailyFrequency.hasOwnProperty('occursEvery')) {
         let time = schedule.dailyFrequency.start.split(':');
         //milliseconds should be removed?
-        newDateTime.setUTCHours(time[0], time[1], time[2], 0);
-        while(newDateTime < getDateTime()) {
+        runDateTime.setUTCHours(time[0], time[1], time[2], 0);
+        while(runDateTime < getDateTime()) {
             //TODO nice to have interval like 03:30 (both hour and minutes)
             switch(schedule.dailyFrequency.occursEvery.intervalType) {
                 case 'minute':
-                    newDateTime = addDate(newDateTime, 0, 0, 0, 0, schedule.dailyFrequency.occursEvery.intervalValue, 0);
+                    runDateTime = addDate(runDateTime, 0, 0, 0, 0, schedule.dailyFrequency.occursEvery.intervalValue, 0);
                 break;
                 case 'hour':
-                    newDateTime = addDate(newDateTime, 0, 0, 0, schedule.dailyFrequency.occursEvery.intervalValue, 0, 0);
+                    runDateTime = addDate(runDateTime, 0, 0, 0, schedule.dailyFrequency.occursEvery.intervalValue, 0, 0);
                 break;
             }
         }
-        return newDateTime;   
+        if(runDate.getUTCDate() == runDateTime.getUTCDate())
+            return runDateTime;   
+        else
+            return null;
+        
     }
 }
 /**
- * 
+ * Scans week which starts with weekStart and tries to find date for run
  * @param {object} schedule Schedule for which next run time should be calculated
- * @param {object} sunday Date of sunday (0 day of week)
+ * @param {object} weekStart Date of sunday (0 day of week)
+ * @returns {object} Date or next run or null in case if date was not calculated
  */
-function calculateWeekDayOfRun(schedule, sunday) {
-    let result = sunday;
+function calculateWeekDayOfRun(schedule, weekStart) {
+    let currentDay = weekStart;
     let weekDayList = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
     let weekDayLastIndex = 0;
     for (let i = 0; i < schedule.dayOfWeek.length; i++) {
         let weekDayIndex = weekDayList.indexOf(schedule.dayOfWeek[i]);
         if(weekDayIndex != -1) {
-            result = addDate(result, 0, 0, weekDayIndex - weekDayLastIndex, 0, 0, 0);
+            currentDay = addDate(currentDay, 0, 0, weekDayIndex - weekDayLastIndex, 0, 0, 0);
             weekDayLastIndex = weekDayIndex;
             //day calculating time found - don't go next
-            result = calculateTimeOfRun(schedule, result);
-            if(result > getDateTime() && result > schedule.startDateTime)
-                return result;
+            let calculationResult = calculateTimeOfRun(schedule, currentDay);
+            if(calculationResult) {            
+                if(calculationResult > getDateTime() && calculationResult > schedule.startDateTime)
+                    return calculationResult;
+                currentDay = calculationResult;
+            }
         }        
     }   
-    return sunday;
+    return null;
 }
 
 /**
@@ -81,21 +91,19 @@ module.exports.calculateNextRun = (schedule) => {
         while(newDateTime < currentDate) {
             newDateTime = addDate(newDateTime, 0, 0, schedule.eachNDay, 0, 0, 0);
         }        
-        //remember initial day for overwhelming check
-        let initialDay = newDateTime.getUTCDate();
         //as far as day was found - start to search moment in a day for run
         result = calculateTimeOfRun(schedule, newDateTime);
 
         if(result < getDateTime() && schedule.dailyFrequency.hasOwnProperty('occursOnceAt'))
             //happened today, but already missed - go to future, to next N day
             result = addDate(result, 0, 0, schedule.eachNDay, 0, 0, 0);
-
-        if(initialDay < result.getUTCDate()  && schedule.dailyFrequency.hasOwnProperty('occursEvery')) {
-            //day overwhelming after adding interval, go to future, to next N day, but remove overwhelmed day
-            result = addDate(result, 0, 0, schedule.eachNDay - 1, 0, 0, 0);
+        
+        //day overwhelming after adding interval, go to future, to next N day
+        if(result == null) {
+            result = addDate(newDateTime, 0, 0, schedule.eachNDay, 0, 0, 0);
             let time = schedule.dailyFrequency.start.split(':');
             result.setUTCHours(time[0], time[1], time[2]);
-        }                    
+        }
     }    
     //eachNWeek
     if(schedule.hasOwnProperty('eachNWeek')) {               
@@ -114,22 +122,18 @@ module.exports.calculateNextRun = (schedule) => {
             newDateTime = addDate(newDateTime, 0, 0, 7*schedule.eachNWeek, 0, 0, 0);
         }          
         
-        newDateTime = calculateWeekDayOfRun(schedule, newDateTime);
+        let calculationResult = calculateWeekDayOfRun(schedule, newDateTime);
+        if(calculationResult)
+            newDateTime = calculationResult;
+
         //as far as begining of the week was found - start to search day for execution
         while(newDateTime < schedule.startDateTime || newDateTime < getDateTime()) {
             newDateTime = addDate(newDateTime, 0, 0, 7*schedule.eachNWeek, 0, 0, 0);   
-            newDateTime = calculateWeekDayOfRun(schedule, newDateTime);       
+            calculationResult = calculateWeekDayOfRun(schedule, newDateTime);       
+            if(calculationResult)
+                newDateTime = calculationResult;
         }         
-        result = newDateTime;
-        /*
-        if(initialDay < result.getUTCDate()  && schedule.dailyFrequency.hasOwnProperty('occursEvery')) {
-            //day overwhelming after adding interval
-            result = addDate(result, 0, 0, schedule.eachNDay - 1, 0, 0, 0);
-            let time = schedule.dailyFrequency.start.split(':');
-            result.setUTCHours(time[0], time[1], time[2]);
-        } 
-        */     
-        //return newDateTime;        
+        result = newDateTime;      
     }  
     //month
     //check

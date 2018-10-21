@@ -18,7 +18,7 @@ module.exports = function(app, dbclient) {
       let scheduleTestObject = testData.weeklyScheduleOK;
       scheduleTestObject.startDateTime = addDate(getDateTime(), 0, 0, -35, 0, 0, 0);
       scheduleTestObject.eachNWeek = 3;
-      scheduleTestObject.dayOfWeek = ['wed', 'fri'];
+      scheduleTestObject.dayOfWeek = ['mon'];
       calculationResult = schedule.calculateNextRun(scheduleTestObject);
       res.status(200).send({result: calculationResult});
     }
