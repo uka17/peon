@@ -66,7 +66,6 @@ function calculateWeekDayOfRun(schedule, weekStart) {
     }   
     return null;
 }
-
 /**
  * Calculates next run date and time 
  * @param {object} schedule Schedule for which next run date and time should be calculated
@@ -136,6 +135,20 @@ module.exports.calculateNextRun = (schedule) => {
         result = newDateTime;      
     }  
     //month
+    if(schedule.hasOwnProperty('month')) {                       
+        let monthList = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+        let newDateTime = new Date(parseDateTime(schedule.startDateTime));
+        let monthIndex = getDateTime().getMonth();
+        for(let i = 0; i < 13; i++) {
+            if(schedule.month.includes(monthList[monthIndex])) {
+                //check days  
+                return monthList[monthIndex];
+            }
+            monthIndex++;
+            if(monthIndex == 12)
+                monthIndex = 0;
+        }                   
+    }     
     //check
     if(schedule.endDateTime) {
         if(result)

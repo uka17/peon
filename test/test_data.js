@@ -241,7 +241,7 @@ module.exports.monthlyScheduleOK = {
     enabled: true,
     startDateTime: '2018-01-31T20:54:23.071Z',
     month: ['jan', 'jul'],
-    day: 1,
+    day: [1, 2, 3],
     dailyFrequency: { start: '11:11:11', occursEvery: {intervalValue: 1, intervalType: 'minute'}}
 };
 //utils validation test data

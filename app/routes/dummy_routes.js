@@ -15,10 +15,11 @@ module.exports = function(app, dbclient) {
     //dummy
     try {         
       //res.status(200).send({result: validation.dateTimeIsValid('2015-aa-25T12:00:00Z')});
-      let scheduleTestObject = testData.weeklyScheduleOK;
-      scheduleTestObject.startDateTime = addDate(getDateTime(), 0, 0, -35, 0, 0, 0);
-      scheduleTestObject.eachNWeek = 3;
-      scheduleTestObject.dayOfWeek = ['mon'];
+      let scheduleTestObject = testData.monthlyScheduleOK;
+      scheduleTestObject.startDateTime = parseDateTime('2018-01-01T10:00:00.000Z');
+      scheduleTestObject.month = ['jan'];
+      scheduleTestObject.day = [1];
+      scheduleTestObject.dailyFrequency = { "occursOnceAt": "00:00:00" }; 
       calculationResult = schedule.calculateNextRun(scheduleTestObject);
       res.status(200).send({result: calculationResult});
     }
