@@ -7,7 +7,8 @@ var parseDateTime = require('./date_time').parseDateTime;
  * Calculates next run time for already calculated day
  * @param {object} schedule Schedule for which next run time should be calculated
  * @param {object} runDate Day of next run with 00:00 time
- * @returns {object} Next run date and time or null in case if next run time is out of runDate range (e.g. attempt to calculate 'each 13 hours' at 19:00)
+ * @returns {object} Next run date and time or null in case if next run time is out of runDate range (e.g. attempt to calculate 'each 13 hours' at 19:00) 
+ * or already in past (e.g. attempt to calculate '11:00' at 11:05)
  */
 function calculateTimeOfRun(schedule, runDate) {  
     let runDateTime = runDate;
@@ -15,7 +16,10 @@ function calculateTimeOfRun(schedule, runDate) {
     if(schedule.dailyFrequency.hasOwnProperty('occursOnceAt')) {
         let time = schedule.dailyFrequency.occursOnceAt.split(':');
         runDateTime.setUTCHours(time[0], time[1], time[2]); //it should put time in UTC, but it puts it in local        
-        return runDateTime;                     
+        if(runDateTime > getDateTime())
+            return runDateTime;
+        else
+            return null;                                   
     }
 
     if(schedule.dailyFrequency.hasOwnProperty('occursEvery')) {
@@ -58,7 +62,7 @@ function calculateWeekDayOfRun(schedule, weekStart) {
             //day calculating time found - don't go next
             let calculationResult = calculateTimeOfRun(schedule, currentDay);
             if(calculationResult) {            
-                if(calculationResult > getDateTime() && calculationResult > schedule.startDateTime)
+                if(calculationResult > schedule.startDateTime)
                     return calculationResult;
                 currentDay = calculationResult;
             }
@@ -71,7 +75,8 @@ function calculateWeekDayOfRun(schedule, weekStart) {
  * @param {object} schedule Schedule for which next run date and time should be calculated
  * @returns {object} Next run date and time or null in case if next run date and time can not be calculated
  */ 
-module.exports.calculateNextRun = (schedule) => {   
+module.exports.calculateNextRun = (schedule) => { 
+    ///TODO process ENABLED property  
     let result = null; 
     //oneTime
     if(schedule.hasOwnProperty('oneTime')) {        
@@ -92,16 +97,12 @@ module.exports.calculateNextRun = (schedule) => {
         }        
         //as far as day was found - start to search moment in a day for run
         result = calculateTimeOfRun(schedule, newDateTime);
-
-        if(result < getDateTime() && schedule.dailyFrequency.hasOwnProperty('occursOnceAt'))
-            //happened today, but already missed - go to future, to next N day
-            result = addDate(result, 0, 0, schedule.eachNDay, 0, 0, 0);
         
-        //day overwhelming after adding interval, go to future, to next N day
+        //day overwhelming after adding interval or already happend, go to future, to next N day
         if(result == null) {
-            result = addDate(newDateTime, 0, 0, schedule.eachNDay, 0, 0, 0);
-            let time = schedule.dailyFrequency.start.split(':');
-            result.setUTCHours(time[0], time[1], time[2]);
+            newDateTime = addDate(newDateTime, 0, 0, schedule.eachNDay, 0, 0, 0);
+            newDateTime.setUTCHours(0, 0, 0, 0);
+            result = calculateTimeOfRun(schedule, newDateTime);
         }
     }    
     //eachNWeek
@@ -138,16 +139,32 @@ module.exports.calculateNextRun = (schedule) => {
     if(schedule.hasOwnProperty('month')) {                       
         let monthList = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
         let newDateTime = new Date(parseDateTime(schedule.startDateTime));
+        let runMonth = null;
         let monthIndex = getDateTime().getMonth();
-        for(let i = 0; i < 13; i++) {
+        for(let i=0; i<13; i++) {
             if(schedule.month.includes(monthList[monthIndex])) {
                 //check days  
-                return monthList[monthIndex];
+                runMonth = monthList[monthIndex];
             }
             monthIndex++;
             if(monthIndex == 12)
                 monthIndex = 0;
-        }                   
+        }    
+        if(runMonth) {
+            let dayList = schedule.day.sort();
+            let tempDateTime = dayList[0];
+            for(let i=1; i<dayList.length; i++) {
+                //form data
+                //---
+                //as far as day was found - start to search moment in a day for run
+                runDateTime = calculateTimeOfRun(schedule, tempDateTime);
+
+                //happend, but already past or date overwhelming
+                if(result < getDateTime() || result == null) {
+                    let me =1;
+                }
+            }
+        }
     }     
     //check
     if(schedule.endDateTime) {

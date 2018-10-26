@@ -522,7 +522,7 @@ describe.only('schedule', function() {
             it('success. run every NY', function(done) {               
                 let scheduleTestObject = require('./test_data').monthlyScheduleOK;
                 scheduleTestObject.startDateTime = parseDateTime('2018-01-01T10:00:00.000Z');
-                scheduleTestObject.month = ['jan'];
+                scheduleTestObject.month = ['sep'];
                 scheduleTestObject.day = [1];
                 scheduleTestObject.dailyFrequency = { "occursOnceAt": "00:00:00" };                
                 let calculationResult = schedule.calculateNextRun(scheduleTestObject);   
