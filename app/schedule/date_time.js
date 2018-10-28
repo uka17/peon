@@ -36,7 +36,7 @@ module.exports.getTimefromDateTime = getTimefromDateTime;
  * @param {number} seconds Number of seconds to add
  * @returns {object} New date with added number of days
  */
-function addDate(date, years, months, days, hours, minutes, seconds) {  
+function addDate(date, years, months = 0, days = 0, hours = 0, minutes = 0, seconds = 0) {  
     let result = new Date();
     result.setFullYear(date.getFullYear() + years);
     result.setMonth(date.getMonth() + months);

@@ -114,7 +114,15 @@ describe.only('schedule', function() {
             assert.equalDate(initial, expected);
             assert.equalTime(initial, expected);
             done();
-        });                 
+        });          
+        it('addDate 7+, undefined parameter', function(done) {
+            let initial = parseDateTime('2001-01-01T01:01:01.000Z');            
+            let expected = parseDateTime('2002-01-01T01:01:01.000Z');
+            initial = addDate(initial, 1);
+            assert.equalDate(initial, expected);
+            assert.equalTime(initial, expected);
+            done();
+        });                  
         it('parseDateTime. success', function(done) {
             let dateTime = new Date(Date.parse('2019-06-10T02:02:02.071Z'));
             assert.equalDate(parseDateTime('2019-06-10T02:02:02.071Z'), dateTime);
@@ -522,14 +530,14 @@ describe.only('schedule', function() {
             it('success. run every NY', function(done) {               
                 let scheduleTestObject = require('./test_data').monthlyScheduleOK;
                 scheduleTestObject.startDateTime = parseDateTime('2018-01-01T10:00:00.000Z');
-                scheduleTestObject.month = ['sep'];
+                scheduleTestObject.month = ['jan'];
                 scheduleTestObject.day = [1];
                 scheduleTestObject.dailyFrequency = { "occursOnceAt": "00:00:00" };                
                 let calculationResult = schedule.calculateNextRun(scheduleTestObject);   
                 let nextRunDateTime = parseDateTime('2019-01-01T00:00:00.000Z');
                 logSchedule(scheduleTestObject, calculationResult, nextRunDateTime, true);
-                //assert.equalDate(calculationResult, nextRunDateTime);
-                //assert.equalTime(calculationResult, nextRunDateTime);
+                assert.equalDate(calculationResult, nextRunDateTime);
+                assert.equalTime(calculationResult, nextRunDateTime);
                 done();
             });                                                      
         });   

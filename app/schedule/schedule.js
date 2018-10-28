@@ -30,10 +30,10 @@ function calculateTimeOfRun(schedule, runDate) {
             //TODO nice to have interval like 03:30 (both hour and minutes)
             switch(schedule.dailyFrequency.occursEvery.intervalType) {
                 case 'minute':
-                    runDateTime = addDate(runDateTime, 0, 0, 0, 0, schedule.dailyFrequency.occursEvery.intervalValue, 0);
+                    runDateTime = addDate(runDateTime, 0, 0, 0, 0, schedule.dailyFrequency.occursEvery.intervalValue);
                 break;
                 case 'hour':
-                    runDateTime = addDate(runDateTime, 0, 0, 0, schedule.dailyFrequency.occursEvery.intervalValue, 0, 0);
+                    runDateTime = addDate(runDateTime, 0, 0, 0, schedule.dailyFrequency.occursEvery.intervalValue);
                 break;
             }
         }
@@ -57,7 +57,7 @@ function calculateWeekDayOfRun(schedule, weekStart) {
     for (let i = 0; i < schedule.dayOfWeek.length; i++) {
         let weekDayIndex = weekDayList.indexOf(schedule.dayOfWeek[i]);
         if(weekDayIndex != -1) {
-            currentDay = addDate(currentDay, 0, 0, weekDayIndex - weekDayLastIndex, 0, 0, 0);
+            currentDay = addDate(currentDay, 0, 0, weekDayIndex - weekDayLastIndex);
             weekDayLastIndex = weekDayIndex;
             //day calculating time found - don't go next
             let calculationResult = calculateTimeOfRun(schedule, currentDay);
@@ -93,14 +93,14 @@ module.exports.calculateNextRun = (schedule) => {
         let newDateTime = new Date(parseDateTime(schedule.startDateTime));
         newDateTime.setUTCHours(0, 0, 0, 0);
         while(newDateTime < currentDate) {
-            newDateTime = addDate(newDateTime, 0, 0, schedule.eachNDay, 0, 0, 0);
+            newDateTime = addDate(newDateTime, 0, 0, schedule.eachNDay);
         }        
         //as far as day was found - start to search moment in a day for run
         result = calculateTimeOfRun(schedule, newDateTime);
         
         //day overwhelming after adding interval or already happend, go to future, to next N day
         if(result == null) {
-            newDateTime = addDate(newDateTime, 0, 0, schedule.eachNDay, 0, 0, 0);
+            newDateTime = addDate(newDateTime, 0, 0, schedule.eachNDay);
             newDateTime.setUTCHours(0, 0, 0, 0);
             result = calculateTimeOfRun(schedule, newDateTime);
         }
@@ -111,15 +111,15 @@ module.exports.calculateNextRun = (schedule) => {
         let newDateTime = new Date(parseDateTime(schedule.startDateTime));
         newDateTime.setUTCHours(0, 0, 0, 0);
         //find Sunday of start week 
-        newDateTime = addDate(newDateTime, 0, 0, -newDateTime.getUTCDay(), 0, 0, 0);
+        newDateTime = addDate(newDateTime, 0, 0, -newDateTime.getUTCDay());
         //make start point as Sunday of start week + (eachNWeek-1) weeks due to find first sunday for checking            
-        newDateTime = addDate(newDateTime, 0, 0, 7*(schedule.eachNWeek - 1), 0, 0, 0);
+        newDateTime = addDate(newDateTime, 0, 0, 7*(schedule.eachNWeek - 1));
         //find Sunday of current week    
         let currentDate = new Date((new Date()).setUTCHours(0, 0, 0, 0));
-        let currentWeekSunday = addDate(currentDate, 0, 0, -currentDate.getUTCDay(), 0, 0, 0);            
+        let currentWeekSunday = addDate(currentDate, 0, 0, -currentDate.getUTCDay());            
         //find Sunday of week where next run day(s) are        
         while(newDateTime < currentWeekSunday) {
-            newDateTime = addDate(newDateTime, 0, 0, 7*schedule.eachNWeek, 0, 0, 0);
+            newDateTime = addDate(newDateTime, 0, 0, 7*schedule.eachNWeek);
         }          
         
         let calculationResult = calculateWeekDayOfRun(schedule, newDateTime);
@@ -128,7 +128,7 @@ module.exports.calculateNextRun = (schedule) => {
 
         //as far as begining of the week was found - start to search day for execution
         while(newDateTime < schedule.startDateTime || newDateTime < getDateTime()) {
-            newDateTime = addDate(newDateTime, 0, 0, 7*schedule.eachNWeek, 0, 0, 0);   
+            newDateTime = addDate(newDateTime, 0, 0, 7*schedule.eachNWeek);   
             calculationResult = calculateWeekDayOfRun(schedule, newDateTime);       
             if(calculationResult)
                 newDateTime = calculationResult;
@@ -136,35 +136,40 @@ module.exports.calculateNextRun = (schedule) => {
         result = newDateTime;      
     }  
     //month
-    if(schedule.hasOwnProperty('month')) {                       
+    if(schedule.hasOwnProperty('month')) {                               
         let monthList = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
         let newDateTime = new Date(parseDateTime(schedule.startDateTime));
+        newDateTime.setUTCHours(0, 0, 0, 0);
         let runMonth = null;
         let monthIndex = getDateTime().getMonth();
         for(let i=0; i<13; i++) {
             if(schedule.month.includes(monthList[monthIndex])) {
                 //check days  
-                runMonth = monthList[monthIndex];
+                runMonth = monthIndex;
+                break;
             }
             monthIndex++;
-            if(monthIndex == 12)
+            if(monthIndex == 12) {
                 monthIndex = 0;
+                newDateTime = addDate(newDateTime, 1);
+            }
         }    
-        if(runMonth) {
-            let dayList = schedule.day.sort();
-            let tempDateTime = dayList[0];
-            for(let i=1; i<dayList.length; i++) {
-                //form data
-                //---
-                //as far as day was found - start to search moment in a day for run
-                runDateTime = calculateTimeOfRun(schedule, tempDateTime);
-
+        
+        let dayList = schedule.day.sort();            
+        for(let i=0; i<dayList.length; i++) {
+            newDateTime.setMonth(runMonth, dayList[i]);
+            //as far as day was found - start to search moment in a day for run
+            if(newDateTime > getDateTime()) {
+                newDateTime = calculateTimeOfRun(schedule, newDateTime);
                 //happend, but already past or date overwhelming
-                if(result < getDateTime() || result == null) {
+                if(newDateTime < getDateTime() || newDateTime == null) {
                     let me =1;
                 }
+                result = newDateTime;
+                break;
             }
         }
+     
     }     
     //check
     if(schedule.endDateTime) {
