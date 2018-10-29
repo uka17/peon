@@ -45,7 +45,7 @@ function addDate(date, years, months = 0, days = 0, hours = 0, minutes = 0, seco
     result.setMinutes(date.getMinutes() + minutes);
     result.setSeconds(date.getSeconds() + seconds);
     result.setMilliseconds(date.getMilliseconds());
-    return result;
+    return new Date(result);
 }
 module.exports.addDate = addDate;
 /**
