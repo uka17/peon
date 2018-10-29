@@ -78,7 +78,9 @@ describe('schedule', function() {
         it('addDate 2+', function(done) {
             let initial = parseDateTime('2018-02-28T23:00:00.000Z');            
             let expected = parseDateTime('2018-03-01T01:00:00.000Z');
-            initial = addDate(initial, 0, 0, 0, 2, 0, 0);
+            initial = addDate(initial, 0, 0, 0, 2);
+            console.log(initial);
+            console.log(expected);
             assert.equalDate(initial, expected);
             assert.equalTime(initial, expected);
             done();
