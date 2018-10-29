@@ -803,9 +803,23 @@ describe('schema validation', function() {
                 let nMonthlySchedule = JSON.parse(JSON.stringify(monthlySchedule));
                 nMonthlySchedule.day = true;
                 assert.equal(DataVsSchemaResult(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
-                assert.include(DataVsSchemaErrors(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.day should be integer');
+                assert.include(DataVsSchemaErrors(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.day should be array');
                 done();
-            })            
+            })       
+            it('incorrect "day.items" type', function(done) {                                            
+                let nMonthlySchedule = JSON.parse(JSON.stringify(monthlySchedule));
+                nMonthlySchedule.day = ["a"];
+                assert.equal(DataVsSchemaResult(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                assert.include(DataVsSchemaErrors(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'should be integer');
+                done();
+            })      
+            it('"day" contains not unique items', function(done) {                                            
+                let nMonthlySchedule = JSON.parse(JSON.stringify(monthlySchedule));
+                nMonthlySchedule.day = [1, 1];
+                assert.equal(DataVsSchemaResult(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
+                assert.include(DataVsSchemaErrors(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.day should NOT have duplicate items');
+                done();
+            })          
             it('incorrect "dailyFrequency" type', function(done) {                                            
                 let nMonthlySchedule = JSON.parse(JSON.stringify(monthlySchedule));
                 nMonthlySchedule.dailyFrequency = 1;
@@ -813,25 +827,25 @@ describe('schema validation', function() {
                 assert.include(DataVsSchemaErrors(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.dailyFrequency should be object');
                 done();
             })                
-            it('incorrect "day" =0', function(done) {                                            
+            it('"day" contains =0', function(done) {                                            
                 let nMonthlySchedule = JSON.parse(JSON.stringify(monthlySchedule));
-                nMonthlySchedule.day = 0;
+                nMonthlySchedule.day = [0, 1];
                 assert.equal(DataVsSchemaResult(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
-                assert.include(DataVsSchemaErrors(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.day should be >= 1');
+                assert.include(DataVsSchemaErrors(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'should be >= 1');
                 done();
             })
-            it('incorrect "day" <0', function(done) {                                            
+            it('"day" contains <0', function(done) {                                            
                 let nMonthlySchedule = JSON.parse(JSON.stringify(monthlySchedule));
-                nMonthlySchedule.day = -1;
+                nMonthlySchedule.day = [2, -1];
                 assert.equal(DataVsSchemaResult(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
-                assert.include(DataVsSchemaErrors(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.day should be >= 1');
+                assert.include(DataVsSchemaErrors(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'should be >= 1');
                 done();
             })       
-            it('incorrect "day" >31', function(done) {                                            
+            it('"day" contains >31', function(done) {                                            
                 let nMonthlySchedule = JSON.parse(JSON.stringify(monthlySchedule));
-                nMonthlySchedule.day = 32;
+                nMonthlySchedule.day = [1, 32];
                 assert.equal(DataVsSchemaResult(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), false);
-                assert.include(DataVsSchemaErrors(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'data.day should be <= 31');
+                assert.include(DataVsSchemaErrors(nMonthlySchedule, schema.scheduleSchema, [schema.scheduleSchemaDaily]), 'should be <= 31');
                 done();
             })                     
             it('incorrect "month" value', function(done) {                                            

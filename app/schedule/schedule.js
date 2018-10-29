@@ -2,6 +2,7 @@
 var getDateTime = require('../tools/utools').getDateTime;
 var addDate = require('./date_time').addDate;
 var parseDateTime = require('./date_time').parseDateTime;
+var monthList = require('./date_time').monthList;
 
 /**
  * Calculates next run time for already calculated day
@@ -11,7 +12,8 @@ var parseDateTime = require('./date_time').parseDateTime;
  * or already in past (e.g. attempt to calculate '11:00' at 11:05)
  */
 function calculateTimeOfRun(schedule, runDate) {  
-    let runDateTime = runDate;
+    //as with simple = ref will be created we need to clone Date object
+    let runDateTime = new Date(runDate);
 
     if(schedule.dailyFrequency.hasOwnProperty('occursOnceAt')) {
         let time = schedule.dailyFrequency.occursOnceAt.split(':');
@@ -76,8 +78,10 @@ function calculateWeekDayOfRun(schedule, weekStart) {
  * @returns {object} Next run date and time or null in case if next run date and time can not be calculated
  */ 
 module.exports.calculateNextRun = (schedule) => { 
-    ///TODO process ENABLED property  
-    let result = null; 
+    if(!schedule.enabled)  
+        return null;
+        
+    let result = null;     
     //oneTime
     if(schedule.hasOwnProperty('oneTime')) {        
         let oneTime = schedule.oneTime;
@@ -137,48 +141,36 @@ module.exports.calculateNextRun = (schedule) => {
     }  
     //month
     if(schedule.hasOwnProperty('month')) {                               
-        let monthList = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
         let newDateTime = new Date(parseDateTime(schedule.startDateTime));
+        let dayList = schedule.day.sort();   
+
         newDateTime.setUTCHours(0, 0, 0, 0);
-        let runMonth = null;
         let monthIndex = getDateTime().getMonth();
+        //make 1 year round. If date is not found within 1 year - next run can not be calculated
+        monthLoop:
         for(let i=0; i<13; i++) {
             if(schedule.month.includes(monthList[monthIndex])) {
-                //check days  
-                runMonth = monthIndex;
-                break;
+                //month found, start to check day list         
+                for(let i=0; i<dayList.length; i++) {
+                    newDateTime.setMonth(monthIndex, dayList[i]);
+                    //as far as day was found - start to search moment in a day for run
+                    let calculationResult = calculateTimeOfRun(schedule, newDateTime);
+                    if(calculationResult && calculationResult > getDateTime()) {
+                        result = calculationResult;
+                        break monthLoop;
+                    }
+                }
             }
             monthIndex++;
             if(monthIndex == 12) {
                 monthIndex = 0;
                 newDateTime = addDate(newDateTime, 1);
             }
-        }    
-        
-        let dayList = schedule.day.sort();            
-        for(let i=0; i<dayList.length; i++) {
-            newDateTime.setMonth(runMonth, dayList[i]);
-            //as far as day was found - start to search moment in a day for run
-            if(newDateTime > getDateTime()) {
-                newDateTime = calculateTimeOfRun(schedule, newDateTime);
-                //happend, but already past or date overwhelming
-                if(newDateTime < getDateTime() || newDateTime == null) {
-                    let me =1;
-                }
-                result = newDateTime;
-                break;
-            }
-        }
-     
+        }                 
     }     
-    //check
-    if(schedule.endDateTime) {
-        if(result)
-            return result > schedule.endDateTime ? null : result;
-        else
-            return null;
-    }
+    //check for end date-time restriction
+    if(schedule.endDateTime && result)
+        return result > schedule.endDateTime ? null : result;        
     else
         return result;
-
 }

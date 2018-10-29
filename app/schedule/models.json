@@ -63,8 +63,12 @@
                         "items": { "enum": ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"] },
                         "additionalItems": false
                     },
-                    
-                    "day": {"type": "integer", "minimum": 1, "maximum": 31},
+                    "day": {
+                        "type": "array",
+                        "uniqueItems": true,
+                        "items": {"type": "integer", "minimum": 1, "maximum": 31},
+                        "additionalItems": false
+                    },
                     "dailyFrequency": {"$ref": "daily#/"}
                 },
                 "additionalProperties": false,

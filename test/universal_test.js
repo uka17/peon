@@ -27,7 +27,6 @@ module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, refer
                     .end(function(err, res) { 
                         assert.equal(res.status, 201);
                         assert.equal(res.body[referenceFieldName], testReferenceObject[referenceFieldName]);
-                        console.log(Date.now());
                         objectId = res.body._id;
                         response.dbclient.close()
                     });                    
@@ -76,7 +75,6 @@ module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, refer
                     .end(function(err, res) { 
                         assert.equal(res.status, 201);
                         assert.equal(res.body[referenceFieldName], testReferenceObject[referenceFieldName]);
-                        console.log(Date.now());
                         objectId = res.body._id;
                         response.dbclient.close()
                     });                    

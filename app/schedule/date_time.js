@@ -1,5 +1,5 @@
 //Date-time functions and helpers
-
+module.exports.monthList = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
 let getDateTime = require('../tools/utools').getDateTime;
 
 /**
