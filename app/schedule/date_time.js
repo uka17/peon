@@ -49,7 +49,7 @@ function addDate(date, years, months = 0, days = 0, hours = 0, minutes = 0, seco
     result.setMinutes(date.getMinutes() + minutes);
     console.log('minute',result);
     result.setSeconds(date.getSeconds() + seconds);
-    console.log'second',(result);
+    console.log('second',result);
     result.setMilliseconds(date.getMilliseconds());
     console.log('millisecond',result);
     //patch for some servers (ubuntu) to correctly process leap years
