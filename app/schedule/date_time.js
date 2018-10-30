@@ -38,29 +38,13 @@ module.exports.getTimefromDateTime = getTimefromDateTime;
  */
 function addDate(date, years, months = 0, days = 0, hours = 0, minutes = 0, seconds = 0) {  
     let result = new Date();
-    result.setFullYear(date.getFullYear() + years);
-    console.log('year', result);
-    result.setMonth(date.getMonth() + months);
-    console.log('month',result);
-    result.setDate(date.getDate() + days);
-    console.log('date',result);
-    result.setHours(date.getHours() + hours);
-    console.log('hour',result);
-    result.setMinutes(date.getMinutes() + minutes);
-    console.log('minute',result);
-    result.setSeconds(date.getSeconds() + seconds);
-    console.log('second',result);
-    result.setMilliseconds(date.getMilliseconds());
-    console.log('millisecond',result);
-    //patch for some servers (ubuntu) to correctly process leap years
-    let yearToCheck = result.getFullYear();
-    /*
-    if(!(((yearToCheck % 4 == 0) && (yearToCheck % 100 != 0)) || (yearToCheck % 400 == 0)) && result.getDate() == 29) {
-        //set 03-01 instead 29-02
-        result.setDate(1);
-        console.log(result);
-    }
-    */
+    result.setUTCFullYear(date.getUTCFullYear() + years);
+    result.setUTCMonth(date.getUTCMonth() + months);
+    result.setUTCDate(date.getUTCDate() + days);
+    result.setUTCHours(date.getUTCHours() + hours);
+    result.setUTCMinutes(date.getUTCMinutes() + minutes);
+    result.setUTCSeconds(date.getUTCSeconds() + seconds);
+    result.setUTCMilliseconds(date.getUTCMilliseconds());
     return new Date(result);
 }
 module.exports.addDate = addDate;
