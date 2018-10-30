@@ -38,13 +38,15 @@ module.exports.getTimefromDateTime = getTimefromDateTime;
  */
 function addDate(date, years, months = 0, days = 0, hours = 0, minutes = 0, seconds = 0) {  
     let result = new Date();
-    result.setUTCFullYear(date.getUTCFullYear() + years);
-    result.setUTCMonth(date.getUTCMonth() + months);
-    result.setUTCDate(date.getUTCDate() + days);
-    result.setUTCHours(date.getUTCHours() + hours);
-    result.setUTCMinutes(date.getUTCMinutes() + minutes);
-    result.setUTCSeconds(date.getUTCSeconds() + seconds);
+    
     result.setUTCMilliseconds(date.getUTCMilliseconds());
+    result.setUTCSeconds(date.getUTCSeconds() + seconds);
+    result.setUTCMinutes(date.getUTCMinutes() + minutes);
+    result.setUTCHours(date.getUTCHours() + hours); 
+    result.setUTCDate(date.getUTCDate() + days);    
+    result.setUTCMonth(date.getUTCMonth() + months);    
+    result.setUTCFullYear(date.getUTCFullYear() + years);
+    
     return new Date(result);
 }
 module.exports.addDate = addDate;
