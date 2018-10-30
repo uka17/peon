@@ -39,21 +39,26 @@ module.exports.getTimefromDateTime = getTimefromDateTime;
 function addDate(date, years, months = 0, days = 0, hours = 0, minutes = 0, seconds = 0) {  
     let result = new Date();
     result.setFullYear(date.getFullYear() + years);
+    console.log(result);
     result.setMonth(date.getMonth() + months);
+    console.log(result);
     result.setDate(date.getDate() + days);
+    console.log(result);
     result.setHours(date.getHours() + hours);
+    console.log(result);
     result.setMinutes(date.getMinutes() + minutes);
+    console.log(result);
     result.setSeconds(date.getSeconds() + seconds);
+    console.log(result);
     result.setMilliseconds(date.getMilliseconds());
+    console.log(result);
     //patch for some servers (ubuntu) to correctly process leap years
-    /*
     let yearToCheck = result.getFullYear();
-    if(!(((yearToCheck % 4 == 0) && (yearToCheck % 100 != 0)) || (yearToCheck % 400 == 0)) && result.getDate() == 29 && result.getMonth() == 2) {
+    if(!(((yearToCheck % 4 == 0) && (yearToCheck % 100 != 0)) || (yearToCheck % 400 == 0)) && result.getDate() == 29) {
         //set 03-01 instead 29-02
-        result.setMonth(2);
         result.setDate(1);
+        console.log(result);
     }
-    */
     return new Date(result);
 }
 module.exports.addDate = addDate;
