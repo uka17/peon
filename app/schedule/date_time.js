@@ -46,7 +46,7 @@ function addDate(date, years, months = 0, days = 0, hours = 0, minutes = 0, seco
     result.setSeconds(date.getSeconds() + seconds);
     result.setMilliseconds(date.getMilliseconds());
     //patch for some servers (ubuntu) to correctly process leap years
-    if((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0)) 
+    if(((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0)) 
         result.setDate(result.getDate() - 1);
     return new Date(result);
 }
