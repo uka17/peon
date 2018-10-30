@@ -48,7 +48,8 @@ function addDate(date, years, months = 0, days = 0, hours = 0, minutes = 0, seco
     //patch for some servers (ubuntu) to correctly process leap years
     let yearToCheck = result.getFullYear();
     if(!(((yearToCheck % 4 == 0) && (yearToCheck % 100 != 0)) || (yearToCheck % 400 == 0)) && result.getDate() == 29 && result.getMonth() == 2) {
-        result.setMonth(3);
+        //set 03-01 instead 29-02
+        result.setMonth(2);
         result.setDate(1);
     }
     return new Date(result);
