@@ -3,7 +3,7 @@ var assert  = require('chai').assert;
 var config = require('../config/config');
 var utools = require('../app/tools/utools');
 var validation = require('../app/tools/validations');
-var models = require('../app/models/app_models');
+var models = require('../app/models/app_models.json');
 var testData = require('./test_data');
 
 describe('validations', function() {

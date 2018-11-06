@@ -2,7 +2,8 @@
 //Functions-helpers for validating differen objects
 var mongo = require('mongodb');
 var utools = require('../tools/utools');
-var models = require('../models/app_models');
+var models = require('../models/app_models.json');
+var scheduleModels = require('../schedule/models.json');
 const config = require('../../config/config');
 const messageBox = require('../../config/message_labels');
 var Ajv = require('ajv');
@@ -70,7 +71,7 @@ module.exports.validateStepList = (stepList) => {
 module.exports.validateScheduleList = (scheduleList) => {
     if(scheduleList) {
         for(let i = 0; i < scheduleList.length; i++) {
-            let validationResult = validateObject(scheduleList[i], models.scheduleSchema, [models.scheduleSchemaDaily]);
+            let validationResult = validateObject(scheduleList[i], scheduleModels.scheduleSchema, [scheduleModels.scheduleSchemaDaily]);
             if(!validationResult.isValid) 
                 return validationResult;
         }
