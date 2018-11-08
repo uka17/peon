@@ -3,7 +3,6 @@ var utools = require('../tools/utools');
 const config = require('../../config/config');
 var validation = require('../tools/validations');
 var ver = '/v1.0';
-const request = require("supertest");
 var testData = require('../../test/test_data');
 var parseDateTime = require('../schedule/date_time').parseDateTime;
 var getDateTime = utools.getDateTime;
