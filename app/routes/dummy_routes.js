@@ -9,6 +9,7 @@ var getDateTime = utools.getDateTime;
 var addDate = require('../schedule/date_time').addDate;
 var monthList = require('../schedule/date_time').monthList;
 var schedule = require('../schedule/schedule');
+var messageBox = require('../../config/message_labels');
 
 module.exports = function(app, dbclient) {
   app.get(ver + '/dummy', (req, res) => {
@@ -27,14 +28,27 @@ module.exports = function(app, dbclient) {
     catch(e) {
       res.status(500).send({error: e.message});
     }
-  });   
+  });  
   app.get('/', (req, res) => {
-    //index route
-    try {         
-      res.status(200).send({appDeployed: true});
+    //get jobs count
+    try {
+      dbclient.db(config.db_name).collection('job').countDocuments(req.body, function(err, count) {
+        /* istanbul ignore if */
+        if (err) {        
+          utools.handleServerException(err, config.user, dbclient, res);
+        } 
+        else {        
+          let resObject = {};
+          resObject['Greeting:'] = 'Welcome, comrade!';
+          resObject['Jobs:'] = count;
+          resObject['Deploy status:'] = 'Ok';
+          res.status(200).send(resObject);
+        } 
+      });
     }
     catch(e) {
-      res.status(500).send({error: e.message});
+      /* istanbul ignore next */
+      utools.handleServerException(e, config.user, dbclient, res);
     }
-  });
+  });     
 }
