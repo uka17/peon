@@ -142,7 +142,7 @@ module.exports.calculateNextRun = (schedule) => {
     //month
     if(schedule.hasOwnProperty('month')) {                               
         let newDateTime = new Date(parseDateTime(schedule.startDateTime));
-        let dayList = schedule.day.sort();   
+        let dayList = schedule.day.sort((a, b) => a - b);   
 
         newDateTime.setUTCHours(0, 0, 0, 0);
         let monthIndex = getDateTime().getMonth();

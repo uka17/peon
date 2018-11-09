@@ -576,7 +576,7 @@ describe('schedule', function() {
                 scheduleTestObject.month =  monthList.slice(getDateTime().getUTCMonth(), getDateTime().getUTCMonth() + 1);
                 let currentDay = getDateTime().getUTCDate();
                 scheduleTestObject.day = [currentDay - 1, currentDay, currentDay + 1];
-                scheduleTestObject.dailyFrequency = { "occursOnceAt": "00:01:00" };         
+                scheduleTestObject.dailyFrequency = { "occursOnceAt": "00:01:00" };     
                 let calculationResult = schedule.calculateNextRun(scheduleTestObject);   
                 let nextRunDateTime = getDateTime();
                 nextRunDateTime.setUTCDate(scheduleTestObject.day[2]);
