@@ -551,7 +551,7 @@ describe('schedule', function() {
                 scheduleTestObject.day = [1];
                 scheduleTestObject.dailyFrequency = { "occursOnceAt": "00:00:00" };                
                 let calculationResult = schedule.calculateNextRun(scheduleTestObject);   
-                let nextRunDateTime = parseDateTime('2019-01-01T00:00:00.000Z');
+                let nextRunDateTime = parseDateTime('2020-01-01T00:00:00.000Z');
                 logSchedule(scheduleTestObject, calculationResult, nextRunDateTime);
                 assert.equalDate(calculationResult, nextRunDateTime);
                 assert.equalTime(calculationResult, nextRunDateTime);
