@@ -88,7 +88,6 @@ module.exports.calculateNextRun = (schedule) => {
         if(oneTime > getDateTime())
             result = oneTime;
     }
-
     //eachNDay 
     if(schedule.hasOwnProperty('eachNDay')) {        
         //searching for a day of run        
@@ -142,6 +141,10 @@ module.exports.calculateNextRun = (schedule) => {
     //month
     if(schedule.hasOwnProperty('month')) {                               
         let newDateTime = new Date(parseDateTime(schedule.startDateTime));
+        let currentDatetime = getDateTime();
+        if(newDateTime < currentDatetime)             
+            newDateTime = currentDatetime;
+            
         let dayList = schedule.day.sort((a, b) => a - b);   
 
         newDateTime.setUTCHours(0, 0, 0, 0);
