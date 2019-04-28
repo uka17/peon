@@ -25,6 +25,7 @@
     "express": "^4.16.3",
     "mongodb": "^3.1.1",
     "request": "^2.88.0",
+    "schedulator": "^2.0.1",
     "utils-error-to-json": "^1.0.0"
   },
   "devDependencies": {

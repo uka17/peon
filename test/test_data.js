@@ -29,8 +29,26 @@ module.exports.jobOK = {
     ],
     schedules: [
         {
-            name: 'weekly',
-            enabled: true,
+            startDateTime: '2018-01-31T20:54:23.071Z',
+            eachNWeek: 1,
+            dayOfWeek: ['mon', 'wed', 'fri'],
+            dailyFrequency: { occursOnceAt: '11:11:11'}
+        }
+    ]  
+};
+module.exports.jobNOK = {
+    name: 'job',
+    description: 'job description',
+    enabled: true,
+    steps: [],
+    schedules: [
+        {
+            startDateTime: '2018-01-31T20:54:23.071Z',
+            eachNWeek: 'aaa',
+            dayOfWeek: ['mon', 'wed', 'fri'],
+            dailyFrequency: { occursOnceAt: '11:11:11'}
+        },
+        {
             startDateTime: '2018-01-31T20:54:23.071Z',
             eachNWeek: 1,
             dayOfWeek: ['mon', 'wed', 'fri'],
@@ -67,8 +85,6 @@ module.exports.jobTestCaseOK = [
     ],
     schedules: [
         {
-            name: 'weekly',
-            enabled: true,
             startDateTime: '2018-01-31T20:54:23.071Z',
             eachNWeek: 1,
             dayOfWeek: ['mon', 'wed', 'fri'],
@@ -94,16 +110,12 @@ module.exports.jobTestCaseOK = [
     ],
     schedules: [
         {
-            name: 'weekly',
-            enabled: true,
             startDateTime: '2018-01-31T20:54:23.071Z',
             eachNWeek: 1,
             dayOfWeek: ['mon', 'wed', 'fri'],
             dailyFrequency: { occursOnceAt: '11:11:11'}
         },
         {
-            name: 'dailyOnce',
-            enabled: true,
             startDateTime: '2018-01-31T20:54:23.071Z',
             eachNDay: 1,
             dailyFrequency: { occursOnceAt: '11:11:11'}
@@ -121,8 +133,6 @@ module.exports.jobTestCaseOK = [
     enabled: true,
     schedules: [
         {
-            name: 'monthly',
-            enabled: true,
             startDateTime: '2018-01-31T20:54:23.071Z',
             month: ['jan', 'jul'],
             day: 1,

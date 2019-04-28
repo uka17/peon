@@ -81,7 +81,7 @@ describe('schema validation', function() {
             assert.equal(DataVsSchemaResult(nJob, schema.jobSchema), false);
             assert.equal(DataVsSchemaErrors(nJob, schema.jobSchema), 'data.steps should be array');
             done();
-        })       
+        })                 
         it('extra property', function(done) {    
             let nJob = JSON.parse(JSON.stringify(testJob));
             nJob.extra = 1;

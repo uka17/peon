@@ -62,24 +62,4 @@ module.exports.validateStepList = (stepList) => {
     }
     return {isValid: true};
 }
-/**
- * Validates time value. Returns TRUE in case if parameter is correct time value
- * @param {string} time Time value to validate in format hh:mm:ss
- * @returns {boolean} Result of validation
- */
-module.exports.timeIsValid = (time) => {
-    return /^([0-1][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$/.test(time);
-}
-/**
- * Validates date-time value. Returns TRUE in case if parameter is correct date-time value.
- * Correct data-time value should be date and UTC time accordingly ISO Dates (Date-Time) format YYYY-MM-DDTHH:MM:SSZ
- * Example: 2015-03-25T12:00:00Z
- * @param {string} date Date-time value to validate 
- * @returns {boolean} Result of validation
- */
-module.exports.dateTimeIsValid = (dateTime) => {
-    //TODO bis sextus and 30-31
-    let convertedDateTime = new Date(dateTime);
-    return convertedDateTime instanceof Date && !isNaN(convertedDateTime);; 
-}
 

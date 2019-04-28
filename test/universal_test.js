@@ -38,7 +38,7 @@ module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, refer
                 let nObject = JSON.parse(JSON.stringify(testReferenceObject));
                 //assign incorrect value to reference field in order to have failed test
                 switch(referenceFieldType) {
-                    case 'string':
+                    case 'string': 
                     nObject[referenceFieldName] = true;
                     break;
                     case 'number':
@@ -67,7 +67,7 @@ module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, refer
         });   
 
         it('successful POST', () => {
-            return utools.expressMongoInstancePromise(routeObject, config.mongodb_url).then(response => {                               
+            return utools.expressMongoInstancePromise(routeObject, config.mongodb_url).then(response => {                             
                 request(response.app)
                     .post(apiRoute)            
                     .send(testReferenceObject)

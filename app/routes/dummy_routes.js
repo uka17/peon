@@ -10,7 +10,7 @@ module.exports = function(app, dbclient) {
   app.get(ver + '/dummy', (req, res) => {
     //dummy
     try {         
-      //res.status(200).send({result: validation.dateTimeIsValid('2015-aa-25T12:00:00Z')});
+      
       res.status(200).send({result: 1});
     }
     catch(e) {

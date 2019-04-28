@@ -4,6 +4,7 @@ var utools = require('../tools/utools');
 var validation = require('../tools/validations');
 const config = require('../../config/config');
 const messageBox = require('../../config/message_labels');
+var schedulator = require('schedulator');
 var ver = '/v1.0';
 
 module.exports = function(app, dbclient) {
@@ -76,8 +77,18 @@ module.exports = function(app, dbclient) {
           case 'steps':
             jobValidationResult = validation.validateStepList(job.steps)
             break;
-          case 'schedules':
-            //TODO Calcualte next run and check validity in the same time
+          case 'schedules':  
+            jobValidationResult.isValid = {"isValid": true};        
+            if(job.schedules) {
+              for (let i = 0; i < job.schedules.length; i++) {
+                let nextRun = schedulator.nextOccurrence(job.schedules[i]);
+                if(nextRun.result == null) {
+                  jobValidationResult.isValid = false;
+                  jobValidationResult.errorList = nextRun.error;
+                  break;
+                }
+              }
+            }
             break;
           case 'notifications':
             //TODO validation for notification
@@ -89,7 +100,7 @@ module.exports = function(app, dbclient) {
       }
 
       if(!jobValidationResult.isValid)
-        res.status(400).send({requestValidationErrors: jobValidationResult.errorList});
+        res.status(400).send({"requestValidationErrors": jobValidationResult.errorList});
       else {
         job.createdOn = utools.getDateTime();     
         job.createdBy = config.user;       
