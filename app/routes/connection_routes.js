@@ -75,7 +75,7 @@ module.exports = function(app, dbclient) {
         connection.modifiedOn = utools.getDateTime();    
         connection.modifiedBy = config.user;
 
-        dbclient.db(config.db_name).collection('connection').insert(connection, (err, result) => {
+        dbclient.db(config.db_name).collection('connection').insertOne(connection, (err, result) => {
         /* istanbul ignore if */
         if (err) { 
           utools.handleServerException(err, config.user, dbclient, res);

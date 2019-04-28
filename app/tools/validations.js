@@ -3,7 +3,6 @@
 var mongo = require('mongodb');
 var utools = require('../tools/utools');
 var models = require('../models/app_models.json');
-var scheduleModels = require('../schedule/models.json');
 const config = require('../../config/config');
 const messageBox = require('../../config/message_labels');
 var Ajv = require('ajv');
@@ -57,21 +56,6 @@ module.exports.validateStepList = (stepList) => {
         models.stepSchema['required'] = models.stepSchemaRequired; 
         for(let i = 0; i < stepList.length; i++) {
             let validationResult = validateObject(stepList[i], models.stepSchema);
-            if(!validationResult.isValid) 
-                return validationResult;
-        }
-    }
-    return {isValid: true};
-}
-/** Validation of schedule list. Returns validation result anyway and validation error list in case of error 
-* Checks all items. Result is valid only in case is all list is valid
-* @param {object[]} scheduleList List of schedules for validation
-* @returns {{isValid: boolean, errorList: string[]}|{isValid: boolean}} Result of validation and (in case of failure) error list
-*/
-module.exports.validateScheduleList = (scheduleList) => {
-    if(scheduleList) {
-        for(let i = 0; i < scheduleList.length; i++) {
-            let validationResult = validateObject(scheduleList[i], scheduleModels.scheduleSchema, [scheduleModels.scheduleSchemaDaily]);
             if(!validationResult.isValid) 
                 return validationResult;
         }

@@ -77,7 +77,7 @@ module.exports = function(app, dbclient) {
             jobValidationResult = validation.validateStepList(job.steps)
             break;
           case 'schedules':
-            jobValidationResult = validation.validateScheduleList(job.schedules)
+            //TODO Calcualte next run and check validity in the same time
             break;
           case 'notifications':
             //TODO validation for notification
@@ -96,7 +96,7 @@ module.exports = function(app, dbclient) {
         job.modifiedOn = utools.getDateTime();    
         job.modifiedBy = config.user;
 
-        dbclient.db(config.db_name).collection('job').insert(job, (err, result) => {
+        dbclient.db(config.db_name).collection('job').insertOne(job, (err, result) => {
           /* istanbul ignore if */
           if (err) { 
             utools.handleServerException(err, config.user, dbclient, res);
