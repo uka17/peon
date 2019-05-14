@@ -1,5 +1,4 @@
 // routes/connection_routes.js
-var mongo = require('mongodb');
 var utools = require('../tools/utools');
 var validation = require('../tools/validations');
 const config = require('../../config/config');
@@ -10,14 +9,17 @@ module.exports = function(app, dbclient) {
   app.get(ver + '/connections/count', (req, res) => {
     //get connections count
     try {
-      dbclient.db(config.db_name).collection('connection').countDocuments(req.body, function(err, count) {
+      const query = {
+        "text": 'SELECT public."fnConnection_Count"() as count'
+      };
+      dbclient.query(query, (err, result) => {
         /* istanbul ignore if */
         if (err) {        
           utools.handleServerException(err, config.user, dbclient, res);
         } 
         else {        
           let resObject = {};
-          resObject[messageBox.common.count] = count;
+          resObject[messageBox.common.count] = result.rows[0].count;
           res.status(200).send(resObject);
         } 
       });
@@ -30,12 +32,16 @@ module.exports = function(app, dbclient) {
   app.get(ver + '/connections', (req, res) => {
     //get all connections
     try {
-      dbclient.db(config.db_name).collection('connection').find(req.body).toArray(function(err, result) {
+      const query = {
+        "text": 'SELECT public."fnConnection_SelectAll"() as connections'
+      };
+      //TODO validation before insert or edit
+      dbclient.query(query, (err, result) => {   
         /* istanbul ignore if */
         if (err) {
           utools.handleServerException(err, config.user, dbclient, res);
         } else {        
-          res.status(200).send(result);
+          res.status(200).send(result.rows[0].connections);
         } 
       });
     }    
@@ -47,13 +53,20 @@ module.exports = function(app, dbclient) {
   app.get(ver + '/connections/:id', (req, res) => {    
     //get connection by id
     try {
-      const where = { '_id': new mongo.ObjectID(req.params.id) };
-      dbclient.db(config.db_name).collection('connection').findOne(where, (err, item) => {
+      const query = {
+        "text": 'SELECT public."fnConnection_Select"($1) as connection',
+        "values": [req.params.id]
+      };
+      //TODO validation before insert or edit
+      dbclient.query(query, (err, result) => {  
         /* istanbul ignore if */
         if (err) {
           utools.handleServerException(err, config.user, dbclient, res);
         } else {
-          res.status(200).send(item);
+          if(result.rows[0].connection == null)
+            res.status(404).send();
+          else
+            res.status(200).send(result.rows[0].connection);
         } 
       });
     }
@@ -68,20 +81,20 @@ module.exports = function(app, dbclient) {
       const connection = req.body;
       let connectionValidationResult = validation.validateConnection(connection);
       if(!connectionValidationResult.isValid)
-        res.status(400).send({requestValidationErrors: connectionValidationResult.errorList});
+        res.status(400).send({"requestValidationErrors": connectionValidationResult.errorList});
       else {
-        connection.createdOn = utools.getDateTime();     
-        connection.createdBy = config.user;       
-        connection.modifiedOn = utools.getDateTime();    
-        connection.modifiedBy = config.user;
-
-        dbclient.db(config.db_name).collection('connection').insertOne(connection, (err, result) => {
-        /* istanbul ignore if */
-        if (err) { 
-          utools.handleServerException(err, config.user, dbclient, res);
-        } else {
-          res.status(201).send(result.ops[0]);
-        }
+        const query = {
+          "text": 'SELECT public."fnConnection_Insert"($1, $2) as id',
+          "values": [connection, config.user]
+        };
+        dbclient.query(query, (err, result) => {       
+          /* istanbul ignore if */
+          if (err) { 
+            utools.handleServerException(err, config.user, dbclient, res);
+          } else {
+            connection.id = result.rows[0].id;
+            res.status(201).send(connection);
+          }
         });
       }
     }
@@ -98,20 +111,17 @@ module.exports = function(app, dbclient) {
   app.patch(ver + '/connections/:id', (req, res) => {
     //update connection by id
     try {
-      var connection = req.body;      
-      connection.modifiedOn = utools.getDateTime();
-      connection.modifiedBy = config.user;      
-
-      const where = { '_id': new mongo.ObjectID(req.params.id) };      
-      const update = { $set: connection};
-
-      dbclient.db(config.db_name).collection('connection').updateOne(where, update, (err, result) => {
+      const query = {
+        "text": 'SELECT public."fnConnection_Update"($1, $2, $3) as count',
+        "values": [req.params.id, req.body, config.user]
+      };
+      dbclient.query(query, (err, result) => {     
         /* istanbul ignore if */
         if (err) {
           utools.handleServerException(err, config.user, dbclient, res);
         } else {
           let resObject = {};
-          resObject[messageBox.common.updated] = result.result.n;
+          resObject[messageBox.common.updated] = result.rows[0].count;
           res.status(200).send(resObject);
         } 
       });
@@ -124,14 +134,18 @@ module.exports = function(app, dbclient) {
   app.delete(ver + '/connections/:id', (req, res) => {
     //delete connection by _id
     try {
-      const where = { '_id': new mongo.ObjectID(req.params.id) };
-      dbclient.db(config.db_name).collection('connection').deleteOne(where, (err, result) => {
+      const query = {
+        "text": 'SELECT public."fnConnection_Delete"($1) as count',
+        "values": [req.params.id]
+      };
+      //TODO validation before insert or edit
+      dbclient.query(query, (err, result) => {  
         /* istanbul ignore if */
         if (err) {
           utools.handleServerException(err, config.user, dbclient, res);
         } else {
           let resObject = {};
-          resObject[messageBox.common.deleted] = result.result.n;
+          resObject[messageBox.common.deleted] = result.rows[0].count;
           res.status(200).send(resObject);          
         } 
       });

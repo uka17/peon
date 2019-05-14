@@ -1,5 +1,4 @@
 // routes/job_routes.js
-var mongo = require('mongodb');
 var utools = require('../tools/utools');
 var validation = require('../tools/validations');
 const config = require('../../config/config');
@@ -11,17 +10,20 @@ module.exports = function(app, dbclient) {
   app.get(ver + '/jobs/count', (req, res) => {
     //get jobs count
     try {
-      dbclient.db(config.db_name).collection('job').countDocuments(req.body, function(err, count) {
+      const query = {
+        "text": 'SELECT public."fnJob_Count"() as count'
+      };
+      dbclient.query(query, (err, result) => {
         /* istanbul ignore if */
         if (err) {        
           utools.handleServerException(err, config.user, dbclient, res);
         } 
         else {        
           let resObject = {};
-          resObject[messageBox.common.count] = count;
+          resObject[messageBox.common.count] = result.rows[0].count;
           res.status(200).send(resObject);
         } 
-      });
+      });  
     }
     catch(e) {
       /* istanbul ignore next */
@@ -31,12 +33,17 @@ module.exports = function(app, dbclient) {
   app.get(ver + '/jobs', (req, res) => {
     //get all jobs
     try {
-      dbclient.db(config.db_name).collection('job').find(req.body).toArray(function(err, result) {
+      const query = {
+        "text": 'SELECT public."fnJob_SelectAll"() as jobs'
+      };
+      //TODO validation before insert or edit
+      dbclient.query(query, (err, result) => {          
         /* istanbul ignore if */
         if (err) {
           utools.handleServerException(err, config.user, dbclient, res);
         } else {        
-          res.status(200).send(result);
+          //TODO Probably need to put try..catch here?
+          res.status(200).send(result.rows[0].jobs);
         } 
       });
     }
@@ -48,13 +55,20 @@ module.exports = function(app, dbclient) {
   app.get(ver + '/jobs/:id', (req, res) => {    
     //get job by id
     try {
-      const where = { '_id': new mongo.ObjectID(req.params.id) };
-      dbclient.db(config.db_name).collection('job').findOne(where, (err, item) => {
+      const query = {
+        "text": 'SELECT public."fnJob_Select"($1) as job',
+        "values": [req.params.id]
+      };
+      //TODO validation before insert or edit
+      dbclient.query(query, (err, result) => {  
         /* istanbul ignore if */
         if (err) {
           utools.handleServerException(err, config.user, dbclient, res);
         } else {
-          res.status(200).send(item);
+          if(result.rows[0].job == null)
+            res.status(404).send();
+          else
+            res.status(200).send(result.rows[0].job);
         } 
       });
     }
@@ -102,17 +116,17 @@ module.exports = function(app, dbclient) {
       if(!jobValidationResult.isValid)
         res.status(400).send({"requestValidationErrors": jobValidationResult.errorList});
       else {
-        job.createdOn = utools.getDateTime();     
-        job.createdBy = config.user;       
-        job.modifiedOn = utools.getDateTime();    
-        job.modifiedBy = config.user;
-
-        dbclient.db(config.db_name).collection('job').insertOne(job, (err, result) => {
+        const query = {
+          "text": 'SELECT public."fnJob_Insert"($1, $2) as id',
+          "values": [job, config.user]
+        };
+        dbclient.query(query, (err, result) => {           
           /* istanbul ignore if */
           if (err) { 
             utools.handleServerException(err, config.user, dbclient, res);
           } else {
-            res.status(201).send(result.ops[0]);
+            job.id = result.rows[0].id;
+            res.status(201).send(job);
           }
         });
       }
@@ -130,20 +144,17 @@ module.exports = function(app, dbclient) {
   app.patch(ver + '/jobs/:id', (req, res) => {
     //update job by id
     try {
-      var job = req.body;      
-      job.modifiedOn = utools.getDateTime();
-      job.modifiedBy = config.user;      
-
-      const where = { '_id': new mongo.ObjectID(req.params.id) };      
-      const update = { $set: job};
-
-      dbclient.db(config.db_name).collection('job').updateOne(where, update, (err, result) => {
+      const query = {
+        "text": 'SELECT public."fnJob_Update"($1, $2, $3) as count',
+        "values": [req.params.id, req.body, config.user]
+      };
+      dbclient.query(query, (err, result) => {     
         /* istanbul ignore if */
         if (err) {
           utools.handleServerException(err, config.user, dbclient, res);
         } else {
           let resObject = {};
-          resObject[messageBox.common.updated] = result.result.n;
+          resObject[messageBox.common.updated] = result.rows[0].count;
           res.status(200).send(resObject);
         } 
       });
@@ -156,14 +167,18 @@ module.exports = function(app, dbclient) {
   app.delete(ver + '/jobs/:id', (req, res) => {
     //delete job by _id
     try {
-      const where = { '_id': new mongo.ObjectID(req.params.id) };
-      dbclient.db(config.db_name).collection('job').deleteOne(where, (err, result) => {
+      const query = {
+        "text": 'SELECT public."fnJob_Delete"($1) as count',
+        "values": [req.params.id]
+      };
+      //TODO validation before insert or edit
+      dbclient.query(query, (err, result) => {  
         /* istanbul ignore if */
         if (err) {
           utools.handleServerException(err, config.user, dbclient, res);
         } else {
           let resObject = {};
-          resObject[messageBox.common.deleted] = result.result.n;
+          resObject[messageBox.common.deleted] = result.rows[0].count;
           res.status(200).send(resObject);          
         } 
       });

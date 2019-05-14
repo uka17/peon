@@ -1,38 +1,36 @@
-var mongo = require('mongodb');
-
 //job test data preparation
 module.exports.jobOK = {
-    name: 'job',
-    description: 'job description',
-    enabled: true,
-    steps: [
+    "name": "job",
+    "description": "job description",
+    "enabled": true,
+    "steps": [
         {
-            name: 'step1',
-            enabled: true,      
-            connection: new mongo.ObjectID('0a9296f2496698264c23e180'),
-            database: 'database',
-            command: 'command',
-            retryAttempts: {number: 1, interval: 5},
-            onSucceed: 'gotoNextStep',
-            onFailure: 'quitWithFailure'
+            "name": "step1",
+            "enabled": true,      
+            "connection": 1,
+            "database": "database",
+            "command": "command",
+            "retryAttempts": {"number": 1, "interval": 5},
+            "onSucceed": "gotoNextStep",
+            "onFailure": "quitWithFailure"
         },        
         {
-            name: 'step2',
-            enabled: true,      
-            connection: new mongo.ObjectID('0a9296f2496698264c23e180'),
-            database: 'database',
-            command: 'command',
-            retryAttempts: {number: 1, interval: 5},
-            onSucceed: 'gotoNextStep',
-            onFailure: {gotoStep: 1}
+            "name": "step2",
+            "enabled": true,      
+            "connection": 1,
+            "database": "database",
+            "command": "command",
+            "retryAttempts": {"number": 1, "interval": 5},
+            "onSucceed": "gotoNextStep",
+            "onFailure": {"gotoStep": 1}
         }  
     ],
-    schedules: [
+    "schedules": [
         {
-            startDateTime: '2018-01-31T20:54:23.071Z',
-            eachNWeek: 1,
-            dayOfWeek: ['mon', 'wed', 'fri'],
-            dailyFrequency: { occursOnceAt: '11:11:11'}
+            "startDateTime": "2018-01-31T20:54:23.071Z",
+            "eachNWeek": 1,
+            "dayOfWeek": ["mon", "wed", "fri"],
+            "dailyFrequency": { "occursOnceAt": "11:11:11"}
         }
     ]  
 };
@@ -65,7 +63,7 @@ module.exports.jobTestCaseOK = [
         {
             name: 'step1',
             enabled: true,      
-            connection: new mongo.ObjectID('0a9296f2496698264c23e180'),
+            connection: 1,
             database: 'database',
             command: 'command',
             retryAttempts: {number: 1, interval: 5},
@@ -75,7 +73,7 @@ module.exports.jobTestCaseOK = [
         {
             name: 'step2',
             enabled: true,      
-            connection: new mongo.ObjectID('0a9296f2496698264c23e180'),
+            connection: 1,
             database: 'database',
             command: 'command',
             retryAttempts: {number: 1, interval: 5},
@@ -100,7 +98,7 @@ module.exports.jobTestCaseOK = [
         {
             name: 'step1',
             enabled: true,      
-            connection: new mongo.ObjectID('0a9296f2496698264c23e180'),
+            connection: 1,
             database: 'database',
             command: 'command',
             retryAttempts: {number: 1, interval: 5},
@@ -145,7 +143,7 @@ module.exports.jobTestCaseOK = [
 module.exports.stepOK = {
     name: 'step',
     enabled: true,      
-    connection: new mongo.ObjectID('0a9296f2496698264c23e180'),
+    connection: 1,
     database: 'database',
     command: 'command',
     retryAttempts: {number: 1, interval: 5},

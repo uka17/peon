@@ -22,7 +22,7 @@
     "properties": {
       "name": {"type": "string"},
       "enabled": {"type": "boolean"},      
-      "connection": {"type": "string"},
+      "connection": {"type": "integer", "minimum": 0},
       "database": {"type": "string"},
       "command": {"type": "string"},    
       "onSucceed": {"oneOf": [

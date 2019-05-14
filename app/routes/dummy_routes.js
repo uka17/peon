@@ -5,13 +5,13 @@ var validation = require('../tools/validations');
 var ver = '/v1.0';
 var testData = require('../../test/test_data');
 var messageBox = require('../../config/message_labels');
+let db = require('../tools/db');
 
 module.exports = function(app, dbclient) {
   app.get(ver + '/dummy', (req, res) => {
     //dummy
-    try {         
-      
-      res.status(200).send({result: 1});
+    try {        
+      utools.handleServerException("Errror!", "sys", dbclient, res);
     }
     catch(e) {
       res.status(500).send({error: e.message});

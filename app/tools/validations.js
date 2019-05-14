@@ -1,6 +1,5 @@
 // utools/validations.js
 //Functions-helpers for validating differen objects
-var mongo = require('mongodb');
 var utools = require('../tools/utools');
 var models = require('../models/app_models.json');
 const config = require('../../config/config');

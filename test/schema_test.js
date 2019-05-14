@@ -1,4 +1,3 @@
-var mongo = require('mongodb');
 var assert  = require('chai').assert;
 var request = require('request');
 var Ajv = require('ajv');
@@ -6,7 +5,6 @@ var messageBox = require('../config/message_labels.js');
 var schema = require('../app/models/app_models.json');
 const config = require('../config/config.js');
 var testData = require('./test_data');
-//var fakeId = new mongo.ObjectID('0a9296f2496698264c23e180');
 
 //test data preparation
 var testJob = testData.jobOK;
@@ -150,9 +148,9 @@ describe('schema validation', function() {
         })      
         it('incorrect "connection" type', function(done) {                            
             let nStep = JSON.parse(JSON.stringify(testStep));
-            nStep.connection = 1;
+            nStep.connection = true;
             assert.equal(DataVsSchemaResult(nStep, schema.stepSchema), false);
-            assert.equal(DataVsSchemaErrors(nStep, schema.stepSchema), "data.connection should be string");            
+            assert.equal(DataVsSchemaErrors(nStep, schema.stepSchema), "data.connection should be integer");            
             done();
         })      
         it('incorrect "database" type', function(done) {                            
