@@ -1,5 +1,5 @@
 // tools/db.js
-const connectionString = require('../../config/config').connectionString;
+const config = require('../../config/config');
 const { Pool } = require('pg')
 
 //configure data type mapping postgres-node due to convert postgres data type to correct one at node side
@@ -8,7 +8,10 @@ types.setTypeParser(20, function(val) {
   return parseInt(val)
 })
 
-const pool = new Pool({"connectionString": connectionString, "idleTimeoutMillis": 1000 })
+const pool = new Pool({
+  "connectionString": config.connectionString, 
+  "idleTimeoutMillis": 1000, 
+  "ssl": config.useDBSSL })
 pool.on('connect', (client) => {
   console.log("New connection established. Total: " + pool.totalCount);
 })
