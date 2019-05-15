@@ -5,13 +5,13 @@ var validation = require('../tools/validations');
 var ver = '/v1.0';
 var testData = require('../../test/test_data');
 var messageBox = require('../../config/message_labels');
+let db = require('../tools/db');
 
 module.exports = function(app, dbclient) {
   app.get(ver + '/dummy', (req, res) => {
     //dummy
-    try {         
-      
-      res.status(200).send({result: 1});
+    try {        
+      utools.handleServerException("Errror!", "sys", dbclient, res);
     }
     catch(e) {
       res.status(500).send({error: e.message});
@@ -20,7 +20,10 @@ module.exports = function(app, dbclient) {
   app.get('/', (req, res) => {
     //get jobs count
     try {
-      dbclient.db(config.db_name).collection('job').countDocuments(req.body, function(err, count) {
+      const query = {
+        "text": 'SELECT public."fnJob_Count"() as count'
+      };
+      dbclient.query(query, (err, result) => {
         /* istanbul ignore if */
         if (err) {        
           utools.handleServerException(err, config.user, dbclient, res);
@@ -28,7 +31,7 @@ module.exports = function(app, dbclient) {
         else {        
           let resObject = {};
           resObject['Greeting:'] = 'Welcome, comrade!';
-          resObject['Jobs:'] = count;
+          resObject['Jobs:'] = result.rows[0].count;
           resObject['Deploy status:'] = 'Ok';
           res.status(200).send(resObject);
         } 

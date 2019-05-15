@@ -24,17 +24,6 @@ describe('utools', function() {
         });
     });
     
-    describe('expressMongoInstancePromise', function() {
-        it('basic validation', () => {       
-            return utools.expressMongoInstancePromise(ut_routes, config.mongodb_url).then(response => {
-                //I hate to write UT for promises
-                assert.equal(response.hasOwnProperty('dbclient'), true);
-                assert.equal(response.hasOwnProperty('app'), true);
-                response.dbclient.close();
-            });
-        });
-    });
-    
     describe('expressInstance', function() {
         it('isObject ', function(done) {            
             let expr = utools.expressInstance();

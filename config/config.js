@@ -1,13 +1,13 @@
 module.exports = {
     //Intro
-    //Tavic-CI and local DEV doesn't contain any vars, so both will use localhost:8080 and local MongoDB. Heroku will use it's own services via process.env
-    //Database
-    db_name: process.env.DB_NAME || "peon",
-    mongodb_url: process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/peon",    
-    //mongodb_url: "mongodb://heroku:255320@ds255309.mlab.com:55309/heroku_wnpqsn45",    
-    //Application
-    port: process.env.PORT || 8080,
-    test_host: "http://localhost:8080/v1.0",    
-    user: "test",
-    debugMode: true    
+    //Tavic-CI and local DEV doesn't contain any vars, so both will use localhost:8080 and local PostgreSQL. Heroku will use it's own services via process.env
+    //===Database
+    "useDBSSL": true,
+    "connectionString": process.env.DATABASE_URL || 'postgresql://postgres:255320@172.17.0.3:5432/peon',
+    //"connectionString": 'postgres://nvaaifkvsfzpbc:57c563cfd11a6e0040c3db1b84a7774686d4c3aff587c6205c155c69c939a3ef@ec2-54-247-85-251.eu-west-1.compute.amazonaws.com:5432/ddckjterc9mj8r',
+    //===Application
+    "port": process.env.PORT || 8080,
+    "test_host": "http://localhost:8080/v1.0",    
+    "user": "test",
+    "debugMode": true    
   };

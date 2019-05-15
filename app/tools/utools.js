@@ -1,4 +1,4 @@
-const MongoClient = require('mongodb').MongoClient;
+const dbclient = require('../../app/tools/db');
 const config = require('../../config/config');
 const messageBox = require('../../config/message_labels');
 const bodyParser = require('body-parser');
@@ -17,19 +17,23 @@ var toJSON = require( 'utils-error-to-json' );
 /* istanbul ignore next */
 module.exports.handleServerException = function(e, createdBy, dbclient, res) {    
     /* istanbul ignore next */
-    if(config.debugMode) {
+    if(config.debugMode == "ASDAS") {
         console.log(e);
         res.status(500).send(toJSON(e));
     }    
     else {
         let pr = new Promise((resolve, reject) => {
             try {
-                logItem = {error: toJSON(e), createdOn: getDateTime(), cratedBy: createdBy};
-                dbclient.db(config.db_name).collection('log').insert(logItem, (err, result) => {
+                const query = {
+                    "text": 'SELECT public."fnLog_Insert"($1, $2, $3) as logId',
+                    "values": [1, toJSON(e), createdBy]
+                  };                  
+
+                dbclient.query(query, (err, result) => {
                     if (err)
                         reject(new Error(err));
                     else 
-                        resolve(result.ops[0]._id);
+                        resolve(result);
                 });  
             }
             catch(e2) {
@@ -38,7 +42,7 @@ module.exports.handleServerException = function(e, createdBy, dbclient, res) {
                 
         });
         pr.then(
-            response => res.status(500).send({error: messageBox.common.debugMessage, logId: response}),
+            response => res.status(500).send({error: messageBox.common.debugMessage, logId: response.rows[0].logid}),
             error => console.log(error)
         );    
     }
@@ -91,31 +95,12 @@ function expressInstance() {
 module.exports.expressInstance = expressInstance;
 
 /**
- * 
+ * Returns object contains both app and dbclient
  * @param {object} router Object with api routes description
- * @param {string} mongodbUrl MongoDB connection URL
- * @returns {object} Promise which will be resolved just after mongoDB connection
+ * @returns {object} Object with app and dbclient
  */
-module.exports.expressMongoInstancePromise = function(router, mongodbUrl) {
-    let prms = new Promise((resolve, reject) => {
-        try {
-            MongoClient.connect(mongodbUrl, { useNewUrlParser: true }, (err, dbclient) => {
-                /* istanbul ignore next */
-                if (err) {                    
-                    console.log(err);
-                    return null;
-                }
-                let app = expressInstance();
-                router(app, dbclient);
-                resolve({app: app, dbclient: dbclient});
-            })
-        }
-        catch(e2) {
-            /* istanbul ignore next */
-            console.log(e2);
-            /* istanbul ignore next */
-            return null;
-        }            
-    });
-    return prms;  
+module.exports.expressPostgreInstance = function(router) {
+    let app = expressInstance();
+    router(app, dbclient);
+    return {"app": app, "dbclient": dbclient};   
 }
