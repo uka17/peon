@@ -7,7 +7,8 @@ module.exports.step = {
 }
 module.exports.schedule = { 
     noScheduleForJob: 'no schedule found for this job',
-    noScheduleForJobIdAndScheduleId: 'no schedule found for mentioned jobId and scheduleId'
+    noScheduleForJobIdAndScheduleId: 'no schedule found for mentioned jobId and scheduleId',
+    nextRunCanNotBeCalculated: 'job next run can not be calculated'
 }
 module.exports.common = {
     debugMessage: 'The Lord of Darkness cursed something on our server. We have already called out the Holy Reinforcements and they are trying to fix everything. You can help us to win by sending logId. Amen!',

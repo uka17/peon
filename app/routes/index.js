@@ -15,7 +15,6 @@ module.exports = function(app, dbclient) {
   jobRoutes(app, dbclient);
   connectionRoutes(app, dbclient);
 };
-
 /*
 function execute() {
   let promis = new Promise((resolve, reject) => {
@@ -31,7 +30,7 @@ function execute() {
         reject('Error');
     });
   });
-  //promis.then(resp => { console.log(resp)}, rej => { console.log(rej) })
+  promis.then(resp => { console.log(resp)}, rej => { console.log(rej) })
 }
 
 var timerId = setInterval(execute, 1000);

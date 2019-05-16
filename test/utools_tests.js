@@ -43,6 +43,15 @@ describe('utools', function() {
             assert.equalDate(utools.getDateTime(), new Date());
             assert.equalTime(utools.getDateTime(), new Date());
             done();
-        });           
+        });       
+            
+        it('getMinDateTime ', function(done) {
+            let dateTimeArray = ["2018-121-31T20:54:23.071Z", "2018-12-30T20:54:23.071Z", "2015-01-31T20:54:23.071Z", "2023-01-31T20:54:23.071Z"];            
+            let correctResult = utools.parseDateTime("2015-01-31T20:54:23.071Z");
+            assert.equalDate(utools.getMinDateTime(dateTimeArray), correctResult);
+            assert.equalTime(utools.getMinDateTime(dateTimeArray), correctResult);
+            done();
+        });       
+        
     });
 });    

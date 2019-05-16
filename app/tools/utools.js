@@ -80,6 +80,29 @@ function getDateTime() {
 }
 module.exports.getDateTime = getDateTime;
 /**
+ * Convert string represented date and time to native date-time format
+ * @param {string} stringDateTime UTC date and time represented as a sting. Example: '2018-01-31T20:54:23.071Z'
+ * @returns {datetime} Date and time object
+ */
+function parseDateTime(stringDateTime) {
+    let preDate = Date.parse(stringDateTime);
+    if(!isNaN(preDate)) 
+        return new Date(preDate);            
+    else
+        return null;
+}
+module.exports.parseDateTime = parseDateTime;
+/**
+ * Return minimal date-time from array of date time. Not date-time values will be ignored.
+ * @param {array} dateTimeList List of string date-time values where to search minimal value
+ * @returns {object} Date-time minimal value
+ */
+function getMinDateTime(dateTimeList) { 
+    let castedDateTimeList = dateTimeList.map(parseDateTime).filter(val => val != null);    
+    return new Date(Math.min(...castedDateTimeList));
+}
+module.exports.getMinDateTime = getMinDateTime;
+/**
  * Returns new express instance, prepared for work with json
  * @returns {object}
  */

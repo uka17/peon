@@ -92,16 +92,22 @@ module.exports = function(app, dbclient) {
             jobValidationResult = validation.validateStepList(job.steps)
             break;
           case 'schedules':  
-            jobValidationResult.isValid = {"isValid": true};        
+            jobValidationResult.isValid = {"isValid": true};
+            let nextRunList = [];        
             if(job.schedules) {
               for (let i = 0; i < job.schedules.length; i++) {
                 let nextRun = schedulator.nextOccurrence(job.schedules[i]);
-                if(nextRun.result == null) {
-                  jobValidationResult.isValid = false;
-                  jobValidationResult.errorList = nextRun.error;
-                  break;
-                }
+                if(nextRun.result != null)
+                  nextRunList.push(nextRun.result);
               }
+            }
+            if(nextRunList.length == 0) {
+              jobValidationResult.isValid = false;
+              jobValidationResult.errorList = messageBox.schedule.nextRunCanNotBeCalculated;
+              break;
+            }
+            else {
+              job.nextRun = utools.getMinDateTime(nextRunList);
             }
             break;
           case 'notifications':
