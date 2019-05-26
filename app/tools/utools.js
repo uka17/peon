@@ -1,5 +1,4 @@
 const dbclient = require('../../app/tools/db');
-const config = require('../../config/config');
 const messageBox = require('../../config/message_labels');
 const bodyParser = require('body-parser');
 const express = require('express');
@@ -17,7 +16,7 @@ var toJSON = require( 'utils-error-to-json' );
 /* istanbul ignore next */
 module.exports.handleServerException = function(e, createdBy, dbclient, res) {    
     /* istanbul ignore next */
-    if(config.debugMode == "ASDAS") {
+    if(process.env.NODE_ENV !== "PROD") {
         console.log(e);
         res.status(500).send(toJSON(e));
     }    

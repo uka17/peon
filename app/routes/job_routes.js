@@ -131,9 +131,10 @@ module.exports = function(app, dbclient) {
       if(!JobAssesmentResult.isValid)
         res.status(400).send({"requestValidationErrors": JobAssesmentResult.errorList});
       else {
+        console.log(JobAssesmentResult.nextRun.toUTCString());
         const query = {
           "text": 'SELECT public."fnJob_Insert"($1, $2, $3) as id',
-          "values": [job, JobAssesmentResult.nextRun, config.user]
+          "values": [job, JobAssesmentResult.nextRun.toUTCString(), config.user]
         };
         dbclient.query(query, (err, result) => {           
           /* istanbul ignore if */
@@ -167,7 +168,7 @@ module.exports = function(app, dbclient) {
       else {
         const query = {
           "text": 'SELECT public."fnJob_Update"($1, $2, $3, $4) as count',
-          "values": [req.params.id, job, JobAssesmentResult.nextRun, config.user]
+          "values": [req.params.id, job, JobAssesmentResult.nextRun.toUTCString(), config.user]
         };
         dbclient.query(query, (err, result) => {     
           /* istanbul ignore if */
