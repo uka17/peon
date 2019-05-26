@@ -2,7 +2,9 @@
 var validation = require("../tools/validation");
 var schedulator = require("schedulator");
 var util = require('../tools/util')
+const dbclient = require("../tools/db");
 const messageBox = require('../../config/message_labels');
+const log = require('../../log/dispatcher');
 
 /**
  * Validates job and calculates next run date and time for it
@@ -59,3 +61,21 @@ function calculateNextRun(job) {
   return jobValidationResult;
 }
 module.exports.calculateNextRun = calculateNextRun;
+
+/**
+ * Creates new entry for run history table
+ * @param {string} message Message to log
+ * @param {string} createdBy Author of message
+ */
+function logRunHistory(message, createdBy) {
+  const query = {
+    "text": 'SELECT public."fnRunHistory_Insert"($1, $2) as logId',
+    "values": [message, createdBy]
+  };                  
+
+  dbclient.query(query, (err, result) => {
+      if (err)
+        log.error(err);
+  }); 
+}
+module.exports.logRunHistory = logRunHistory;

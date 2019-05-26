@@ -2,6 +2,9 @@
 var util = require("../tools/util");
 const config = require("../../config/config");
 const dbclient = require("../tools/db");
+const jobEngine = require("./job");
+const log = require('../../log/dispatcher');
+
 var executionLock;
 
 run(100);
@@ -38,9 +41,21 @@ function getJobListToRun(tolerance) {
  * @param {integer} tolerance Allowance of job next run searching criteria in minutes 
  */
 async function run(tolerance) {  
-    executionLock = true;
+    if(executionLock)
+        return;
+    executionLock = true;    
     let jobList = await getJobListToRun(tolerance);    
-    console.log(jobList);
+    if(jobList !== null) {
+        //TODO normal ID
+        const uid = `f${(+new Date).toString(16)}`;
+        jobEngine.logRunHistory(`'${uid}' session has started`, config.user);                
+        jobEngine.logRunHistory(`'${jobList.length}' job(s) to process`, config.user);
+        for (let i = 0; i < jobList.length; i++) {
+            const job = jobList[i];
+            log.info(job.id);
+        }
+        jobEngine.logRunHistory(`'${uid}' session has ended`, config.user);
+    }
     executionLock = false;
 }
 
