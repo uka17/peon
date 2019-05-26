@@ -1,6 +1,6 @@
 // routes/connection_routes.js
-var utools = require('../tools/utools');
-var validation = require('../tools/validations');
+var util = require('../tools/util');
+var validation = require('../tools/validation');
 const config = require('../../config/config');
 const messageBox = require('../../config/message_labels');
 var ver = '/v1.0';
@@ -15,7 +15,7 @@ module.exports = function(app, dbclient) {
       dbclient.query(query, (err, result) => {
         /* istanbul ignore if */
         if (err) {        
-          utools.handleServerException(err, config.user, dbclient, res);
+          util.handleServerException(err, config.user, dbclient, res);
         } 
         else {        
           let resObject = {};
@@ -26,7 +26,7 @@ module.exports = function(app, dbclient) {
     }    
     catch(e) {
       /* istanbul ignore next */
-      utools.handleServerException(e, config.user, dbclient, res);
+      util.handleServerException(e, config.user, dbclient, res);
     }
   });
   app.get(ver + '/connections', (req, res) => {
@@ -39,7 +39,7 @@ module.exports = function(app, dbclient) {
       dbclient.query(query, (err, result) => {   
         /* istanbul ignore if */
         if (err) {
-          utools.handleServerException(err, config.user, dbclient, res);
+          util.handleServerException(err, config.user, dbclient, res);
         } else {        
           res.status(200).send(result.rows[0].connections);
         } 
@@ -47,7 +47,7 @@ module.exports = function(app, dbclient) {
     }    
     catch(e) {
       /* istanbul ignore next */
-      utools.handleServerException(e, config.user, dbclient, res);
+      util.handleServerException(e, config.user, dbclient, res);
     }
   });
   app.get(ver + '/connections/:id', (req, res) => {    
@@ -61,7 +61,7 @@ module.exports = function(app, dbclient) {
       dbclient.query(query, (err, result) => {  
         /* istanbul ignore if */
         if (err) {
-          utools.handleServerException(err, config.user, dbclient, res);
+          util.handleServerException(err, config.user, dbclient, res);
         } else {
           if(result.rows[0].connection == null)
             res.status(404).send();
@@ -72,7 +72,7 @@ module.exports = function(app, dbclient) {
     }
     catch(e) {
       /* istanbul ignore next */
-      utools.handleServerException(e, config.user, dbclient, res);
+      util.handleServerException(e, config.user, dbclient, res);
     }
   });
   app.post(ver + '/connections', (req, res) => {
@@ -90,7 +90,7 @@ module.exports = function(app, dbclient) {
         dbclient.query(query, (err, result) => {       
           /* istanbul ignore if */
           if (err) { 
-            utools.handleServerException(err, config.user, dbclient, res);
+            util.handleServerException(err, config.user, dbclient, res);
           } else {
             connection.id = result.rows[0].id;
             res.status(201).send(connection);
@@ -100,7 +100,7 @@ module.exports = function(app, dbclient) {
     }
     catch(e) {
       /* istanbul ignore next */
-      utools.handleServerException(e, config.user, dbclient, res);
+      util.handleServerException(e, config.user, dbclient, res);
     }
   });
 
@@ -118,7 +118,7 @@ module.exports = function(app, dbclient) {
       dbclient.query(query, (err, result) => {     
         /* istanbul ignore if */
         if (err) {
-          utools.handleServerException(err, config.user, dbclient, res);
+          util.handleServerException(err, config.user, dbclient, res);
         } else {
           let resObject = {};
           resObject[messageBox.common.updated] = result.rows[0].count;
@@ -128,7 +128,7 @@ module.exports = function(app, dbclient) {
     }
     catch(e) {
       /* istanbul ignore next */
-      utools.handleServerException(e, config.user, dbclient, res);
+      util.handleServerException(e, config.user, dbclient, res);
     }
   });
   app.delete(ver + '/connections/:id', (req, res) => {
@@ -142,7 +142,7 @@ module.exports = function(app, dbclient) {
       dbclient.query(query, (err, result) => {  
         /* istanbul ignore if */
         if (err) {
-          utools.handleServerException(err, config.user, dbclient, res);
+          util.handleServerException(err, config.user, dbclient, res);
         } else {
           let resObject = {};
           resObject[messageBox.common.deleted] = result.rows[0].count;
@@ -152,7 +152,7 @@ module.exports = function(app, dbclient) {
     }
     catch(e) {
       /* istanbul ignore next */
-      utools.handleServerException(e, config.user, dbclient, res);
+      util.handleServerException(e, config.user, dbclient, res);
     }
   });    
 };

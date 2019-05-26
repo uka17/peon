@@ -1,6 +1,6 @@
-// utools/validations.js
+// util/validation.js
 //Functions-helpers for validating differen objects
-var utools = require('../tools/utools');
+var util = require('./util');
 var models = require('../models/app_models.json');
 const config = require('../../config/config');
 const messageBox = require('../../config/message_labels');

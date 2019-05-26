@@ -1,4 +1,4 @@
-const dbclient = require('../../app/tools/db');
+const dbclient = require('./db');
 const messageBox = require('../../config/message_labels');
 const bodyParser = require('body-parser');
 const express = require('express');

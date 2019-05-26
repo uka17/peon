@@ -1,7 +1,7 @@
 // routes/dummy_routes.js
-var utools = require('../tools/utools');
+var util = require('../tools/util');
 const config = require('../../config/config');
-var validation = require('../tools/validations');
+var validation = require('../tools/validation');
 var ver = '/v1.0';
 var testData = require('../../test/test_data');
 var messageBox = require('../../config/message_labels');
@@ -11,7 +11,7 @@ module.exports = function(app, dbclient) {
   app.get(ver + '/dummy', (req, res) => {
     //dummy
     try {        
-      utools.handleServerException("Errror!", "sys", dbclient, res);
+      util.handleServerException("Errror!", "sys", dbclient, res);
     }
     catch(e) {
       res.status(500).send({error: e.message});
@@ -26,7 +26,7 @@ module.exports = function(app, dbclient) {
       dbclient.query(query, (err, result) => {
         /* istanbul ignore if */
         if (err) {        
-          utools.handleServerException(err, config.user, dbclient, res);
+          util.handleServerException(err, config.user, dbclient, res);
         } 
         else {        
           let resObject = {};
@@ -39,7 +39,7 @@ module.exports = function(app, dbclient) {
     }
     catch(e) {
       /* istanbul ignore next */
-      utools.handleServerException(e, config.user, dbclient, res);
+      util.handleServerException(e, config.user, dbclient, res);
     }
   });     
 }

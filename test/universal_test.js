@@ -11,8 +11,8 @@ module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, refer
     const request = require("supertest");
     var assert  = require('chai').assert;
     var messageBox = require('../config/message_labels');    
-    var utools = require('../app/tools/utools');   
-    let inst = utools.expressPostgreInstance(routeObject);
+    var util = require('../app/tools/util');   
+    let inst = util.expressPostgreInstance(routeObject);
 
     describe('api test for: ' + apiRoute, function() {
         //sometimes test for creation of objectId is being executed late and objectId becomes undefined

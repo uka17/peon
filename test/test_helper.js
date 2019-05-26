@@ -1,4 +1,4 @@
-// utools/test_helpers.js
+// util/test_helpers.js
 var assert  = require('chai').assert;
 var request = require('request');
 var messageBox = require('../config/message_labels');
