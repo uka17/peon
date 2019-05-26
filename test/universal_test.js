@@ -63,7 +63,7 @@ module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, refer
                 .post(apiRoute)            
                 .send(testReferenceObject)
                 .set('Accept', 'application/json')
-                .end(function(err, res) { 
+                .end(function(err, res) {               
                     assert.equal(res.status, 201);
                     assert.equal(res.body[referenceFieldName], testReferenceObject[referenceFieldName]);
                     objectId = res.body.id;
@@ -137,7 +137,7 @@ module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, refer
                 .patch(apiRoute + '/' + objectId)            
                 .send(nObject)
                 .set('Accept', 'application/json')
-                .end(function(err, res) { 
+                .end(function(err, res) {         
                     assert.equal(res.statusCode, 200);
                     assert.equal(res.body[messageBox.common.updated], 1)
                 });                    

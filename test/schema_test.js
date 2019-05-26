@@ -64,14 +64,6 @@ describe('schema validation', function() {
             assert.equal(DataVsSchemaErrors(nJob, schema.jobSchema), 'data.description should be string');
             done();
         })     
-        it('incorrect "enabled" type', function(done) {    
-            let nJob = JSON.parse(JSON.stringify(testJob));
-            nJob.enabled = 1;
-
-            assert.equal(DataVsSchemaResult(nJob, schema.jobSchema), false);
-            assert.equal(DataVsSchemaErrors(nJob, schema.jobSchema), 'data.enabled should be boolean');
-            done();
-        })      
         it('incorrect "steps" type', function(done) {    
             let nJob = JSON.parse(JSON.stringify(testJob));
             nJob.steps = 1;
