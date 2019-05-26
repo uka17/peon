@@ -40,7 +40,7 @@ function getJobListToRun(tolerance) {
 async function run(tolerance) {  
     executionLock = true;
     let jobList = await getJobListToRun(tolerance);    
-    console.log(jobList.length);
+    console.log(jobList);
     executionLock = false;
 }
 

@@ -1,4 +1,5 @@
 const dbclient = require('./db');
+const logDispatcher = require('../../log/dispatcher');
 const messageBox = require('../../config/message_labels');
 const bodyParser = require('body-parser');
 const express = require('express');
@@ -17,7 +18,7 @@ var toJSON = require( 'utils-error-to-json' );
 module.exports.handleServerException = function(e, createdBy, dbclient, res) {    
     /* istanbul ignore next */
     if(process.env.NODE_ENV !== "PROD") {
-        console.log(e);
+        logDispatcher.error(e);
         res.status(500).send(toJSON(e));
     }    
     else {
@@ -36,13 +37,13 @@ module.exports.handleServerException = function(e, createdBy, dbclient, res) {
                 });  
             }
             catch(e2) {
-                console.log(e2);
+                logDispatcher.error(e2);
             }
                 
         });
         pr.then(
             response => res.status(500).send({error: messageBox.common.debugMessage, logId: response.rows[0].logid}),
-            error => console.log(error)
+            error => logDispatcher.error(error)
         );    
     }
 }

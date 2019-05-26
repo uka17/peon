@@ -26,7 +26,8 @@
     "pg": "^7.10.0",
     "request": "^2.88.0",
     "schedulator": "^2.0.4",
-    "utils-error-to-json": "^1.0.0"
+    "utils-error-to-json": "^1.0.0",
+    "winston": "^3.2.1"
   },
   "devDependencies": {
     "chai": "^4.1.2",
