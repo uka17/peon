@@ -7,9 +7,15 @@ const messageBox = require('../../config/message_labels');
 const log = require('../../log/dispatcher');
 
 /**
+ * @typedef {Object} NextRunResult
+ * @property {boolean} isValid Assesment result
+ * @property {string=} errorList If `isValid` is `false` represents error list
+ * @property {string=} nextRun If `isValid` is `true` represents next run date-time
+ */
+/**
  * Validates job and calculates next run date and time for it
- * @param {object} job Job which should be used for calculation
- * @return {object} {isValid: boolean, errorList(optional): string, nextRun(optional): date-time}
+ * @param {Object} job Job which should be used for calculation
+ * @return {NextRunResult} Next run result
  */
 function calculateNextRun(job) {
   let validationequence = ["job", "steps", "notifications", "schedules"];
@@ -65,12 +71,13 @@ module.exports.calculateNextRun = calculateNextRun;
 /**
  * Creates new entry for run history table
  * @param {string} message Message to log
- * @param {string} createdBy Author of message
+ * @param {string} createdBy Author of message 
+ * @param {?string} uid Session id. Default is `null`
  */
-function logRunHistory(message, createdBy) {
+function logRunHistory(message, createdBy, uid = null) {
   const query = {
-    "text": 'SELECT public."fnRunHistory_Insert"($1, $2) as logId',
-    "values": [message, createdBy]
+    "text": 'SELECT public."fnRunHistory_Insert"($1, $2, $3) as logId',
+    "values": [message, uid, createdBy]
   };                  
 
   dbclient.query(query, (err, result) => {
@@ -79,3 +86,28 @@ function logRunHistory(message, createdBy) {
   }); 
 }
 module.exports.logRunHistory = logRunHistory;
+
+/**
+ * Changes job status
+ * @param {number} id Job id
+ * @param {number} status Status id. `1` - idle, `2` - execution
+ * @param {string} modifiedBy Author of change 
+ * @returns {Promise} Promise which returns `true` in case of success and `false` in case of failure
+ */
+function changeJobStatus(id, status, modifiedBy) {
+  return new Promise((resolve, reject) => {
+    const query = {
+      "text": 'SELECT public."fnJob_ChangeStatus"($1, $2, $3) as updated',
+      "values": [id, status, modifiedBy]
+    };                  
+
+    dbclient.query(query, (err, result) => {
+        if (err) {
+          log.error(`Error while changing job (id=${id}) status to '${status}'`);
+          reject(false);
+        }
+        else
+          resolve(result.rows[0].updated);
+    }); 
+  });
+}

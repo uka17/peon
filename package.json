@@ -27,6 +27,7 @@
     "request": "^2.88.0",
     "schedulator": "^2.0.4",
     "utils-error-to-json": "^1.0.0",
+    "uuid": "^3.3.2",
     "winston": "^3.2.1"
   },
   "devDependencies": {
