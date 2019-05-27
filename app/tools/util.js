@@ -9,10 +9,10 @@ var toJSON = require( 'utils-error-to-json' );
 /**
  * Server error handler. Shows error in console, returns error in response in case if global debug flag is TRUE else
  * puts log in DB and returns Id of log to user 
- * @param {object} e Exception to be handled     
+ * @param {Object} e Exception to be handled     
  * @param {string} createdBy Under whose credentials app thrown this exception
- * @param {object} dbclient DB connections instance
- * @param {object} res Response handler
+ * @param {Object} dbclient DB connections instance
+ * @param {Object} res Response handler
  */
 /* istanbul ignore next */
 module.exports.handleServerException = function(e, createdBy, dbclient, res) {    
@@ -51,7 +51,7 @@ module.exports.handleServerException = function(e, createdBy, dbclient, res) {
  * Shows user error with proper HTTP response code
  * @param {string} message Error message
  * @param {number} errorCode HTTP response code
- * @param {object} res Response handler 
+ * @param {Object} res Response handler 
  */
 module.exports.handleUserException = function(message, errorCode, res) {
     res.status(errorCode).send({error: message});
@@ -59,7 +59,7 @@ module.exports.handleUserException = function(message, errorCode, res) {
 //#endregion
 /**
  * Renames all properties in object which are equal to oldName
- * @param {object} obj Object to be modified
+ * @param {Object} obj Object to be modified
  * @param {string} oldName Name of property to be renamed
  * @param {string} newName New name for property
  */
@@ -72,17 +72,18 @@ module.exports.renameProperty = function (obj, oldName, newName) {
     return obj;
 };
 /**
- * Return date-time in a proper format
- * @returns {object} Date-time
+ * Return `date-time` in a proper format
+ * @returns {Object} `date-time`
  */
 function getDateTime() { 
     return new Date();
 }
 module.exports.getDateTime = getDateTime;
+
 /**
- * Convert string represented date and time to native date-time format
- * @param {string} stringDateTime UTC date and time represented as a sting. Example: '2018-01-31T20:54:23.071Z'
- * @returns {datetime} Date and time object
+ * Convert string represented `date-time` to native format
+ * @param {string} stringDateTime UTC `date-time` represented as a `sting`. Example: `2018-01-31T20:54:23.071Z`
+ * @returns {Object} `date-time`
  */
 function parseDateTime(stringDateTime) {
     let preDate = Date.parse(stringDateTime);
@@ -92,10 +93,11 @@ function parseDateTime(stringDateTime) {
         return null;
 }
 module.exports.parseDateTime = parseDateTime;
+
 /**
- * Return minimal date-time from array of date time. Not date-time values will be ignored.
- * @param {array} dateTimeList List of string date-time values where to search minimal value
- * @returns {object} Date-time minimal value
+ * Return minimal value from array of `date-time`. Not `date-time` values will be ignored.
+ * @param {string[]} dateTimeList List of string `date-time` values where to search minimal value
+ * @returns {Object} `date-time`
  */
 function getMinDateTime(dateTimeList) { 
     let castedDateTimeList = dateTimeList.map(parseDateTime).filter(val => val != null);    
@@ -103,8 +105,8 @@ function getMinDateTime(dateTimeList) {
 }
 module.exports.getMinDateTime = getMinDateTime;
 /**
- * Returns new express instance, prepared for work with json
- * @returns {object}
+ * Returns new express instance, prepared for work with `json`
+ * @returns {Object}
  */
 function expressInstance() {
     const app = express();
@@ -119,8 +121,8 @@ module.exports.expressInstance = expressInstance;
 
 /**
  * Returns object contains both app and dbclient
- * @param {object} router Object with api routes description
- * @returns {object} Object with app and dbclient
+ * @param {Object} router Object with api routes description
+ * @returns {Object} Object with app and dbclient
  */
 module.exports.expressPostgreInstance = function(router) {
     let app = expressInstance();
