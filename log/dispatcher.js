@@ -35,7 +35,7 @@ let debugChannel = winston.createLogger({
     runFormat
   ),
   transports: [
-    new winston.transports.File({ filename: "./log/app.log", maxFiles: 10, maxsize: 1024 }),
+    new winston.transports.File({ filename: "./log/app.log", maxFiles: 10, maxsize: 1024, tailable: true }),
     new winston.transports.Console()
   ]
 });
