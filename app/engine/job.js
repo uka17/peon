@@ -5,7 +5,7 @@ var util = require('../tools/util')
 const dbclient = require("../tools/db");
 const messageBox = require('../../config/message_labels');
 const log = require('../../log/dispatcher');
-var toJSON = require( 'utils-error-to-json' );
+const connection = require('./connection');
 
 /**
  * Returns job by id
@@ -21,7 +21,7 @@ function getJob(jobId) {
     dbclient.query(query, (err, result) => {  
       /* istanbul ignore if */
       if (err) {
-        log.error(`Failed to get job by id=${jobId}: ${err}`);
+        log.error(`Failed to get job by id=${jobId}. Stack: ${err.stack}`);
       } else {
         if(result.rows[0].job == null) {
           log.warn(`No any job found by id=${jobId}`);
@@ -37,7 +37,7 @@ function getJob(jobId) {
 /**
  * @typedef {Object} NextRunResult
  * @property {boolean} isValid Assesment result
- * @property {string=} errorList If `isValid` is `false` represents error list
+ * @property {string=} errorList If `isValid` is `false` represents error list as `string`
  * @property {string=} nextRun If `isValid` is `true` represents next run date-time
  */
 /**
@@ -46,55 +46,62 @@ function getJob(jobId) {
  * @return {NextRunResult} Next run result
  */
 function calculateNextRun(job) {
-  let validationSequence = ["job", "steps", "notifications", "schedules"];
-  let jobValidationResult;
-  for (i = 0; i < validationSequence.length; i++) {
-    switch (validationSequence[i]) {
-      case "job":
-        jobValidationResult = validation.validateJob(job);
-        break;
-      case "steps":
-        jobValidationResult = validation.validateStepList(job.steps);
-        break;
-      case "notifications":
-        //TODO validation for notification
-        //jobValidationResult = validation.validateStepList(job.steps)
-        break;
-      case "schedules":
-        let nextRunList = [];
-        if (job.schedules) {
-          for (let i = 0; i < job.schedules.length; i++) {
-            if (
-              job.schedules[i].enabled ||
-              !job.schedules[i].hasOwnProperty("enabled")
-            ) {
-              let nextRun = schedulator.nextOccurrence(job.schedules[i]);
-              if (nextRun.result != null) nextRunList.push(nextRun.result);
-              else if (nextRun.error.includes("schema is incorrect"))
-                return {
-                  "isValid": false,
-                  "errorList": `schedule[${i}] ${nextRun.error}`
-                };
+  try {
+    let validationSequence = ["job", "steps", "notifications", "schedules"];
+    let jobValidationResult;
+    for (i = 0; i < validationSequence.length; i++) {
+      switch (validationSequence[i]) {
+        case "job":
+          jobValidationResult = validation.validateJob(job);
+          break;
+        case "steps":
+          jobValidationResult = validation.validateStepList(job.steps);
+          break;
+        case "notifications":
+          //TODO validation for notification
+          //jobValidationResult = validation.validateStepList(job.steps)
+          break;
+        case "schedules":
+          let nextRunList = [];
+          if (job.schedules) {
+            for (let i = 0; i < job.schedules.length; i++) {
+              if (
+                job.schedules[i].enabled ||
+                !job.schedules[i].hasOwnProperty("enabled")
+              ) {
+                let nextRun = schedulator.nextOccurrence(job.schedules[i]);
+                if (nextRun.result != null) nextRunList.push(nextRun.result);
+                else if (nextRun.error.includes("schema is incorrect"))
+                  return {
+                    "isValid": false,
+                    "errorList": `schedule[${i}] ${nextRun.error}`
+                  };
+              }
             }
           }
-        }
-        if (nextRunList.length == 0)
-          return {
-            "isValid": false,
-            "errorList": messageBox.schedule.nextRunCanNotBeCalculated
-          };
-        else
-          jobValidationResult = {
-            "isValid": true,
-            "nextRun": util.getMinDateTime(nextRunList)
-          };
-        break;
+          if (nextRunList.length == 0)
+            return {
+              "isValid": false,
+              "errorList": messageBox.schedule.nextRunCanNotBeCalculated
+            };
+          else
+            jobValidationResult = {
+              "isValid": true,
+              "nextRun": util.getMinDateTime(nextRunList)
+            };
+          break;
+      }
+      if (!jobValidationResult.isValid) 
+        return jobValidationResult;
     }
-    if (!jobValidationResult.isValid) 
-      return jobValidationResult;
+    return jobValidationResult;
   }
-  return jobValidationResult;
+  catch(e) {
+    log.error(`Failed to calculate next run for job (id=${job.id}). Stack: ${err.stack}`);
+    return {"isValid": false, "errorList": e.message};
+  }
 }
+module.exports.calculateNextRun = calculateNextRun;
 /**
  * Calculates and save job next run
  * @param {number} jobId Job id
@@ -111,7 +118,7 @@ function updateJobNextRun(jobId, executedBy) {
     };
     dbclient.query(query, (err, result) => {     
       if (err) {
-        log.error(`Can not update job next run date-time (id=${jobId} with ${JobAssesmentResult.nextRun}: ${toJSON(err)}`)
+        log.error(`Failed to update job (id=${jobId}) next run date-time with ${JobAssesmentResult.nextRun}. Stack: ${err.stack}`)
         reject(false);
       } else {
         resolve(true);
@@ -136,7 +143,7 @@ function updateJobStatus(jobId, status, executedBy) {
 
     dbclient.query(query, (err, result) => {
         if (err) {
-          log.error(`Error while changing job (id=${jobId}) status to '${status}': ${err.message}`);
+          log.error(`Failed to change job (id=${jobId}) status to '${status}'. Stack: ${err.stack}`);
           reject(false);
         }
         else
@@ -162,7 +169,7 @@ function logJobHistory(message, jobId, createdBy, uid) {
 
     dbclient.query(query, (err, result) => {
         if (err) {
-          log.error(`Error while trying to insert job history (id=${jobId}): ${toJSON(err)}`);
+          log.error(`Failed to insert job history (id=${jobId}). Stack: ${err.stack}`);
           reject(false); 
         }
         else
@@ -170,7 +177,19 @@ function logJobHistory(message, jobId, createdBy, uid) {
     }); 
   });
 }
+/**
+ * Execute job's step
+ * @param {Object} step Step object to be executed
+ * @returns {Boolean} Returns `true` in case of successful execution and `false` in case of failure
+ */
+function executeStep(step) {
+  
 
+  //promise
+
+  //execution
+
+}
 /**
  * Executes job
  * @param {number} jobIdasync d of job for execution
@@ -184,25 +203,27 @@ async function executeJob(jobId, executedBy, uid) {
     if(!(await updateJobStatus(jobId, 2, executedBy)))
       return;
 
-    const query = {
-      "text": 'SELECT public."fnLog_Insert"($1, $2, $3) as logId',
-      "values": [1, "One potatoe, two potatoe...", 'kot']
-    };
-
-    //TODO - return with errors explanation
-    if(!await dbclient.queryPromise(query)){
-      log.error(`Failed to execute SQL for job (id=${jobId})`);
-      return;
-    }
+    let job = (await getJob(jobId)).job;
+    if(job !== null) {
+      if(job.hasOwnProperty("steps") && job.steps.length > 0) {
+        for (let i = 0; i < job.steps.length; i++) {
+          const step = job.steps[i];
+          await logJobHistory({message: `Executing step ${step.name}`}, jobId, executedBy, uid);
+          //TODO - return with errors explanation
+          log.error(`Failed to execute SQL for job (id=${jobId}), step '${step.name}'`);
+        }
+      } else
+        log.error(`Failed to get job step list (id=${jobId})`);
+    } else
+      log.error(`Failed to get job (id=${jobId}) for execution`);   
 
     await logJobHistory({message: "Execution finished"}, jobId, executedBy, uid);
   }
   catch(e) {
-    log.error(`Error during execution of job (id=${jobId}): ${e}`);
+    log.error(`Error during execution of job (id=${jobId}). Stack: ${e.stack}`);
   }
   finally {
     await updateJobNextRun(jobId, executedBy);
     await updateJobStatus(jobId, 1, executedBy);
   }  
 }
-executeJob(287, 'system');
