@@ -58,7 +58,6 @@ module.exports = function(app, dbclient) {
         "text": 'SELECT public."fnJob_Select"($1) as job',
         "values": [req.params.id]
       };
-      //TODO validation before insert or edit
       dbclient.query(query, (err, result) => {  
         /* istanbul ignore if */
         if (err) {

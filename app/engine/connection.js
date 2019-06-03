@@ -29,3 +29,4 @@ function getConnection(connectionId) {
   });
 }
 
+module.exports.getConnection = getConnection;

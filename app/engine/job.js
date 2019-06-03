@@ -5,7 +5,7 @@ var util = require('../tools/util')
 const dbclient = require("../tools/db");
 const messageBox = require('../../config/message_labels');
 const log = require('../../log/dispatcher');
-const connection = require('./connection');
+const stepEngine = require('./step');
 
 /**
  * Returns job by id
@@ -177,28 +177,16 @@ function logJobHistory(message, jobId, createdBy, uid) {
     }); 
   });
 }
-/**
- * Execute job's step
- * @param {Object} step Step object to be executed
- * @returns {Boolean} Returns `true` in case of successful execution and `false` in case of failure
- */
-function executeStep(step) {
-  
 
-  //promise
-
-  //execution
-
-}
 /**
  * Executes job
- * @param {number} jobIdasync d of job for execution
- * @param {string} execuasync dBy User who is executing job
- * @param {?string} uid async ssion id. Default is `null`  
+ * @param {number} jobId id of job for execution
+ * @param {string} executedBy User who is executing job
+ * @param {?string} uid Session id. Default is `null`  
  */
 async function executeJob(jobId, executedBy, uid) {
   try {
-    await logJobHistory({message: "Execution started"}, jobId, executedBy, uid);
+    await logJobHistory({ message: "Execution started", level: 2 }, jobId, executedBy, uid);
 
     if(!(await updateJobStatus(jobId, 2, executedBy)))
       return;
@@ -208,16 +196,33 @@ async function executeJob(jobId, executedBy, uid) {
       if(job.hasOwnProperty("steps") && job.steps.length > 0) {
         for (let i = 0; i < job.steps.length; i++) {
           const step = job.steps[i];
-          await logJobHistory({message: `Executing step ${step.name}`}, jobId, executedBy, uid);
+          await logJobHistory({ message: `Executing step '${step.name}'`, level: 2 }, jobId, executedBy, uid);
           //TODO - return with errors explanation
-          log.error(`Failed to execute SQL for job (id=${jobId}), step '${step.name}'`);
+          let stepExecution = await stepEngine.execute(step);
+          if(stepExecution.result) {
+            await logJobHistory(
+              { 
+                message: `Step '${step.name}' successfully executed`,
+                rowsAffected: stepExecution.affected, 
+                level: 2 
+              }, 
+              jobId, executedBy, uid);
+          } else {
+            await logJobHistory(
+              { 
+                message: `Failed to execute step '${step.name}'`,
+                error: stepExecution.error, 
+                level: 0 
+              }, 
+              jobId, executedBy, uid);
+          }
         }
       } else
         log.error(`Failed to get job step list (id=${jobId})`);
     } else
       log.error(`Failed to get job (id=${jobId}) for execution`);   
 
-    await logJobHistory({message: "Execution finished"}, jobId, executedBy, uid);
+    await logJobHistory({ message: "Execution finished", level: 2 }, jobId, executedBy, uid);
   }
   catch(e) {
     log.error(`Error during execution of job (id=${jobId}). Stack: ${e.stack}`);
@@ -227,3 +232,5 @@ async function executeJob(jobId, executedBy, uid) {
     await updateJobStatus(jobId, 1, executedBy);
   }  
 }
+
+executeJob(328, 'uat');

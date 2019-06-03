@@ -145,13 +145,6 @@ describe('schema validation', function() {
             assert.equal(DataVsSchemaErrors(nStep, schema.stepSchema), "data.connection should be integer");            
             done();
         })      
-        it('incorrect "database" type', function(done) {                            
-            let nStep = JSON.parse(JSON.stringify(testStep));
-            nStep.database = 1;
-            assert.equal(DataVsSchemaResult(nStep, schema.stepSchema), false);
-            assert.equal(DataVsSchemaErrors(nStep, schema.stepSchema), "data.database should be string");            
-            done();
-        })  
         it('incorrect "command" type', function(done) {                            
             let nStep = JSON.parse(JSON.stringify(testStep));
             nStep.command = 1;
@@ -339,6 +332,13 @@ describe('schema validation', function() {
             nConnection.port = 77777;
             assert.equal(DataVsSchemaResult(nConnection, schema.connectionSchema), false);
             assert.include(DataVsSchemaErrors(nConnection, schema.connectionSchema), "data.port should be <= 65536");            
+            done();
+        })          
+        it('incorrect "database" type', function(done) {                            
+            let nConnection = JSON.parse(JSON.stringify(testData.connectionOK));
+            nConnection.database = 1;
+            assert.equal(DataVsSchemaResult(nConnection, schema.connectionSchema), false);
+            assert.equal(DataVsSchemaErrors(nConnection, schema.connectionSchema), "data.database should be string");            
             done();
         })          
         it('incorrect "enabled" type', function(done) {                            

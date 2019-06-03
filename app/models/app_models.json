@@ -23,7 +23,6 @@
       "name": {"type": "string"},
       "enabled": {"type": "boolean"},      
       "connection": {"type": "integer", "minimum": 0},
-      "database": {"type": "string"},
       "command": {"type": "string"},    
       "onSucceed": {"oneOf": [
         { "enum": ["gotoNextStep", "quitWithSuccess", "quitWithFailure"] },
@@ -42,7 +41,7 @@
     },
     "additionalProperties": false
   },
-  "stepSchemaRequired": ["name", "enabled", "connection", "database", "command", "onSucceed", "onFailure", "retryAttempts"],
+  "stepSchemaRequired": ["name", "enabled", "connection", "command", "onSucceed", "onFailure", "retryAttempts"],
   "connectionSchema": {
     "$id": "http://example.com/connection",
     "type": "object",
@@ -50,12 +49,13 @@
       "name": {"type": "string"},
       "host": {"type": "string"},
       "port": {"type": "integer", "minimum": 0, "maximum": 65536},
-      "enabled": {"type": "boolean"},      
+      "database": {"type": "string"},
+      "enabled": {"type": "boolean"},     
       "login": {"type": "string"},
       "password": {"type": "string"},
       "type": { "enum": ["mongodb", "postgresql"] } 
     },
     "additionalProperties": false
   },
-  "connectionSchemaRequired": ["name", "host", "enabled", "login", "password", "type"]
+  "connectionSchemaRequired": ["name", "host", "port", "database", "enabled", "login", "password", "type"]
 }

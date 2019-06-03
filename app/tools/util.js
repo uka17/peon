@@ -18,7 +18,7 @@ var toJSON = require( 'utils-error-to-json' );
 module.exports.handleServerException = function(e, createdBy, dbclient, res) {    
     /* istanbul ignore next */
     if(process.env.NODE_ENV !== "PROD") {
-        logDispatcher.error(e);
+        logDispatcher.error(e.stack);
         res.status(500).send(toJSON(e));
     }    
     else {
