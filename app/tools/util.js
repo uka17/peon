@@ -1,6 +1,6 @@
 const dbclient = require('./db');
 const logDispatcher = require('../../log/dispatcher');
-const messageBox = require('../../config/message_labels');
+const messageBox = require('../../config/message_labels')('en');
 const bodyParser = require('body-parser');
 const express = require('express');
 

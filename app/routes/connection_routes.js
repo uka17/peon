@@ -2,7 +2,7 @@
 var util = require('../tools/util');
 var validation = require('../tools/validation');
 const config = require('../../config/config');
-const messageBox = require('../../config/message_labels');
+const messageBox = require('../../config/message_labels')('en');
 var ver = '/v1.0';
 
 module.exports = function(app, dbclient) {

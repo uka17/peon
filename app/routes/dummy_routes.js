@@ -4,7 +4,7 @@ const config = require('../../config/config');
 var validation = require('../tools/validation');
 var ver = '/v1.0';
 var testData = require('../../test/test_data');
-var messageBox = require('../../config/message_labels');
+var messageBox = require('../../config/message_labels')('en');
 let db = require('../tools/db');
 
 module.exports = function(app, dbclient) {

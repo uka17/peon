@@ -10,7 +10,7 @@ var objectId;
 module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, referenceFieldName, referenceFieldType) => {
     const request = require("supertest");
     var assert  = require('chai').assert;
-    var messageBox = require('../config/message_labels');    
+    var messageBox = require('../config/message_labels')('en');    
     var util = require('../app/tools/util');   
     let inst = util.expressPostgreInstance(routeObject);
 

@@ -4,10 +4,11 @@ const config = require("../../config/config");
 const dbclient = require("../tools/db");
 const log = require('../../log/dispatcher');
 const uuidv4 = require('uuid/v4');
+const jobEngine = require('./job');
 
 var executionLock;
 
-run(100);
+run(1);
 
 /**
  * Returns jobs list which should be executed
@@ -43,6 +44,8 @@ function logRunHistory(message, createdBy, uid = null) {
     "values": [message, uid, createdBy]
   };                  
 
+  log.info(`${message}. uid: ${uid}`);
+
   dbclient.query(query, (err, result) => {
       if (err)
         log.error(err);
@@ -54,21 +57,40 @@ function logRunHistory(message, createdBy, uid = null) {
  * @param {number} tolerance Allowance of job next run searching criteria in minutes 
  */
 async function run(tolerance) {  
+  let currentExecutableJobId = null;
+  try {
     if(executionLock)
-        return;
+      return;
     executionLock = true;    
     let jobList = await getJobListToRun(tolerance);    
     if(jobList !== null) {        
-        const uid = uuidv4();
-        logRunHistory(`Session has started`, config.systemUser, uid);                
-        logRunHistory(`${jobList.length} job(s) to process`, config.systemUser, uid);
+        const uid = uuidv4();        
+        logRunHistory(`${jobList.length} job(s) in tolerance area to process`, config.systemUser, uid);
         for (let i = 0; i < jobList.length; i++) {
-            const job = jobList[i];
-            log.info(job.id);
+            const job = jobList[i];          
+            let executionDateTime = new Date(`${job.nextRun}Z`);
+            let currentDateTime = new Date(Date.now());
+            if(currentDateTime >= executionDateTime) {
+              logRunHistory(`Starting execution of job (id=${job.id})`, config.systemUser, uid);
+              currentExecutableJobId = job.id;    
+              //lock job to avoid second thread
+              if(!(await jobEngine.updateJobStatus(job.id, 2, config.systemUser)))
+                break;                          
+              jobEngine.executeJob(job.id, config.systemUser, uid);
+            }
         }
-        logRunHistory(`Session has ended`, config.systemUser, uid);
+        currentExecutableJobId = null;
     }
     executionLock = false;
+  }
+  catch (e) {
+    log.error(e.stack);
+    if(currentExecutableJobId === null)
+      jobEngine.updateJobStatus(currentExecutableJobId, 1, config.emergencyUser);
+    executionLock = false;
+  }
 }
 
 module.exports.run = run;
+
+run(1);

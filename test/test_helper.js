@@ -1,7 +1,7 @@
 // util/test_helpers.js
 var assert  = require('chai').assert;
 var request = require('request');
-var messageBox = require('../config/message_labels');
+var messageBox = require('../config/message_labels')('en');
 
 /**
  * Creates instance of helper for unit testing

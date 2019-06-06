@@ -2,8 +2,6 @@
 const dummyRoutes = require('./dummy_routes');
 const jobRoutes = require('./job_routes');
 const connectionRoutes = require('./connection_routes');
-var request = require('request');
-const config = require('../../config/config');
 
 /**
  * Main router
