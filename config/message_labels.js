@@ -1,3 +1,4 @@
+/* istanbul ignore next */
 module.exports = (language = 'en') => {
     return {
         job: { 

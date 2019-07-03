@@ -3,12 +3,12 @@ var chai  = require('chai');
 chai.use(require('chai-datetime'))
 var assert  = chai.assert;
 
-var util = require('../app/tools/util');
+var util = require('../../app/tools/util');
 const request = require("supertest");
 var ver = '/v1.0';
-var ut_routes = require('../app/routes/ut_routes');
+var ut_routes = require('../../app/routes/ut_routes');
 const app = util.expressInstance();
-let config = require('../config/config')
+const dbclient = require("../../app/tools/db");
 ut_routes(app);
 
 describe('util', function() {
@@ -31,12 +31,20 @@ describe('util', function() {
             done();
         });
     });
-    it('renameProperty', function(done) {
-        let expected = {new_name: 'obj_name', val: 1};
-        let initial = {name: 'obj_name', val: 1};
-        assert.equal(util.renameProperty(initial, 'name', 'new_name').toString(), expected.toString());
-        done();
-    });      
+
+    describe('DB', function() {
+        it('executeSysQuery. No callback, return Promis ', async function() {            
+            let db = dbclient.query({text: "SELECT now()"});
+            let result = await db;
+            assert.equalDate(result.rows[0].now, new Date());
+        });
+        it('executeUserQuery. No connection string, return null ', function(done) {            
+            let db = dbclient.userQuery({text: "SELECT now()"});
+            assert.isNull(db);
+            done();
+        });        
+    
+    });
 
     describe('small tools and helpers', function() {
         it('getDateTime ', function(done) {            
@@ -52,6 +60,12 @@ describe('util', function() {
             assert.equalTime(util.getMinDateTime(dateTimeArray), correctResult);
             done();
         });       
-        
+       
+        it('renameProperty', function(done) {
+            let expected = {new_name: 'obj_name', val: 1};
+            let initial = {name: 'obj_name', val: 1};
+            assert.equal(util.renameProperty(initial, 'name', 'new_name').toString(), expected.toString());
+            done();
+        });            
     });
 });    

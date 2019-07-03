@@ -44,7 +44,7 @@ function logRunHistory(message, createdBy, uid = null) {
     "values": [message, uid, createdBy]
   };                  
 
-  log.info(`${message}. uid: ${uid}`);
+  log.info(`${message}. session: ${uid}`);
 
   dbclient.query(query, (err, result) => {
       if (err)

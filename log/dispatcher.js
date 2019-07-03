@@ -5,10 +5,12 @@ const winston = require("winston");
 const { combine, timestamp, colorize, printf, logstash} = winston.format;
 const Transport = require('winston-transport');
 
+/* istanbul ignore next */
 const runFormat = printf(({ level, message, timestamp }) => {
     return `${timestamp} [${level}]: ${message}`;
   });
 
+/* istanbul ignore next */
 let peonDBTransport = class peonDBTransport extends Transport {
   constructor(opts) {
     super(opts);
@@ -53,16 +55,17 @@ let logstashChannel = winston.createLogger({
 });
 module.exports.logstashChannel = logstashChannel;
 
+/* istanbul ignore next */
 module.exports.error = message => {
   debugChannel.error(message);
   logstashChannel.error(message);
 }
-
+/* istanbul ignore next */
 module.exports.warn = message => {
   debugChannel.warn(message);
   logstashChannel.warn(message);
 }
-
+/* istanbul ignore next */
 module.exports.info = message => {
   debugChannel.info(message);
   logstashChannel.info(message);

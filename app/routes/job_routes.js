@@ -113,7 +113,8 @@ module.exports = function(app, dbclient) {
     try {
       const job = req.body;
       let JobAssesmentResult = calculateNextRun(job);
-
+      
+      /* istanbul ignore next */
       if(!JobAssesmentResult.isValid)
         res.status(400).send({"requestValidationErrors": JobAssesmentResult.errorList});
       else {

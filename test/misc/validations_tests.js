@@ -1,10 +1,7 @@
 //validation unit tests
 var assert  = require('chai').assert;
-var config = require('../config/config');
-var util = require('../app/tools/util');
-var validation = require('../app/tools/validation');
-var models = require('../app/models/app_models.json');
-var testData = require('./test_data');
+var validation = require('../../app/tools/validation');
+var testData = require('../test_data');
 
 describe('validation', function() {
     describe('validateConnection', function() {

@@ -24,8 +24,6 @@ pool.on('remove', (client) => {
 })
 */
 
-module.exports.query = executeSysQuery;
-
 /**
  * Rerturns query object
  * @param {Object} query Query for execution
@@ -40,6 +38,7 @@ function executeSysQuery(query, callback) {
   else
     return sysPool.query(query, callback);
 }  
+module.exports.query = executeSysQuery;
 
 /**
  * Rerturns query object
@@ -52,16 +51,19 @@ function executeSysQuery(query, callback) {
  */
 function executeUserQuery(query, connectionString, callback) {
   if(connectionString === undefined) {
-    log.error(`Connection string was not provided for query ${query}`);
+    log.error(`Connection string was not provided for query '${query.text}'`);
     return null;
   }
   
+  /* istanbul ignore next */
   let userPool = new Pool({
       "connectionString": connectionString, 
       "idleTimeoutMillis": 1000, 
       "ssl": config.useDBSSL 
   })
-
+  
+  //tested in executeSysQuery
+  /* istanbul ignore next */
   if(callback === undefined)
     return userPool.query(query);
   else

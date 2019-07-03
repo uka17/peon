@@ -1,2 +1,2 @@
 #!/bin/bash
-docker start mpostgres
+docker start postgres

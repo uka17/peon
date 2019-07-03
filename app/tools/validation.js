@@ -12,8 +12,10 @@ var Ajv = require('ajv');
  */
 function validateObject(object, schema, extraSchemaList) {
     var ajv = new Ajv();
+    /* not used, but in case will be needed for multylevel json schema validations
     if(extraSchemaList)
         extraSchemaList.forEach(function(e) { ajv.addSchema(e) }); 
+    */
     var validate = ajv.compile(schema);
     var valid = validate(object);
     if (!valid) {

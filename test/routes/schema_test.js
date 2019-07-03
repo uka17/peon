@@ -1,10 +1,10 @@
 var assert  = require('chai').assert;
 var request = require('request');
 var Ajv = require('ajv');
-var messageBox = require('../config/message_labels.js');
-var schema = require('../app/models/app_models.json');
-const config = require('../config/config.js');
-var testData = require('./test_data');
+var messageBox = require('../../config/message_labels.js');
+var schema = require('../../app/models/app_models.json');
+const config = require('../../config/config.js');
+var testData = require('../test_data');
 
 //test data preparation
 var testJob = testData.jobOK;

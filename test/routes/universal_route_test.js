@@ -1,4 +1,5 @@
 var objectId;   
+var objectIdDelete;
 /**
  * Imlements set of unit tests for standart api route, which incudes all basic CRUD actions like: list, count, post, get, patch, delete.
  * @param {string} apiRoute URL for api part including version. Starts with /. Example: '/v1.0/job'
@@ -10,8 +11,8 @@ var objectId;
 module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, referenceFieldName, referenceFieldType) => {
     const request = require("supertest");
     var assert  = require('chai').assert;
-    var messageBox = require('../config/message_labels')('en');    
-    var util = require('../app/tools/util');   
+    var messageBox = require('../../config/message_labels')('en');    
+    var util = require('../../app/tools/util');   
     let inst = util.expressPostgreInstance(routeObject);
 
     describe('api test for: ' + apiRoute, function() {
@@ -25,7 +26,16 @@ module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, refer
                     assert.equal(res.status, 201);
                     assert.equal(res.body[referenceFieldName], testReferenceObject[referenceFieldName]);
                     objectId = res.body.id;
-                });                    
+                });            
+            request(inst.app)
+                .post(apiRoute)            
+                .send(testReferenceObject)
+                .set('Accept', 'application/json')
+                .end(function(err, res) { 
+                    assert.equal(res.status, 201);
+                    assert.equal(res.body[referenceFieldName], testReferenceObject[referenceFieldName]);
+                    objectIdDelete = res.body.id;
+                });                            
         }); 
 
         it(`incorrect '${referenceFieldName}' type, expected type is '${referenceFieldType}'`, () => {                        
@@ -113,6 +123,7 @@ module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, refer
                     assert.isAbove(res.body.length, 0);
                 });                    
         });     
+
         it('successful patch', () => {                         
             let nObject = JSON.parse(JSON.stringify(testReferenceObject));
             //assign correct value to reference field in order to have success patch test
@@ -141,16 +152,17 @@ module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, refer
                     assert.equal(res.statusCode, 200);
                     assert.equal(res.body[messageBox.common.updated], 1)
                 });                    
-        });             
+        });   
+      
         it('successful delete', () => {
             request(inst.app)                      
-                .delete(apiRoute + '/' + objectId)            
+                .delete(apiRoute + '/' + objectIdDelete)            
                 .set('Accept', 'application/json')
                 .end(function(err, res) { 
                     assert.equal(res.statusCode, 200);
                     assert.equal(res.body[messageBox.common.deleted], 1)
                 });              
-        });                                    
+        });                                        
     });
 }
 
