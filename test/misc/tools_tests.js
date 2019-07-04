@@ -8,6 +8,7 @@ const request = require("supertest");
 var ver = '/v1.0';
 var ut_routes = require('../../app/routes/ut_routes');
 const app = util.expressInstance();
+
 const dbclient = require("../../app/tools/db");
 ut_routes(app);
 
@@ -21,6 +22,14 @@ describe('util', function() {
                 assert.include(res.body.error, 'error_message');
                 done();
               });              
+        });
+        it('logServerError. No user', async function() {            
+            let logId = await util.logServerError(new Error('dummy'));
+            assert.isNumber(logId);
+        });
+        it('logServerError. User=1', async function() {            
+            let logId = await util.logServerError(new Error('dummy'), 1);
+            assert.isNumber(logId);
         });
     });
     

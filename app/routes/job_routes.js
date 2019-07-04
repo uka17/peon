@@ -1,6 +1,6 @@
 // routes/job_routes.js
 var util = require('../tools/util')
-var calculateNextRun = require('../engine/job').calculateNextRun;
+var jobEngine = require('../engine/job');
 const config = require('../../config/config')
 const messageBox = require('../../config/message_labels')('en');
 var ver = '/v1.0';
@@ -75,32 +75,22 @@ module.exports = function(app, dbclient) {
       util.handleServerException(e, config.user, dbclient, res);
     }
   });
-  app.post(ver + '/jobs', (req, res) => {
+  app.post(ver + '/jobs', async (req, res) => {
     //create new job
     try {
       const job = req.body;
-      let JobAssesmentResult = calculateNextRun(job);
+      let JobAssesmentResult = jobEngine.calculateNextRun(job);
       if(!JobAssesmentResult.isValid)
         res.status(400).send({"requestValidationErrors": JobAssesmentResult.errorList});
       else {
-        const query = {
-          "text": 'SELECT public."fnJob_Insert"($1, $2, $3) as id',
-          "values": [job, JobAssesmentResult.nextRun.toUTCString(), config.user]
-        };
-        dbclient.query(query, (err, result) => {           
-          /* istanbul ignore if */
-          if (err) { 
-            util.handleServerException(err, config.user, dbclient, res);
-          } else {
-            job.id = result.rows[0].id;
-            res.status(201).send(job);
-          }
-        });
+        job.nextRun = JobAssesmentResult.nextRun;
+        let result = await jobEngine.createJob(job, config.user);
+        res.status(201).send(result);
       }
     }
     catch(e) {
       /* istanbul ignore next */
-      util.handleServerException(e, config.user, dbclient, res);
+      res.status(500).send(e);
     }
   });
 
@@ -112,7 +102,7 @@ module.exports = function(app, dbclient) {
     //update job by id
     try {
       const job = req.body;
-      let JobAssesmentResult = calculateNextRun(job);
+      let JobAssesmentResult = jobEngine.calculateNextRun(job);
       
       /* istanbul ignore next */
       if(!JobAssesmentResult.isValid)

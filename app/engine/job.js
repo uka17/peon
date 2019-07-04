@@ -33,6 +33,36 @@ function getJob(jobId) {
     });
   });
 }
+/**
+ * Creates new job in DB
+ * @param {Object} job Job object to be created in DB
+ * @param {string} createdBy User who creates job
+ * @returns {Object} Just created job with `id` in case of success, standart user error message with `logId` otherwise
+ */
+function createJob(job, createdBy) {
+  return new Promise(async (resolve, reject) => {
+    const query = {
+      "text": 'SELECT public."fnJob_Insert"($1, $2, $3) as id',
+      "values": [job, job.nextRun.toUTCString(), createdBy]
+    };
+    dbclient.query(query, async (err, result) => {           
+      try {
+        if (err) { 
+          let logId = await util.logServerError(err, createdBy);
+          reject({error: labels.common.debugMessage, logId: logId});
+        } else {
+          job.id = result.rows[0].id;
+          resolve(job);
+        }
+      }
+      catch(e) {
+        let logId = await util.logServerError(err, createdBy);
+        reject({error: labels.common.debugMessage, logId: logId});
+      }
+    });
+  });
+}
+module.exports.createJob = createJob;
 
 /**
  * @typedef {Object} NextRunResult

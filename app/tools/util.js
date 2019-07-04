@@ -47,6 +47,31 @@ module.exports.handleServerException = function(e, createdBy, dbclient, res) {
         );    
     }
 }
+module.exports.logServerError = function(e, createdBy) {    
+  /* istanbul ignore next */
+  if(process.env.NODE_ENV !== "PROD") {
+    logDispatcher.error(e.stack);
+  }    
+  return new Promise((resolve, reject) => {
+    const query = {
+      "text": 'SELECT public."fnLog_Insert"($1, $2, $3) as logId',
+      "values": [1, toJSON(e), createdBy]
+    };                  
+
+    dbclient.query(query, (err, result) => {
+      try {
+        if (err)
+          reject(e.stack);
+        else 
+          resolve(result.rows[0].logid);
+      }
+      catch(e2) {
+        logDispatcher.error(e2);
+        reject(e2);
+      }   
+    });              
+  });
+}
 /**
  * Shows user error with proper HTTP response code
  * @param {string} message Error message
