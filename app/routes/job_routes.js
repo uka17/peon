@@ -2,7 +2,7 @@
 var util = require('../tools/util')
 var jobEngine = require('../engine/job');
 const config = require('../../config/config')
-const messageBox = require('../../config/message_labels')('en');
+const labels = require('../../config/message_labels')('en');
 var ver = '/v1.0';
 
 module.exports = function(app, dbclient) {
@@ -19,7 +19,7 @@ module.exports = function(app, dbclient) {
         } 
         else {        
           let resObject = {};
-          resObject[messageBox.common.count] = result.rows[0].count;
+          resObject[labels.common.count] = result.rows[0].count;
           res.status(200).send(resObject);
         } 
       });  
@@ -80,6 +80,8 @@ module.exports = function(app, dbclient) {
     try {
       const job = req.body;
       let JobAssesmentResult = jobEngine.calculateNextRun(job);
+      
+      /* istanbul ignore if */
       if(!JobAssesmentResult.isValid)
         res.status(400).send({"requestValidationErrors": JobAssesmentResult.errorList});
       else {
@@ -87,10 +89,12 @@ module.exports = function(app, dbclient) {
         let result = await jobEngine.createJob(job, config.user);
         res.status(201).send(result);
       }
-    }
-    catch(e) {
+    }    
+    catch(e) {      
       /* istanbul ignore next */
-      res.status(500).send(e);
+      let logId = await util.logServerError(e);
+      /* istanbul ignore next */
+      res.status(500).send({error: labels.common.debugMessage, logId: logId});
     }
   });
 
@@ -98,7 +102,7 @@ module.exports = function(app, dbclient) {
     res.sendStatus(405);
   });
   
-  app.patch(ver + '/jobs/:id', (req, res) => {
+  app.patch(ver + '/jobs/:id', async (req, res) => {
     //update job by id
     try {
       const job = req.body;
@@ -108,27 +112,22 @@ module.exports = function(app, dbclient) {
       if(!JobAssesmentResult.isValid)
         res.status(400).send({"requestValidationErrors": JobAssesmentResult.errorList});
       else {
-        const query = {
-          "text": 'SELECT public."fnJob_Update"($1, $2, $3, $4) as count',
-          "values": [req.params.id, job, JobAssesmentResult.nextRun.toUTCString(), config.user]
-        };
-        dbclient.query(query, (err, result) => {     
-          /* istanbul ignore if */
-          if (err) {
-            util.handleServerException(err, config.user, dbclient, res);
-          } else {
-            let resObject = {};
-            resObject[messageBox.common.updated] = result.rows[0].count;
-            res.status(200).send(resObject);
-          } 
-        });
+        job.nextRun = JobAssesmentResult.nextRun;
+        let result = await jobEngine.updateJob(req.params.id, job, config.user);
+        let resObject = {};
+        resObject[labels.common.updated] = result;
+        res.status(200).send(resObject);
       }
     }
-    catch(e) {
+    /* istanbul ignore next */
+    catch(e) {      
       /* istanbul ignore next */
-      util.handleServerException(e, config.user, dbclient, res);
-    }    
+      let logId = await util.logServerError(e);
+      /* istanbul ignore next */
+      res.status(500).send({error: labels.common.debugMessage, logId: logId});
+    }
   });
+
   app.delete(ver + '/jobs/:id', (req, res) => {
     //delete job by _id
     try {
@@ -143,7 +142,7 @@ module.exports = function(app, dbclient) {
           util.handleServerException(err, config.user, dbclient, res);
         } else {
           let resObject = {};
-          resObject[messageBox.common.deleted] = result.rows[0].count;
+          resObject[labels.common.deleted] = result.rows[0].count;
           res.status(200).send(resObject);          
         } 
       });

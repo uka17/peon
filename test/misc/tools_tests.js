@@ -8,9 +8,12 @@ const request = require("supertest");
 var ver = '/v1.0';
 var ut_routes = require('../../app/routes/ut_routes');
 const app = util.expressInstance();
+let config = require('../../config/config');
 
 const dbclient = require("../../app/tools/db");
 ut_routes(app);
+//temporary disable debug output due to have clear test output
+config.enableDebugOutput = false;
 
 describe('util', function() {
     describe('errors handling', function() {

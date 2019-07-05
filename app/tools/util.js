@@ -60,14 +60,18 @@ module.exports.logServerError = function(e, createdBy) {
 
     dbclient.query(query, (err, result) => {
       try {
-        if (err)
-          reject(e.stack);
+        if (err) {
+          logDispatcher.error(err);
+          resolve(0);
+        }
         else 
           resolve(result.rows[0].logid);
-      }
+      }      
       catch(e2) {
-        logDispatcher.error(e2);
-        reject(e2);
+        /* istanbul ignore next */
+        logDispatcher.error(e2.stack);
+        /* istanbul ignore next */
+        resolve(0);
       }   
     });              
   });

@@ -12,5 +12,6 @@ module.exports = {
     systemUser: "system",
     emergencyUser: "er",
     logLevel: "info",
+    enableDebugOutput: true,
     runTolerance: 1
   };

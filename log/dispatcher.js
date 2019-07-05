@@ -1,5 +1,5 @@
 // log/dispatcher.js
-const logLevel = require('../config/config').logLevel;
+const config = require('../config/config');
 
 const winston = require("winston");
 const { combine, timestamp, colorize, printf, logstash} = winston.format;
@@ -30,7 +30,7 @@ let peonDBTransport = class peonDBTransport extends Transport {
 };
 
 let debugChannel = winston.createLogger({
-  level: logLevel,
+  level: config.logLevel,
   format: combine(    
     colorize({ colors: { info: "blue", error: "red", warning: "orange" } }),
     timestamp(),
@@ -44,7 +44,7 @@ let debugChannel = winston.createLogger({
 module.exports.debugChannel = debugChannel;
 
 let logstashChannel = winston.createLogger({
-  level: logLevel,
+  level: config.logLevel,
   format: combine(    
     timestamp(),
     logstash()
@@ -57,16 +57,19 @@ module.exports.logstashChannel = logstashChannel;
 
 /* istanbul ignore next */
 module.exports.error = message => {
-  debugChannel.error(message);
+  if(config.enableDebugOutput)
+    debugChannel.error(message);
   logstashChannel.error(message);
 }
 /* istanbul ignore next */
 module.exports.warn = message => {
-  debugChannel.warn(message);
+  if(config.enableDebugOutput)
+    debugChannel.warn(message);
   logstashChannel.warn(message);
 }
 /* istanbul ignore next */
 module.exports.info = message => {
-  debugChannel.info(message);
+  if(config.enableDebugOutput)
+    debugChannel.info(message);
   logstashChannel.info(message);
 }

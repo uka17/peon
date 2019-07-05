@@ -149,7 +149,7 @@ module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, refer
                 .send(nObject)
                 .set('Accept', 'application/json')
                 .end(function(err, res) {         
-                    assert.equal(res.statusCode, 200);
+                    assert.equal(res.statusCode, 200);                    
                     assert.equal(res.body[messageBox.common.updated], 1)
                 });                    
         });   

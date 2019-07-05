@@ -36,7 +36,7 @@ function getJob(jobId) {
 /**
  * Creates new job in DB
  * @param {Object} job Job object to be created in DB
- * @param {string} createdBy User who creates job
+ * @param {string?} createdBy User who creates job
  * @returns {Object} Just created job with `id` in case of success, standart user error message with `logId` otherwise
  */
 function createJob(job, createdBy) {
@@ -48,21 +48,48 @@ function createJob(job, createdBy) {
     dbclient.query(query, async (err, result) => {           
       try {
         if (err) { 
-          let logId = await util.logServerError(err, createdBy);
-          reject({error: labels.common.debugMessage, logId: logId});
+          reject(err);
         } else {
           job.id = result.rows[0].id;
           resolve(job);
         }
       }
       catch(e) {
-        let logId = await util.logServerError(err, createdBy);
-        reject({error: labels.common.debugMessage, logId: logId});
+        reject(e);
       }
     });
   });
 }
 module.exports.createJob = createJob;
+
+/**
+ * Update job in DB by id
+ * @param {number} id Id of job to be updated
+ * @param {Object} job Job object to be updated in DB
+ * @param {string} updatedBy User who creates job
+ * @returns {number | Object} Number of updated rows, standart user error message with `logId` otherwise
+ */
+function updateJob(id, job, updatedBy) {
+  return new Promise(async (resolve, reject) => {
+    const query = {
+      "text": 'SELECT public."fnJob_Update"($1, $2, $3, $4) as count',
+      "values": [id, job, job.nextRun.toUTCString(), updatedBy]
+    };
+    dbclient.query(query, async (err, result) => {           
+      try {
+        if (err) { 
+          reject(err);
+        } else {    
+          resolve(result.rows[0].count);
+        }
+      }
+      catch(e) {
+        reject(e);
+      }
+    });
+  });
+}
+module.exports.updateJob = updateJob;
 
 /**
  * @typedef {Object} NextRunResult
