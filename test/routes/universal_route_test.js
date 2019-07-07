@@ -1,5 +1,5 @@
 var objectId;   
-var objectIdDelete;
+
 /**
  * Imlements set of unit tests for standart api route, which incudes all basic CRUD actions like: list, count, post, get, patch, delete.
  * @param {string} apiRoute URL for api part including version. Starts with /. Example: '/v1.0/job'
@@ -26,15 +26,6 @@ module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, refer
                     assert.equal(res.status, 201);
                     assert.equal(res.body[referenceFieldName], testReferenceObject[referenceFieldName]);
                     objectId = res.body.id;
-                });            
-            request(inst.app)
-                .post(apiRoute)            
-                .send(testReferenceObject)
-                .set('Accept', 'application/json')
-                .end(function(err, res) { 
-                    assert.equal(res.status, 201);
-                    assert.equal(res.body[referenceFieldName], testReferenceObject[referenceFieldName]);
-                    objectIdDelete = res.body.id;
                 });                            
         }); 
 
@@ -97,15 +88,6 @@ module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, refer
                     assert.isAbove(res.body[messageBox.common.count], 0);
                 });                    
         });  
-        it('successful get', () => {
-            request(inst.app)                           
-                .get(apiRoute + '/' + objectId)            
-                .set('Accept', 'application/json')
-                .end(function(err, res) { 
-                    assert.equal(res.status, 200);                                   
-                    assert.isTrue(res.body.hasOwnProperty("id"));
-                });                    
-        });     
         it('failed get (404)', () => {
             request(inst.app)                           
                 .get(apiRoute + '/0')            
@@ -113,7 +95,7 @@ module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, refer
                 .end(function(err, res) { 
                     assert.equal(res.status, 404);                                   
                 });                    
-        });         
+        });             
         it('successful list', () => {                              
             request(inst.app)
                 .get(apiRoute)            
@@ -122,7 +104,17 @@ module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, refer
                     assert.equal(res.status, 200);
                     assert.isAbove(res.body.length, 0);
                 });                    
-        });     
+        });  
+
+        it('successful get', () => {
+            request(inst.app)                           
+                .get(apiRoute + '/' + objectId)            
+                .set('Accept', 'application/json')
+                .end(function(err, res) { 
+                    assert.equal(res.status, 200);                                   
+                    assert.isTrue(res.body.hasOwnProperty("id"));
+                });                    
+        });           
 
         it('successful patch', () => {                         
             let nObject = JSON.parse(JSON.stringify(testReferenceObject));
@@ -156,7 +148,7 @@ module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, refer
       
         it('successful delete', () => {
             request(inst.app)                      
-                .delete(apiRoute + '/' + objectIdDelete)            
+                .delete(apiRoute + '/' + objectId)            
                 .set('Accept', 'application/json')
                 .end(function(err, res) { 
                     assert.equal(res.statusCode, 200);
