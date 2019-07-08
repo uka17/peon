@@ -1,7 +1,5 @@
 language: node_js
 node_js: node
-env:
-- DATABASE_URL=postgres://lkabdjtptaesng:54cb77ee2d4cdec376f9ab21a0b1b0d1ef988f995291fab17b0af7ba7c12c759@ec2-54-217-234-157.eu-west-1.compute.amazonaws.com:5432/de61oteg9ukstn DBSSL=true
 before_script: 
 - chmod 0777 ./node_modules/.bin/mocha
 - mkdir ./.nyc_output
