@@ -7,8 +7,7 @@
     "test": "nyc --reporter=html --reporter=text mocha --recursive",
     "mtest": "mocha --recursive",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "dev": "nodemon server.js",
-    "bd": "./tools/commit.sh"
+    "dev": "nodemon server.js"
   },
   "repository": {
     "type": "git",
