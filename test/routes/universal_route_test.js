@@ -16,8 +16,6 @@ module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, refer
     let inst = util.expressPostgreInstance(routeObject);
     let config = require('../../config/config');
     config.user = 'testRobot';
-    console.log(config.useDBSSL);
-    console.log(config.connectionString);
 
     describe('api test for: ' + apiRoute, function() {
         //sometimes test for creation of objectId is being executed late and objectId becomes undefined
