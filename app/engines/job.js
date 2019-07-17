@@ -92,6 +92,34 @@ function updateJob(id, job, updatedBy) {
 module.exports.updateJob = updateJob;
 
 /**
+ * Mark job in DB as deleted by id
+ * @param {number} id Id of job to be updated
+ * @param {string} deletedBy User who deletes job
+ * @returns {number | Object} Number of updated rows, standart user error message with `logId` otherwise
+ */
+function deleteJob(id, deletedBy) {
+  return new Promise(async (resolve, reject) => {
+    const query = {
+      "text": 'SELECT public."fnJob_Delete"($1) as count',
+      "values": [id]
+    };
+    dbclient.query(query, async (err, result) => {           
+      try {
+        if (err) { 
+          reject(err);
+        } else {    
+          resolve(result.rows[0].count);
+        }
+      }
+      catch(e) {
+        reject(e);
+      }
+    });
+  });
+}
+module.exports.deleteJob = deleteJob;
+
+/**
  * @typedef {Object} NextRunResult
  * @property {boolean} isValid Assesment result
  * @property {string=} errorList If `isValid` is `false` represents error list as `string`

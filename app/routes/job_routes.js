@@ -131,27 +131,19 @@ module.exports = function(app, dbclient) {
   app.delete(ver + '/jobs/:id', (req, res) => {
     //delete job by _id
     try {
-      const query = {
-        "text": 'SELECT public."fnJob_Delete"($1) as count',
-        "values": [req.params.id]
-      };
-      //TODO validation before insert or edit
-      dbclient.query(query, (err, result) => {  
-        /* istanbul ignore if */
-        if (err) {
-          util.handleServerException(err, config.user, dbclient, res);
-        } else {
-          let resObject = {};
-          resObject[labels.common.deleted] = result.rows[0].count;
-          res.status(200).send(resObject);          
-        } 
-      });
+      let result = await jobEngine.deleteJobJob(req.params.id, config.user);
+      let resObject = {};
+      resObject[labels.common.deleted] = result;
+      res.status(200).send(resObject);
     }
-    catch(e) {
+    /* istanbul ignore next */
+    catch(e) {      
       /* istanbul ignore next */
-      util.handleServerException(e, config.user, dbclient, res);
-    }
-  });    
+      let logId = await util.logServerError(e);
+      /* istanbul ignore next */
+      res.status(500).send({error: labels.common.debugMessage, logId: logId});
+    }  
+  });
 };
 //TODO
 //user handling
