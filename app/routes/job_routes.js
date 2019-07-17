@@ -51,30 +51,23 @@ module.exports = function(app, dbclient) {
       util.handleServerException(e, config.user, dbclient, res);
     }
   });
-  app.get(ver + '/jobs/:id', (req, res) => {    
+  app.get(ver + '/jobs/:id', async (req, res) => { 
     //get job by id
     try {
-      const query = {
-        "text": 'SELECT public."fnJob_Select"($1) as job',
-        "values": [req.params.id]
-      };
-      dbclient.query(query, (err, result) => {  
-        /* istanbul ignore if */
-        if (err) {
-          util.handleServerException(err, config.user, dbclient, res);
-        } else {
-          if(result.rows[0].job == null)
-            res.status(404).send();
-          else
-            res.status(200).send(result.rows[0].job);
-        } 
-      });
+      let result = await jobEngine.getJob(req.params.id);
+      if(result == null)
+        res.status(404).send();
+      else
+        res.status(200).send(result);
     }
-    catch(e) {
+    catch(e) {      
       /* istanbul ignore next */
-      util.handleServerException(e, config.user, dbclient, res);
+      let logId = await util.logServerError(e, config.user);
+      /* istanbul ignore next */
+      res.status(500).send({error: labels.common.debugMessage, logId: logId});
     }
   });
+
   app.post(ver + '/jobs', async (req, res) => {
     //create new job
     try {
@@ -92,7 +85,7 @@ module.exports = function(app, dbclient) {
     }    
     catch(e) {      
       /* istanbul ignore next */
-      let logId = await util.logServerError(e);
+      let logId = await util.logServerError(e, config.user);
       /* istanbul ignore next */
       res.status(500).send({error: labels.common.debugMessage, logId: logId});
     }
@@ -122,16 +115,16 @@ module.exports = function(app, dbclient) {
     /* istanbul ignore next */
     catch(e) {      
       /* istanbul ignore next */
-      let logId = await util.logServerError(e);
+      let logId = await util.logServerError(e, config.user);
       /* istanbul ignore next */
       res.status(500).send({error: labels.common.debugMessage, logId: logId});
     }
   });
 
-  app.delete(ver + '/jobs/:id', (req, res) => {
+  app.delete(ver + '/jobs/:id', async (req, res) => {
     //delete job by _id
     try {
-      let result = await jobEngine.deleteJobJob(req.params.id, config.user);
+      let result = await jobEngine.deleteJob(req.params.id, config.user);
       let resObject = {};
       resObject[labels.common.deleted] = result;
       res.status(200).send(resObject);
@@ -139,7 +132,7 @@ module.exports = function(app, dbclient) {
     /* istanbul ignore next */
     catch(e) {      
       /* istanbul ignore next */
-      let logId = await util.logServerError(e);
+      let logId = await util.logServerError(e, config.user);
       /* istanbul ignore next */
       res.status(500).send({error: labels.common.debugMessage, logId: logId});
     }  

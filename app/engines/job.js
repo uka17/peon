@@ -10,7 +10,7 @@ const labels = require('../../config/message_labels')('en');
 /**
  * Returns job by id
  * @param {number} jobId Id of job
- * @returns {Promise} Promise which returns job in case of success and `null` in case of failure 
+ * @returns {Promise} Promise which resolves with `job` in case of success, `null` if job is not found by `id` and rejects with error in case of failure
  */
 function getJob(jobId) {
   return new Promise((resolve, reject) => {
@@ -21,11 +21,10 @@ function getJob(jobId) {
     dbclient.query(query, (err, result) => {  
       /* istanbul ignore if */
       if (err) {
-        log.error(`Failed to get job by id=${jobId}. Stack: ${err.stack}`);
+        reject(err)
       } else {
         if(result.rows[0].job == null) {
-          log.warn(`No any job found by id=${jobId}`);
-          reject(null);
+          resolve(null);
         }
         else
           resolve(result.rows[0].job);
@@ -33,11 +32,13 @@ function getJob(jobId) {
     });
   });
 }
+module.exports.getJob = getJob;
+
 /**
  * Creates new job in DB
  * @param {Object} job Job object to be created in DB
  * @param {string?} createdBy User who creates job
- * @returns {Object} Just created job with `id` in case of success, standart user error message with `logId` otherwise
+ * @returns {Promise} Promise which resolves with just created job with `id` in case of success and rejects with error in case of failure
  */
 function createJob(job, createdBy) {
   return new Promise(async (resolve, reject) => {
@@ -63,11 +64,11 @@ function createJob(job, createdBy) {
 module.exports.createJob = createJob;
 
 /**
- * Update job in DB by id
+ * Updates job in DB by id
  * @param {number} id Id of job to be updated
- * @param {Object} job Job object to be updated in DB
- * @param {string} updatedBy User who creates job
- * @returns {number | Object} Number of updated rows, standart user error message with `logId` otherwise
+ * @param {Object} job Job object to be updated with
+ * @param {string} updatedBy User who updates job
+ * @returns {Promise} Promise which resolves with number of updated rows in case of success and rejects with error in case of failure 
  */
 function updateJob(id, job, updatedBy) {
   return new Promise(async (resolve, reject) => {
@@ -92,10 +93,10 @@ function updateJob(id, job, updatedBy) {
 module.exports.updateJob = updateJob;
 
 /**
- * Mark job in DB as deleted by id
- * @param {number} id Id of job to be updated
+ * Marks job in DB as deleted by id
+ * @param {number} id Id of job to be deleted
  * @param {string} deletedBy User who deletes job
- * @returns {number | Object} Number of updated rows, standart user error message with `logId` otherwise
+ * @returns {Promise} Promise which resolves with number of deleted rows in case of success and rejects with error in case of failure 
  */
 function deleteJob(id, deletedBy) {
   return new Promise(async (resolve, reject) => {
@@ -123,7 +124,7 @@ module.exports.deleteJob = deleteJob;
  * @typedef {Object} NextRunResult
  * @property {boolean} isValid Assesment result
  * @property {string=} errorList If `isValid` is `false` represents error list as `string`
- * @property {string=} nextRun If `isValid` is `true` represents next run date-time
+ * @property {string=} nextRun If `isValid` is `true` represents next run `date-time`
  */
 /**
  * Validates job and calculates next run date and time for it
