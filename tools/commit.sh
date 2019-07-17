@@ -1,6 +1,6 @@
 #!/bin/bash
 if [ -z "$1" ]; then
-    echo "Provide a comment for commit"
+    echo "Error: Provide a comment for commit"
 else
     git status
     ./tools/backup_restore.sh

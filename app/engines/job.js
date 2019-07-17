@@ -1,4 +1,4 @@
-// engine/job.js
+// engines/job.js
 const validation = require("../tools/validation");
 const schedulator = require("schedulator");
 const util = require('../tools/util')
@@ -252,7 +252,6 @@ async function executeJob(jobId, executedBy, uid) {
         for (let i = 0; i < job.steps.length; i++) {
           const step = job.steps[i];
           await logJobHistory({ message: labels.execution.executingStep(step.name), level: 2 }, jobId, executedBy, uid);
-          //TODO - return with errors explanation
           let stepExecution = await stepEngine.execute(step);
           if(stepExecution.result) {
             await logJobHistory(

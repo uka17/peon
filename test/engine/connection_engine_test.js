@@ -1,5 +1,5 @@
 let objectId = 0;
-const connectionEngine = require('../../app/engine/connection');
+const connectionEngine = require('../../app/engines/connection');
 const assert  = require('chai').assert;
 
 describe('connection engine', function() {

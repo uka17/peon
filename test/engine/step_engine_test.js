@@ -1,5 +1,5 @@
 let objectId = 426;
-const jobEngine = require('../../app/engine/job');
+const jobEngine = require('../../app/engines/job');
 
 describe('job engine', function() {
     it('execute job', (done) => {

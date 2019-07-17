@@ -1,4 +1,4 @@
-// engine/connection.js
+// controllers/connection.js
 const dbclient = require("../tools/db");
 const log = require('../../log/dispatcher');
 

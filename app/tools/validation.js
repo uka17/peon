@@ -1,6 +1,6 @@
 // util/validation.js
 //Functions-helpers for validating differen objects
-var models = require('../models/app_models.json');
+var models = require('../schemas/app_models.json');
 var Ajv = require('ajv');
 
 /**
