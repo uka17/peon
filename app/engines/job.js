@@ -1,11 +1,64 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-case-declarations */
+/* eslint-disable no-prototype-builtins */
 // engines/job.js
 const validation = require("../tools/validation");
 const schedulator = require("schedulator");
-const util = require('../tools/util')
+const util = require('../tools/util');
 const dbclient = require("../tools/db");
 const log = require('../../log/dispatcher');
 const stepEngine = require('./step');
 const labels = require('../../config/message_labels')('en');
+
+/**
+ * Returns job count
+ * @returns {Promise} Promise which resolves with numeber of `job` objects in case of success, `null` if job list is empty and rejects with error in case of failure
+ */
+function getJobCount() {
+  return new Promise((resolve, reject) => {
+    const query = {
+      "text": 'SELECT public."fnJob_Count"() as count'
+    };
+    dbclient.query(query, (err, result) => {  
+      /* istanbul ignore if */
+      if (err) {
+        reject(err);
+      } else {
+        if(result.rows[0].count == null) {
+          resolve(null);
+        }
+        else
+          resolve(result.rows[0].count);
+      } 
+    });
+  });
+}
+module.exports.getJobCount = getJobCount;
+
+/**
+ * Returns job list
+ * @returns {Promise} Promise which resolves with list of `job` objects in case of success, `null` if job list is empty and rejects with error in case of failure
+ */
+function getJobList() {
+  return new Promise((resolve, reject) => {
+    const query = {
+      "text": 'SELECT public."fnJob_SelectAll"() as jobs'
+    };
+    dbclient.query(query, (err, result) => {  
+      /* istanbul ignore if */
+      if (err) {
+        reject(err);
+      } else {
+        if(result.rows[0].jobs == null) {
+          resolve(null);
+        }
+        else
+          resolve(result.rows[0].jobs);
+      } 
+    });
+  });
+}
+module.exports.getJobList = getJobList;
 
 /**
  * Returns job by id
@@ -21,7 +74,7 @@ function getJob(jobId) {
     dbclient.query(query, (err, result) => {  
       /* istanbul ignore if */
       if (err) {
-        reject(err)
+        reject(err);
       } else {
         if(result.rows[0].job == null) {
           resolve(null);
@@ -41,7 +94,7 @@ module.exports.getJob = getJob;
  * @returns {Promise} Promise which resolves with just created job with `id` in case of success and rejects with error in case of failure
  */
 function createJob(job, createdBy) {
-  return new Promise(async (resolve, reject) => {
+  return new Promise((resolve, reject) => {
     const query = {
       "text": 'SELECT public."fnJob_Insert"($1, $2, $3) as id',
       "values": [job, job.nextRun.toUTCString(), createdBy]
@@ -71,7 +124,7 @@ module.exports.createJob = createJob;
  * @returns {Promise} Promise which resolves with number of updated rows in case of success and rejects with error in case of failure 
  */
 function updateJob(id, job, updatedBy) {
-  return new Promise(async (resolve, reject) => {
+  return new Promise((resolve, reject) => {
     const query = {
       "text": 'SELECT public."fnJob_Update"($1, $2, $3, $4) as count',
       "values": [id, job, job.nextRun.toUTCString(), updatedBy]
@@ -99,10 +152,10 @@ module.exports.updateJob = updateJob;
  * @returns {Promise} Promise which resolves with number of deleted rows in case of success and rejects with error in case of failure 
  */
 function deleteJob(id, deletedBy) {
-  return new Promise(async (resolve, reject) => {
+  return new Promise((resolve, reject) => {
     const query = {
-      "text": 'SELECT public."fnJob_Delete"($1) as count',
-      "values": [id]
+      "text": 'SELECT public."fnJob_Delete"($1, $2) as count',
+      "values": [id, deletedBy]
     };
     dbclient.query(query, async (err, result) => {           
       try {
@@ -135,47 +188,47 @@ function calculateNextRun(job) {
   try {
     let validationSequence = ["job", "steps", "notifications", "schedules"];
     let jobValidationResult;
-    for (i = 0; i < validationSequence.length; i++) {
+    for (let i = 0; i < validationSequence.length; i++) {
       switch (validationSequence[i]) {
-        case "job":
-          jobValidationResult = validation.validateJob(job);
-          break;
-        case "steps":
-          jobValidationResult = validation.validateStepList(job.steps);
-          break;
-        case "notifications":
-          //TODO validation for notification
-          //jobValidationResult = validation.validateStepList(job.steps)
-          break;
-        case "schedules":
-          let nextRunList = [];
-          if (job.schedules) {
-            for (let i = 0; i < job.schedules.length; i++) {
-              if (
-                job.schedules[i].enabled ||
+      case "job":
+        jobValidationResult = validation.validateJob(job);
+        break;
+      case "steps":
+        jobValidationResult = validation.validateStepList(job.steps);
+        break;
+      case "notifications":
+        //TODO validation for notification
+        //jobValidationResult = validation.validateStepList(job.steps)
+        break;
+      case "schedules":
+        let nextRunList = [];
+        if (job.schedules) {
+          for (let i = 0; i < job.schedules.length; i++) {
+            if (
+              job.schedules[i].enabled ||
                 !job.schedules[i].hasOwnProperty("enabled")
-              ) {
-                let nextRun = schedulator.nextOccurrence(job.schedules[i]);
-                if (nextRun.result != null) nextRunList.push(nextRun.result);
-                else if (nextRun.error.includes("schema is incorrect"))
-                  return {
-                    "isValid": false,
-                    "errorList": `schedule[${i}] ${nextRun.error}`
-                  };
-              }
+            ) {
+              let nextRun = schedulator.nextOccurrence(job.schedules[i]);
+              if (nextRun.result != null) nextRunList.push(nextRun.result);
+              else if (nextRun.error.includes("schema is incorrect"))
+                return {
+                  "isValid": false,
+                  "errorList": `schedule[${i}] ${nextRun.error}`
+                };
             }
           }
-          if (nextRunList.length == 0)
-            return {
-              "isValid": false,
-              "errorList": messageBox.schedule.nextRunCanNotBeCalculated
-            };
-          else
-            jobValidationResult = {
-              "isValid": true,
-              "nextRun": util.getMinDateTime(nextRunList)
-            };
-          break;
+        }
+        if (nextRunList.length == 0)
+          return {
+            "isValid": false,
+            "errorList": labels.schedule.nextRunCanNotBeCalculated
+          };
+        else
+          jobValidationResult = {
+            "isValid": true,
+            "nextRun": util.getMinDateTime(nextRunList)
+          };
+        break;
       }
       if (!jobValidationResult.isValid) 
         return jobValidationResult;
@@ -183,7 +236,7 @@ function calculateNextRun(job) {
     return jobValidationResult;
   }
   catch(e) {
-    log.error(`Failed to calculate next run for job (id=${job.id}). Stack: ${err.stack}`);
+    log.error(`Failed to calculate next run for job (id=${job.id}). Stack: ${e.stack}`);
     return {"isValid": false, "errorList": e.message};
   }
 }
@@ -195,6 +248,7 @@ module.exports.calculateNextRun = calculateNextRun;
  * @returns {Promise} Promise which returns `true` in case of success and `false` in case of failure 
  */
 function updateJobNextRun(jobId, executedBy) {
+  // eslint-disable-next-line no-async-promise-executor
   return new Promise(async (resolve, reject) => {
     let record = await getJob(jobId);
     let JobAssesmentResult = calculateNextRun(record.job);
@@ -204,7 +258,7 @@ function updateJobNextRun(jobId, executedBy) {
     };
     dbclient.query(query, (err, result) => {     
       if (err) {
-        log.error(`Failed to update job (id=${jobId}) next run date-time with ${JobAssesmentResult.nextRun}. Stack: ${err.stack}`)
+        log.error(`Failed to update job (id=${jobId}) next run date-time with ${JobAssesmentResult.nextRun}. Stack: ${err.stack}`);
         reject(false);
       } else {
         resolve(true);
@@ -227,13 +281,14 @@ function updateJobStatus(jobId, status, executedBy) {
       "values": [jobId, status, executedBy]
     };                  
 
+    // eslint-disable-next-line no-unused-vars
     dbclient.query(query, (err, result) => {
-        if (err) {
-          log.error(`Failed to change job (id=${jobId}) status to '${status}'. Stack: ${err.stack}`);
-          reject(false);
-        }
-        else
-          resolve(true);
+      if (err) {
+        log.error(`Failed to change job (id=${jobId}) status to '${status}'. Stack: ${err.stack}`);
+        reject(false);
+      }
+      else
+        resolve(true);
     }); 
   });
 }
@@ -254,13 +309,14 @@ function logJobHistory(message, jobId, createdBy, uid) {
       "values": [message, uid, jobId, createdBy]
     };                  
 
+    // eslint-disable-next-line no-unused-vars
     dbclient.query(query, (err, result) => {
-        if (err) {
-          log.error(`Failed to insert job history (id=${jobId}). Stack: ${err.stack}`);
-          reject(false); 
-        }
-        else
-          resolve(true); 
+      if (err) {
+        log.error(`Failed to insert job history (id=${jobId}). Stack: ${err.stack}`);
+        reject(false); 
+      }
+      else
+        resolve(true); 
     }); 
   });
 }

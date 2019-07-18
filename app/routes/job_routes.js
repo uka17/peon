@@ -1,56 +1,48 @@
 // routes/job_routes.js
-var util = require('../tools/util')
+var util = require('../tools/util');
 var jobEngine = require('../engines/job');
-const config = require('../../config/config')
+const config = require('../../config/config');
 const labels = require('../../config/message_labels')('en');
 var ver = '/v1.0';
 
 module.exports = function(app, dbclient) {
-  app.get(ver + '/jobs/count', (req, res) => {
+  app.get(ver + '/jobs/count', async (req, res) => {
     //get jobs count
     try {
-      const query = {
-        "text": 'SELECT public."fnJob_Count"() as count'
-      };
-      dbclient.query(query, (err, result) => {
-        /* istanbul ignore if */
-        if (err) {        
-          util.handleServerException(err, config.user, dbclient, res);
-        } 
-        else {        
-          let resObject = {};
-          resObject[labels.common.count] = result.rows[0].count;
-          res.status(200).send(resObject);
-        } 
-      });  
+      let result = await jobEngine.getJobCount();
+      if(result == null)
+        res.status(404).send();
+      else {
+        let resObject = {};
+        resObject[labels.common.count] = result;
+        res.status(200).send(resObject);
+      }
     }
-    catch(e) {
+    catch(e) {      
       /* istanbul ignore next */
-      util.handleServerException(e, config.user, dbclient, res);
+      let logId = await util.logServerError(e, config.user);
+      /* istanbul ignore next */
+      res.status(500).send({error: labels.common.debugMessage, logId: logId});
     }
   });
-  app.get(ver + '/jobs', (req, res) => {
+
+  app.get(ver + '/jobs', async (req, res) => {
     //get all jobs
     try {
-      const query = {
-        "text": 'SELECT public."fnJob_SelectAll"() as jobs'
-      };
-      //TODO validation before insert or edit
-      dbclient.query(query, (err, result) => {          
-        /* istanbul ignore if */
-        if (err) {
-          util.handleServerException(err, config.user, dbclient, res);
-        } else {        
-          //TODO Probably need to put try..catch here?
-          res.status(200).send(result.rows[0].jobs);
-        } 
-      });
+      let result = await jobEngine.getJobList();
+      if(result == null)
+        res.status(404).send();
+      else
+        res.status(200).send(result);
     }
-    catch(e) {
+    catch(e) {      
       /* istanbul ignore next */
-      util.handleServerException(e, config.user, dbclient, res);
+      let logId = await util.logServerError(e, config.user);
+      /* istanbul ignore next */
+      res.status(500).send({error: labels.common.debugMessage, logId: logId});
     }
   });
+
   app.get(ver + '/jobs/:id', async (req, res) => { 
     //get job by id
     try {
