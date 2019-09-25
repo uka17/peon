@@ -1,5 +1,4 @@
 // engines/main.js
-var util = require("../tools/util");
 const config = require("../../config/config");
 const dbclient = require("../tools/db");
 const log = require('../../log/dispatcher');
@@ -47,8 +46,8 @@ function logRunHistory(message, createdBy, uid = null) {
   log.info(`${message}. session: ${uid}`);
 
   dbclient.query(query, (err, result) => {
-      if (err)
-        log.error(err);
+    if (err)
+      log.error(err);
   }); 
 }
 
@@ -64,22 +63,22 @@ async function run(tolerance) {
     executionLock = true;    
     let jobList = await getJobListToRun(tolerance);    
     if(jobList !== null) {        
-        const uid = uuidv4();        
-        logRunHistory(`${jobList.length} job(s) in tolerance area to process`, config.systemUser, uid);
-        for (let i = 0; i < jobList.length; i++) {
-            const job = jobList[i];          
-            let executionDateTime = new Date(`${job.nextRun}Z`);
-            let currentDateTime = new Date(Date.now());
-            if(currentDateTime >= executionDateTime) {
-              logRunHistory(`Starting execution of job (id=${job.id})`, config.systemUser, uid);
-              currentExecutableJobId = job.id;    
-              //lock job to avoid second thread
-              if(!(await jobEngine.updateJobStatus(job.id, 2, config.systemUser)))
-                break;                          
-              jobEngine.executeJob(job.id, config.systemUser, uid);
-            }
+      const uid = uuidv4();
+      log.info(`${jobList.length} job(s) in tolerance area to process`);
+      for (let i = 0; i < jobList.length; i++) {
+        const job = jobList[i];          
+        let executionDateTime = new Date(`${job.nextRun}Z`);
+        let currentDateTime = new Date(Date.now());
+        if(currentDateTime >= executionDateTime) {
+          logRunHistory(`Starting execution of job (id=${job.id})`, config.systemUser, uid);
+          currentExecutableJobId = job.id;    
+          //lock job to avoid second thread
+          if(!(await jobEngine.updateJobStatus(job.id, 2, config.systemUser)))
+            break;                          
+          jobEngine.executeJob(job.id, config.systemUser, uid);
         }
-        currentExecutableJobId = null;
+      }
+      currentExecutableJobId = null;
     }
     executionLock = false;
   }
