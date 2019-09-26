@@ -70,8 +70,8 @@ module.exports = function(app, dbclient) {
       if(!JobAssesmentResult.isValid)
         res.status(400).send({"requestValidationErrors": JobAssesmentResult.errorList});
       else {
-        job.nextRun = JobAssesmentResult.nextRun;
         let result = await jobEngine.createJob(job, config.user);
+        await jobEngine.updateJobNextRun(result.id, JobAssesmentResult.nextRun.toUTCString());
         res.status(201).send(result);
       }
     }    

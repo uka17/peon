@@ -5,7 +5,7 @@
 -- Dumped from database version 11.3 (Debian 11.3-1.pgdg90+1)
 -- Dumped by pg_dump version 11.5 (Ubuntu 11.5-1.pgdg18.04+1)
 
--- Started on 2019-09-25 23:11:26 MSK
+-- Started on 2019-09-26 23:26:23 MSK
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -176,6 +176,18 @@ BEGIN
 	GET DIAGNOSTICS affected := ROW_COUNT;
 	RETURN affected as affected;
 END ;
+$$;
+
+
+--
+-- TOC entry 240 (class 1255 OID 49152)
+-- Name: fnJob_Insert(json, text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public."fnJob_Insert"(job json, created_by text) RETURNS integer
+    LANGUAGE sql
+    AS $$
+    INSERT INTO public."tblJob"("job", "modifiedBy", "createdBy") VALUES (job, created_by, created_by) RETURNING "id"
 $$;
 
 
@@ -358,7 +370,7 @@ CREATE SEQUENCE public."refJobStatus_id_seq"
 
 
 --
--- TOC entry 2964 (class 0 OID 0)
+-- TOC entry 2965 (class 0 OID 0)
 -- Dependencies: 197
 -- Name: refJobStatus_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -397,7 +409,7 @@ CREATE SEQUENCE public."tblConnection_id_seq"
 
 
 --
--- TOC entry 2965 (class 0 OID 0)
+-- TOC entry 2966 (class 0 OID 0)
 -- Dependencies: 199
 -- Name: tblConnection_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -453,7 +465,7 @@ CREATE SEQUENCE public."tblJobHistory_id_seq"
 
 
 --
--- TOC entry 2966 (class 0 OID 0)
+-- TOC entry 2967 (class 0 OID 0)
 -- Dependencies: 202
 -- Name: tblJobHistory_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -476,7 +488,7 @@ CREATE SEQUENCE public."tblJob_Id_seq"
 
 
 --
--- TOC entry 2967 (class 0 OID 0)
+-- TOC entry 2968 (class 0 OID 0)
 -- Dependencies: 203
 -- Name: tblJob_Id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -513,7 +525,7 @@ CREATE SEQUENCE public."tblLog_Id_seq"
 
 
 --
--- TOC entry 2968 (class 0 OID 0)
+-- TOC entry 2969 (class 0 OID 0)
 -- Dependencies: 205
 -- Name: tblLog_Id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -550,7 +562,7 @@ CREATE SEQUENCE public."tblRunHistory_id_seq"
 
 
 --
--- TOC entry 2969 (class 0 OID 0)
+-- TOC entry 2970 (class 0 OID 0)
 -- Dependencies: 207
 -- Name: tblRunHistory_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -559,7 +571,7 @@ ALTER SEQUENCE public."tblRunHistory_id_seq" OWNED BY public."tblRunHistory".id;
 
 
 --
--- TOC entry 2798 (class 2604 OID 16462)
+-- TOC entry 2799 (class 2604 OID 16462)
 -- Name: refJobStatus id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -567,7 +579,7 @@ ALTER TABLE ONLY public."refJobStatus" ALTER COLUMN id SET DEFAULT nextval('publ
 
 
 --
--- TOC entry 2801 (class 2604 OID 16463)
+-- TOC entry 2802 (class 2604 OID 16463)
 -- Name: tblConnection id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -575,7 +587,7 @@ ALTER TABLE ONLY public."tblConnection" ALTER COLUMN id SET DEFAULT nextval('pub
 
 
 --
--- TOC entry 2805 (class 2604 OID 16464)
+-- TOC entry 2806 (class 2604 OID 16464)
 -- Name: tblJob id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -583,7 +595,7 @@ ALTER TABLE ONLY public."tblJob" ALTER COLUMN id SET DEFAULT nextval('public."tb
 
 
 --
--- TOC entry 2807 (class 2604 OID 16465)
+-- TOC entry 2808 (class 2604 OID 16465)
 -- Name: tblJobHistory id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -591,7 +603,7 @@ ALTER TABLE ONLY public."tblJobHistory" ALTER COLUMN id SET DEFAULT nextval('pub
 
 
 --
--- TOC entry 2809 (class 2604 OID 16466)
+-- TOC entry 2810 (class 2604 OID 16466)
 -- Name: tblLog id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -599,7 +611,7 @@ ALTER TABLE ONLY public."tblLog" ALTER COLUMN id SET DEFAULT nextval('public."tb
 
 
 --
--- TOC entry 2811 (class 2604 OID 16467)
+-- TOC entry 2812 (class 2604 OID 16467)
 -- Name: tblRunHistory id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -607,7 +619,7 @@ ALTER TABLE ONLY public."tblRunHistory" ALTER COLUMN id SET DEFAULT nextval('pub
 
 
 --
--- TOC entry 2947 (class 0 OID 16404)
+-- TOC entry 2948 (class 0 OID 16404)
 -- Dependencies: 196
 -- Data for Name: refJobStatus; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -619,7 +631,7 @@ COPY public."refJobStatus" (id, status, "modifiedOn", "modifiedBy", "createdOn",
 
 
 --
--- TOC entry 2949 (class 0 OID 16414)
+-- TOC entry 2950 (class 0 OID 16414)
 -- Dependencies: 198
 -- Data for Name: tblConnection; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -1083,11 +1095,13 @@ COPY public."tblConnection" (id, connection, "modifiedOn", "modifiedBy", "create
 456	{"name":"test_connection","host":"test","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-09-25 19:40:38.455738	testRobot	2019-09-25 19:40:38.42417	testRobot	t
 457	{"name":"test_connection","host":"127.0.0.1","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-09-25 19:41:27.339477	testRobot	2019-09-25 19:41:27.339477	testRobot	\N
 458	{"name":"test_connection","host":"test","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-09-25 19:41:27.390141	testRobot	2019-09-25 19:41:27.364582	testRobot	t
+459	{"name":"test_connection","host":"127.0.0.1","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-09-26 20:25:43.753415	testRobot	2019-09-26 20:25:43.753415	testRobot	\N
+460	{"name":"test_connection","host":"test","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-09-26 20:25:43.807362	testRobot	2019-09-26 20:25:43.77699	testRobot	t
 \.
 
 
 --
--- TOC entry 2951 (class 0 OID 16424)
+-- TOC entry 2952 (class 0 OID 16424)
 -- Dependencies: 200
 -- Data for Name: tblJob; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -1206,7 +1220,7 @@ COPY public."tblJob" (id, job, "modifiedOn", "modifiedBy", "createdOn", "created
 424	{"name":"job","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}]}	2019-07-03 20:32:19.29786	test	2019-07-03 20:32:19.29786	test	\N	1	2019-07-05 11:11:11
 431	{"name":"job","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}]}	2019-07-03 20:37:40.098236	test	2019-07-03 20:37:40.098236	test	t	1	2019-07-05 11:11:11
 425	{"name":"job","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}]}	2019-07-03 20:32:19.333104	test	2019-07-03 20:32:19.333104	test	t	1	2019-07-05 11:11:11
-426	{"name":"test","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}]}	2019-09-25 19:41:27.240368	testBot	2019-07-03 20:32:19.356644	test	\N	1	2019-09-27 11:11:11
+426	{"name":"test","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}]}	2019-09-26 20:25:43.644743	testBot	2019-07-03 20:32:19.356644	test	\N	1	2019-09-27 11:11:11
 427	{"name":"job","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}]}	2019-07-03 20:32:48.27597	test	2019-07-03 20:32:48.27597	test	\N	1	2019-07-05 11:11:11
 429	{"name":"test","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}]}	2019-07-03 20:32:48.368947	test	2019-07-03 20:32:48.332837	test	\N	1	2019-07-05 11:11:11
 428	{"name":"job","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}]}	2019-07-03 20:32:48.308511	test	2019-07-03 20:32:48.308511	test	t	1	2019-07-05 11:11:11
@@ -1354,12 +1368,18 @@ COPY public."tblJob" (id, job, "modifiedOn", "modifiedBy", "createdOn", "created
 596	{"name":"job","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}],"nextRun":"2019-09-27T11:11:11.000Z"}	2019-09-25 19:40:38.492018	testRobot	2019-09-25 19:40:38.492018	testRobot	\N	1	2019-09-27 11:11:11
 597	{"name":"test","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}],"nextRun":"2019-09-27T11:11:11.000Z"}	2019-09-25 19:40:38.587066	testRobot	2019-09-25 19:40:38.536213	testRobot	t	1	2019-09-27 11:11:11
 598	{"name":"job","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}],"nextRun":"2019-09-27T11:11:11.000Z"}	2019-09-25 19:41:27.427035	testRobot	2019-09-25 19:41:27.427035	testRobot	\N	1	2019-09-27 11:11:11
-600	{\n  "name": "test job",\n  "description": "test job description",\n  "enabled": true,\n  "steps": [\n    {\n      "name": "step1",\n      "enabled": true,\n      "connection": 203,\n      "command": "select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')",\n      "retryAttempts": {\n        "number": 1,\n        "interval": 5\n      },\n      "onSucceed": "gotoNextStep",\n      "onFailure": "quitWithFailure"\n    },\n    {\n      "name": "step2",\n      "enabled": true,\n      "connection": 203,\n      "command": "select \\"fnLog_Insert\\"(1, 'Tomatoes!', 'test')",\n      "retryAttempts": {\n        "number": 1,\n        "interval": 5\n      },\n      "onSucceed": "gotoNextStep",\n      "onFailure": {\n        "gotoStep": 1\n      }\n    }\n  ],\n  "schedules": [\n    {\n      "enabled": true,\n      "startDateTime": "2018-01-31T20:55:23.071Z",\n      "eachNWeek": 1,\n      "dayOfWeek": [\n        "mon",\n        "tue",\n        "wed",\n        "thu",\n        "fri"\n      ],\n      "dailyFrequency": {\n        "start": "06:00:00",\n        "occursEvery": {\n          "intervalValue": 5,\n          "intervalType": "minute"\n        }\n      }\n    }\n  ],\n  "nextRun": "2019-09-25T20:05:00.000Z"\n}	2019-09-25 20:05:00.821469	system	2019-09-25 19:54:09.264355	dummy	\N	1	2019-09-25 20:10:00
+605	{"name":"job","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}]}	2019-09-26 20:25:43.866008	Fri, 27 Sep 2019 11:11:11 GMT	2019-09-26 20:25:43.84093	testRobot	\N	1	2019-09-27 11:11:11
+606	{"name":"test","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}],"nextRun":"2019-09-27T11:11:11.000Z"}	2019-09-26 20:25:43.979726	testRobot	2019-09-26 20:25:43.901926	testRobot	t	1	2019-09-27 11:11:11
+602	{"name":"test job","description":"test job description","enabled":true,"steps":[{"name":"step1","enabled":true,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}],"nextRun":"2019-09-26T20:10:00.000Z"}	2019-09-26 20:10:01.060139	system	2019-09-26 20:09:49.936981	dummy	\N	1	2019-09-26 20:15:00
+601	{"name":"test job","description":"test job description","enabled":true,"steps":[{"name":"step1","enabled":true,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}],"nextRun":"2019-09-26T20:00:00.000Z"}	2019-09-26 20:10:00.988589	system	2019-09-26 19:58:19.097831	dummy	\N	1	2019-09-26 20:15:00
+603	{"name":"test job","description":"test job description","enabled":true,"steps":[{"name":"step1","enabled":true,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}]}	2019-09-26 20:21:41.339221	dummy	2019-09-26 20:21:41.339221	dummy	\N	1	\N
+604	{"name":"test job","description":"test job description","enabled":true,"steps":[{"name":"step1","enabled":true,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}]}	2019-09-26 20:25:00.980083	system	2019-09-26 20:23:46.676145	dummy	\N	1	2019-09-26 20:30:00
+600	{\n  "name": "test job",\n  "description": "test job description",\n  "enabled": true,\n  "steps": [\n    {\n      "name": "step1",\n      "enabled": true,\n      "connection": 203,\n      "command": "select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')",\n      "retryAttempts": {\n        "number": 1,\n        "interval": 5\n      },\n      "onSucceed": "gotoNextStep",\n      "onFailure": "quitWithFailure"\n    },\n    {\n      "name": "step2",\n      "enabled": true,\n      "connection": 203,\n      "command": "select \\"fnLog_Insert\\"(1, 'Tomatoes!', 'test')",\n      "retryAttempts": {\n        "number": 1,\n        "interval": 5\n      },\n      "onSucceed": "gotoNextStep",\n      "onFailure": {\n        "gotoStep": 1\n      }\n    }\n  ],\n  "schedules": [\n    {\n      "enabled": true,\n      "startDateTime": "2018-01-31T20:55:23.071Z",\n      "eachNWeek": 1,\n      "dayOfWeek": [\n        "mon",\n        "tue",\n        "wed",\n        "thu",\n        "fri"\n      ],\n      "dailyFrequency": {\n        "start": "06:00:00",\n        "occursEvery": {\n          "intervalValue": 5,\n          "intervalType": "minute"\n        }\n      }\n    }\n  ]\n}	2019-09-26 20:25:43.512258	debug	2019-09-25 19:54:09.264355	dummy	\N	1	2019-09-26 20:30:00
 \.
 
 
 --
--- TOC entry 2952 (class 0 OID 16433)
+-- TOC entry 2953 (class 0 OID 16433)
 -- Dependencies: 201
 -- Data for Name: tblJobHistory; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -1685,11 +1705,77 @@ COPY public."tblJobHistory" (id, message, "createdOn", "createdBy", "jobId", ses
 11751	{"message":"Executing step 'step2'","level":2}	2019-09-25 20:05:00.731734	system	600	09d1ac36-a44f-4c86-8060-9f279efabac7
 11752	{"message":"Step 'step2' successfully executed","rowsAffected":1,"level":2}	2019-09-25 20:05:00.741761	system	600	09d1ac36-a44f-4c86-8060-9f279efabac7
 11753	{"message":"Execution finished","level":2}	2019-09-25 20:05:00.744169	system	600	09d1ac36-a44f-4c86-8060-9f279efabac7
+11754	{"message":"Execution started","level":2}	2019-09-26 20:00:00.254847	system	600	34bcd4e5-a99a-491a-93ff-65f4a04245c7
+11755	{"message":"Executing step 'step1'","level":2}	2019-09-26 20:00:00.260158	system	600	34bcd4e5-a99a-491a-93ff-65f4a04245c7
+11756	{"message":"Execution started","level":2}	2019-09-26 20:00:00.265251	system	601	34bcd4e5-a99a-491a-93ff-65f4a04245c7
+11757	{"message":"Executing step 'step1'","level":2}	2019-09-26 20:00:00.269453	system	601	34bcd4e5-a99a-491a-93ff-65f4a04245c7
+11758	{"message":"Step 'step1' successfully executed","rowsAffected":1,"level":2}	2019-09-26 20:00:00.27242	system	600	34bcd4e5-a99a-491a-93ff-65f4a04245c7
+11759	{"message":"Executing step 'step2'","level":2}	2019-09-26 20:00:00.275536	system	600	34bcd4e5-a99a-491a-93ff-65f4a04245c7
+11760	{"message":"Step 'step1' successfully executed","rowsAffected":1,"level":2}	2019-09-26 20:00:00.281877	system	601	34bcd4e5-a99a-491a-93ff-65f4a04245c7
+11761	{"message":"Executing step 'step2'","level":2}	2019-09-26 20:00:00.283967	system	601	34bcd4e5-a99a-491a-93ff-65f4a04245c7
+11762	{"message":"Step 'step2' successfully executed","rowsAffected":1,"level":2}	2019-09-26 20:00:00.285737	system	600	34bcd4e5-a99a-491a-93ff-65f4a04245c7
+11763	{"message":"Execution finished","level":2}	2019-09-26 20:00:00.288345	system	600	34bcd4e5-a99a-491a-93ff-65f4a04245c7
+11764	{"message":"Step 'step2' successfully executed","rowsAffected":1,"level":2}	2019-09-26 20:00:00.337109	system	601	34bcd4e5-a99a-491a-93ff-65f4a04245c7
+11765	{"message":"Execution finished","level":2}	2019-09-26 20:00:00.340578	system	601	34bcd4e5-a99a-491a-93ff-65f4a04245c7
+11766	{"message":"Execution started","level":2}	2019-09-26 20:05:00.598907	system	601	3fa50fd0-5bb2-4794-bdea-f1f47c5c1ea4
+11767	{"message":"Executing step 'step1'","level":2}	2019-09-26 20:05:00.60342	system	601	3fa50fd0-5bb2-4794-bdea-f1f47c5c1ea4
+11768	{"message":"Execution started","level":2}	2019-09-26 20:05:00.607798	system	600	3fa50fd0-5bb2-4794-bdea-f1f47c5c1ea4
+11769	{"message":"Executing step 'step1'","level":2}	2019-09-26 20:05:00.611263	system	600	3fa50fd0-5bb2-4794-bdea-f1f47c5c1ea4
+11770	{"message":"Step 'step1' successfully executed","rowsAffected":1,"level":2}	2019-09-26 20:05:00.612484	system	601	3fa50fd0-5bb2-4794-bdea-f1f47c5c1ea4
+11771	{"message":"Executing step 'step2'","level":2}	2019-09-26 20:05:00.614629	system	601	3fa50fd0-5bb2-4794-bdea-f1f47c5c1ea4
+11772	{"message":"Step 'step1' successfully executed","rowsAffected":1,"level":2}	2019-09-26 20:05:00.621901	system	600	3fa50fd0-5bb2-4794-bdea-f1f47c5c1ea4
+11774	{"message":"Executing step 'step2'","level":2}	2019-09-26 20:05:00.624293	system	600	3fa50fd0-5bb2-4794-bdea-f1f47c5c1ea4
+11776	{"message":"Step 'step2' successfully executed","rowsAffected":1,"level":2}	2019-09-26 20:05:00.672638	system	600	3fa50fd0-5bb2-4794-bdea-f1f47c5c1ea4
+11777	{"message":"Execution finished","level":2}	2019-09-26 20:05:00.675234	system	600	3fa50fd0-5bb2-4794-bdea-f1f47c5c1ea4
+11773	{"message":"Step 'step2' successfully executed","rowsAffected":1,"level":2}	2019-09-26 20:05:00.623348	system	601	3fa50fd0-5bb2-4794-bdea-f1f47c5c1ea4
+11775	{"message":"Execution finished","level":2}	2019-09-26 20:05:00.625256	system	601	3fa50fd0-5bb2-4794-bdea-f1f47c5c1ea4
+11778	{"message":"Execution started","level":2}	2019-09-26 20:10:00.91406	system	601	9f3d33ea-eee5-490d-be25-535f6afe173a
+11779	{"message":"Executing step 'step1'","level":2}	2019-09-26 20:10:00.919593	system	601	9f3d33ea-eee5-490d-be25-535f6afe173a
+11780	{"message":"Execution started","level":2}	2019-09-26 20:10:00.924137	system	600	9f3d33ea-eee5-490d-be25-535f6afe173a
+11781	{"message":"Executing step 'step1'","level":2}	2019-09-26 20:10:00.928124	system	600	9f3d33ea-eee5-490d-be25-535f6afe173a
+11782	{"message":"Execution started","level":2}	2019-09-26 20:10:00.928899	system	602	9f3d33ea-eee5-490d-be25-535f6afe173a
+11783	{"message":"Step 'step1' successfully executed","rowsAffected":1,"level":2}	2019-09-26 20:10:00.930155	system	601	9f3d33ea-eee5-490d-be25-535f6afe173a
+11784	{"message":"Executing step 'step1'","level":2}	2019-09-26 20:10:00.93235	system	602	9f3d33ea-eee5-490d-be25-535f6afe173a
+11785	{"message":"Executing step 'step2'","level":2}	2019-09-26 20:10:00.93248	system	601	9f3d33ea-eee5-490d-be25-535f6afe173a
+11786	{"message":"Step 'step1' successfully executed","rowsAffected":1,"level":2}	2019-09-26 20:10:00.937615	system	600	9f3d33ea-eee5-490d-be25-535f6afe173a
+11787	{"message":"Executing step 'step2'","level":2}	2019-09-26 20:10:00.939717	system	600	9f3d33ea-eee5-490d-be25-535f6afe173a
+11788	{"message":"Step 'step1' successfully executed","rowsAffected":1,"level":2}	2019-09-26 20:10:00.941653	system	602	9f3d33ea-eee5-490d-be25-535f6afe173a
+11789	{"message":"Executing step 'step2'","level":2}	2019-09-26 20:10:00.944275	system	602	9f3d33ea-eee5-490d-be25-535f6afe173a
+11790	{"message":"Step 'step2' successfully executed","rowsAffected":1,"level":2}	2019-09-26 20:10:00.944493	system	601	9f3d33ea-eee5-490d-be25-535f6afe173a
+11791	{"message":"Execution finished","level":2}	2019-09-26 20:10:00.94743	system	601	9f3d33ea-eee5-490d-be25-535f6afe173a
+11792	{"message":"Step 'step2' successfully executed","rowsAffected":1,"level":2}	2019-09-26 20:10:00.986874	system	600	9f3d33ea-eee5-490d-be25-535f6afe173a
+11793	{"message":"Execution finished","level":2}	2019-09-26 20:10:00.989855	system	600	9f3d33ea-eee5-490d-be25-535f6afe173a
+11794	{"message":"Step 'step2' successfully executed","rowsAffected":1,"level":2}	2019-09-26 20:10:00.990074	system	602	9f3d33ea-eee5-490d-be25-535f6afe173a
+11795	{"message":"Execution finished","level":2}	2019-09-26 20:10:00.992779	system	602	9f3d33ea-eee5-490d-be25-535f6afe173a
+11796	{"message":"Execution started","level":2}	2019-09-26 20:25:00.847478	system	600	680c4d8e-3866-495f-a2f6-66647c10f0fc
+11797	{"message":"Executing step 'step1'","level":2}	2019-09-26 20:25:00.85287	system	600	680c4d8e-3866-495f-a2f6-66647c10f0fc
+11798	{"message":"Execution started","level":2}	2019-09-26 20:25:00.857571	system	604	680c4d8e-3866-495f-a2f6-66647c10f0fc
+11799	{"message":"Executing step 'step1'","level":2}	2019-09-26 20:25:00.860991	system	604	680c4d8e-3866-495f-a2f6-66647c10f0fc
+11800	{"message":"Step 'step1' successfully executed","rowsAffected":1,"level":2}	2019-09-26 20:25:00.862944	system	600	680c4d8e-3866-495f-a2f6-66647c10f0fc
+11801	{"message":"Executing step 'step2'","level":2}	2019-09-26 20:25:00.865243	system	600	680c4d8e-3866-495f-a2f6-66647c10f0fc
+11802	{"message":"Step 'step1' successfully executed","rowsAffected":1,"level":2}	2019-09-26 20:25:00.871267	system	604	680c4d8e-3866-495f-a2f6-66647c10f0fc
+11803	{"message":"Executing step 'step2'","level":2}	2019-09-26 20:25:00.873627	system	604	680c4d8e-3866-495f-a2f6-66647c10f0fc
+11804	{"message":"Step 'step2' successfully executed","rowsAffected":1,"level":2}	2019-09-26 20:25:00.874774	system	600	680c4d8e-3866-495f-a2f6-66647c10f0fc
+11805	{"message":"Execution finished","level":2}	2019-09-26 20:25:00.877437	system	600	680c4d8e-3866-495f-a2f6-66647c10f0fc
+11806	{"message":"Step 'step2' successfully executed","rowsAffected":1,"level":2}	2019-09-26 20:25:00.93348	system	604	680c4d8e-3866-495f-a2f6-66647c10f0fc
+11807	{"message":"Execution finished","level":2}	2019-09-26 20:25:00.937273	system	604	680c4d8e-3866-495f-a2f6-66647c10f0fc
+11808	{"message":"Execution started","level":2}	2019-09-26 20:25:43.521012	testBot	426	\N
+11809	{"message":"Execution started","level":2}	2019-09-26 20:25:43.533787	testBot	426	\N
+11810	{"message":"Executing step 'step1'","level":2}	2019-09-26 20:25:43.544996	testBot	426	\N
+11811	{"message":"Executing step 'step1'","level":2}	2019-09-26 20:25:43.551949	testBot	426	\N
+11812	{"message":"Failed to execute step 'step1'","error":"connect ECONNREFUSED 127.0.0.1:8080","level":0}	2019-09-26 20:25:43.556864	testBot	426	\N
+11813	{"message":"Failed to execute step 'step1'","error":"connect ECONNREFUSED 127.0.0.1:8080","level":0}	2019-09-26 20:25:43.558853	testBot	426	\N
+11814	{"message":"Executing step 'step2'","level":2}	2019-09-26 20:25:43.561468	testBot	426	\N
+11815	{"message":"Executing step 'step2'","level":2}	2019-09-26 20:25:43.567564	testBot	426	\N
+11816	{"message":"Failed to execute step 'step2'","error":"connect ECONNREFUSED 127.0.0.1:8080","level":0}	2019-09-26 20:25:43.571202	testBot	426	\N
+11817	{"message":"Failed to execute step 'step2'","error":"connect ECONNREFUSED 127.0.0.1:8080","level":0}	2019-09-26 20:25:43.57248	testBot	426	\N
+11818	{"message":"Execution finished","level":2}	2019-09-26 20:25:43.573816	testBot	426	\N
+11819	{"message":"Execution finished","level":2}	2019-09-26 20:25:43.574975	testBot	426	\N
 \.
 
 
 --
--- TOC entry 2955 (class 0 OID 16444)
+-- TOC entry 2956 (class 0 OID 16444)
 -- Dependencies: 204
 -- Data for Name: tblLog; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -1703,6 +1789,7 @@ COPY public."tblLog" (id, type, message, "createdOn", "createdBy") FROM stdin;
 3833	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:34:51)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-07-17 18:55:10.438299	1
 3835	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:34:51)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-07-17 19:01:00.123777	1
 3837	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:34:51)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-07-17 19:24:19.513695	1
+3894	1	Potatoes!	2019-09-26 20:10:00.938741	test
 3839	1	{"type":"Error","message":"function public.fnJob_Select1(unknown) does not exist","name":"error","stack":"error: function public.fnJob_Select1(unknown) does not exist\\n    at Connection.parseE (/home/major/_code/peon/node_modules/pg/lib/connection.js:602:11)\\n    at Connection.parseMessage (/home/major/_code/peon/node_modules/pg/lib/connection.js:399:19)\\n    at Socket.<anonymous> (/home/major/_code/peon/node_modules/pg/lib/connection.js:121:22)\\n    at emitOne (events.js:116:13)\\n    at Socket.emit (events.js:211:7)\\n    at addChunk (_stream_readable.js:263:12)\\n    at readableAddChunk (_stream_readable.js:250:11)\\n    at Socket.Readable.push (_stream_readable.js:208:10)\\n    at TCP.onread (net.js:607:20)","code":"42883","length":221,"severity":"ERROR","hint":"No function matches the given name and argument types. You might need to add explicit type casts.","position":"8","file":"parse_func.c","line":"621","routine":"ParseFuncOrColumn"}	2019-07-17 19:30:17.663984	\N
 3840	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:30:51)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-07-17 19:32:06.282215	\N
 3841	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:34:51)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-07-17 19:32:06.286232	1
@@ -1711,6 +1798,7 @@ COPY public."tblLog" (id, type, message, "createdOn", "createdBy") FROM stdin;
 3844	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:30:51)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-07-17 19:32:20.099791	\N
 3845	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:34:51)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-07-17 19:32:20.108367	1
 3846	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:30:51)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-07-17 19:42:51.985699	\N
+3895	1	Tomatoes!	2019-09-26 20:10:00.940038	test
 3847	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:34:51)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-07-17 19:42:51.990152	1
 3848	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:30:51)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-07-18 17:42:42.185754	\N
 3849	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:34:51)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-07-18 17:42:42.192453	1
@@ -1719,6 +1807,7 @@ COPY public."tblLog" (id, type, message, "createdOn", "createdBy") FROM stdin;
 3852	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:30:51)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-07-18 17:46:29.899222	\N
 3853	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:34:51)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-07-18 17:46:29.903344	1
 3854	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:30:51)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-07-18 17:57:49.722476	\N
+3896	1	Tomatoes!	2019-09-26 20:10:00.947227	test
 3855	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:34:51)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-07-18 17:57:49.726005	1
 3856	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:30:51)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-07-18 18:03:36.245289	\N
 3857	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:34:51)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-07-18 18:03:36.248887	1
@@ -1727,6 +1816,7 @@ COPY public."tblLog" (id, type, message, "createdOn", "createdBy") FROM stdin;
 3860	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:30:51)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-07-18 18:13:59.713617	\N
 3861	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:34:51)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-07-18 18:13:59.719145	1
 3862	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:30:51)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-07-18 18:17:39.696754	\N
+3897	1	Tomatoes!	2019-09-26 20:10:00.986485	test
 3863	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:34:51)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-07-18 18:17:39.701243	1
 3864	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:30:51)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-07-18 18:18:01.022893	\N
 3865	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:34:51)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-07-18 18:18:01.02673	1
@@ -1748,11 +1838,28 @@ COPY public."tblLog" (id, type, message, "createdOn", "createdBy") FROM stdin;
 3881	1	Tomatoes!	2019-09-25 20:00:00.986061	test
 3882	1	Potatoes!	2019-09-25 20:05:00.725676	test
 3883	1	Tomatoes!	2019-09-25 20:05:00.739206	test
+3884	1	Potatoes!	2019-09-26 20:00:00.268833	test
+3885	1	Potatoes!	2019-09-26 20:00:00.279006	test
+3886	1	Tomatoes!	2019-09-26 20:00:00.282406	test
+3887	1	Tomatoes!	2019-09-26 20:00:00.291503	test
+3888	1	Potatoes!	2019-09-26 20:05:00.609919	test
+3889	1	Potatoes!	2019-09-26 20:05:00.618855	test
+3890	1	Tomatoes!	2019-09-26 20:05:00.620938	test
+3891	1	Tomatoes!	2019-09-26 20:05:00.668945	test
+3892	1	Potatoes!	2019-09-26 20:10:00.92686	test
+3893	1	Potatoes!	2019-09-26 20:10:00.9355	test
+3898	1	{"type":"TypeError","message":"jobEngine.updateJobNextRun is not a function","name":"TypeError","stack":"TypeError: jobEngine.updateJobNextRun is not a function\\n    at app.post (/home/major/_code/peon/app/routes/job_routes.js:74:25)\\n    at <anonymous>\\n    at process._tickCallback (internal/process/next_tick.js:188:7)"}	2019-09-26 20:21:41.344086	dummy
+3899	1	Potatoes!	2019-09-26 20:25:00.860514	test
+3900	1	Potatoes!	2019-09-26 20:25:00.868869	test
+3901	1	Tomatoes!	2019-09-26 20:25:00.871586	test
+3902	1	Tomatoes!	2019-09-26 20:25:00.880759	test
+3903	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:31:45)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-09-26 20:25:43.553265	\N
+3904	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:35:45)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-09-26 20:25:43.561058	1
 \.
 
 
 --
--- TOC entry 2957 (class 0 OID 16453)
+-- TOC entry 2958 (class 0 OID 16453)
 -- Dependencies: 206
 -- Data for Name: tblRunHistory; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -1874,11 +1981,20 @@ COPY public."tblRunHistory" (id, message, "createdOn", "createdBy", session) FRO
 7779	1 job(s) in tolerance area to process	2019-09-25 20:00:00.949411	system	c64f7eed-2b1a-4f15-841b-bf403468bd91
 7780	Starting execution of job (id=600)	2019-09-25 20:00:00.956135	system	c64f7eed-2b1a-4f15-841b-bf403468bd91
 7781	Starting execution of job (id=600)	2019-09-25 20:05:00.682953	system	09d1ac36-a44f-4c86-8060-9f279efabac7
+7782	Starting execution of job (id=600)	2019-09-26 20:00:00.240154	system	34bcd4e5-a99a-491a-93ff-65f4a04245c7
+7783	Starting execution of job (id=601)	2019-09-26 20:00:00.255116	system	34bcd4e5-a99a-491a-93ff-65f4a04245c7
+7784	Starting execution of job (id=601)	2019-09-26 20:05:00.58469	system	3fa50fd0-5bb2-4794-bdea-f1f47c5c1ea4
+7785	Starting execution of job (id=600)	2019-09-26 20:05:00.59905	system	3fa50fd0-5bb2-4794-bdea-f1f47c5c1ea4
+7786	Starting execution of job (id=601)	2019-09-26 20:10:00.901066	system	9f3d33ea-eee5-490d-be25-535f6afe173a
+7787	Starting execution of job (id=600)	2019-09-26 20:10:00.914185	system	9f3d33ea-eee5-490d-be25-535f6afe173a
+7788	Starting execution of job (id=602)	2019-09-26 20:10:00.924298	system	9f3d33ea-eee5-490d-be25-535f6afe173a
+7789	Starting execution of job (id=600)	2019-09-26 20:25:00.833172	system	680c4d8e-3866-495f-a2f6-66647c10f0fc
+7790	Starting execution of job (id=604)	2019-09-26 20:25:00.847751	system	680c4d8e-3866-495f-a2f6-66647c10f0fc
 \.
 
 
 --
--- TOC entry 2970 (class 0 OID 0)
+-- TOC entry 2971 (class 0 OID 0)
 -- Dependencies: 197
 -- Name: refJobStatus_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
@@ -1887,52 +2003,52 @@ SELECT pg_catalog.setval('public."refJobStatus_id_seq"', 4, true);
 
 
 --
--- TOC entry 2971 (class 0 OID 0)
+-- TOC entry 2972 (class 0 OID 0)
 -- Dependencies: 199
 -- Name: tblConnection_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public."tblConnection_id_seq"', 458, true);
-
-
---
--- TOC entry 2972 (class 0 OID 0)
--- Dependencies: 202
--- Name: tblJobHistory_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('public."tblJobHistory_id_seq"', 11753, true);
+SELECT pg_catalog.setval('public."tblConnection_id_seq"', 460, true);
 
 
 --
 -- TOC entry 2973 (class 0 OID 0)
--- Dependencies: 203
--- Name: tblJob_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+-- Dependencies: 202
+-- Name: tblJobHistory_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public."tblJob_Id_seq"', 600, true);
+SELECT pg_catalog.setval('public."tblJobHistory_id_seq"', 11819, true);
 
 
 --
 -- TOC entry 2974 (class 0 OID 0)
--- Dependencies: 205
--- Name: tblLog_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+-- Dependencies: 203
+-- Name: tblJob_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public."tblLog_Id_seq"', 3883, true);
+SELECT pg_catalog.setval('public."tblJob_Id_seq"', 606, true);
 
 
 --
 -- TOC entry 2975 (class 0 OID 0)
+-- Dependencies: 205
+-- Name: tblLog_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public."tblLog_Id_seq"', 3904, true);
+
+
+--
+-- TOC entry 2976 (class 0 OID 0)
 -- Dependencies: 207
 -- Name: tblRunHistory_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public."tblRunHistory_id_seq"', 7781, true);
+SELECT pg_catalog.setval('public."tblRunHistory_id_seq"', 7790, true);
 
 
 --
--- TOC entry 2813 (class 2606 OID 16469)
+-- TOC entry 2814 (class 2606 OID 16469)
 -- Name: refJobStatus refJobStatus_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1941,7 +2057,7 @@ ALTER TABLE ONLY public."refJobStatus"
 
 
 --
--- TOC entry 2815 (class 2606 OID 16471)
+-- TOC entry 2816 (class 2606 OID 16471)
 -- Name: tblConnection tblConnection_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1950,7 +2066,7 @@ ALTER TABLE ONLY public."tblConnection"
 
 
 --
--- TOC entry 2823 (class 2606 OID 16473)
+-- TOC entry 2824 (class 2606 OID 16473)
 -- Name: tblRunHistory tblHistory_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1959,7 +2075,7 @@ ALTER TABLE ONLY public."tblRunHistory"
 
 
 --
--- TOC entry 2819 (class 2606 OID 16475)
+-- TOC entry 2820 (class 2606 OID 16475)
 -- Name: tblJobHistory tblJobHistory_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1968,7 +2084,7 @@ ALTER TABLE ONLY public."tblJobHistory"
 
 
 --
--- TOC entry 2817 (class 2606 OID 16477)
+-- TOC entry 2818 (class 2606 OID 16477)
 -- Name: tblJob tblJob_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1977,7 +2093,7 @@ ALTER TABLE ONLY public."tblJob"
 
 
 --
--- TOC entry 2821 (class 2606 OID 16479)
+-- TOC entry 2822 (class 2606 OID 16479)
 -- Name: tblLog tblLog_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1986,7 +2102,7 @@ ALTER TABLE ONLY public."tblLog"
 
 
 --
--- TOC entry 2824 (class 2606 OID 16480)
+-- TOC entry 2825 (class 2606 OID 16480)
 -- Name: tblJob tbljob_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1995,7 +2111,7 @@ ALTER TABLE ONLY public."tblJob"
 
 
 --
--- TOC entry 2825 (class 2606 OID 16485)
+-- TOC entry 2826 (class 2606 OID 16485)
 -- Name: tblJobHistory tbljobhistory_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2003,7 +2119,7 @@ ALTER TABLE ONLY public."tblJobHistory"
     ADD CONSTRAINT tbljobhistory_fk FOREIGN KEY ("jobId") REFERENCES public."tblJob"(id) ON UPDATE RESTRICT ON DELETE RESTRICT;
 
 
--- Completed on 2019-09-25 23:11:26 MSK
+-- Completed on 2019-09-26 23:26:24 MSK
 
 --
 -- PostgreSQL database dump complete

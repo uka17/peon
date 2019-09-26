@@ -96,8 +96,8 @@ module.exports.getJob = getJob;
 function createJob(job, createdBy) {
   return new Promise((resolve, reject) => {
     const query = {
-      "text": 'SELECT public."fnJob_Insert"($1, $2, $3) as id',
-      "values": [job, job.nextRun.toUTCString(), createdBy]
+      "text": 'SELECT public."fnJob_Insert"($1, $2) as id',
+      "values": [job, createdBy]
     };
     dbclient.query(query, async (err, result) => {           
       try {
@@ -148,7 +148,7 @@ module.exports.updateJob = updateJob;
 /**
  * Marks job in DB as deleted by id
  * @param {number} id Id of job to be deleted
- * @param {string} deletedBy User who deletes job
+ * @param {string} deletedBy User updateJobNextRunho deletes job
  * @returns {Promise} Promise which resolves with number of deleted rows in case of success and rejects with error in case of failure 
  */
 function deleteJob(id, deletedBy) {
@@ -266,6 +266,7 @@ function updateJobNextRun(jobId, executedBy) {
     });
   });
 }
+module.exports.updateJobNextRun = updateJobNextRun;
 
 /**
  * Changes job status
@@ -375,3 +376,4 @@ async function executeJob(jobId, executedBy, uid) {
 
 module.exports.executeJob = executeJob;
 
+updateJobNextRun(600, 'debug');
