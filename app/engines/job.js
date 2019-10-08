@@ -375,5 +375,3 @@ async function executeJob(jobId, executedBy, uid) {
 }
 
 module.exports.executeJob = executeJob;
-
-updateJobNextRun(600, 'debug');
