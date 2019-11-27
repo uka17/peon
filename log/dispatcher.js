@@ -7,8 +7,8 @@ const Transport = require('winston-transport');
 
 /* istanbul ignore next */
 const runFormat = printf(({ level, message, timestamp }) => {
-    return `${timestamp} [${level}]: ${message}`;
-  });
+  return `${timestamp} [${level}]: ${message}`;
+});
 
 /* istanbul ignore next */
 let peonDBTransport = class peonDBTransport extends Transport {

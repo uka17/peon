@@ -10,6 +10,6 @@ const connectionRoutes = require('./connection_routes');
  */
 module.exports = function(app, dbclient) {
   dummyRoutes(app, dbclient);
-  jobRoutes(app, dbclient);
+  jobRoutes(app);
   connectionRoutes(app, dbclient);
 };

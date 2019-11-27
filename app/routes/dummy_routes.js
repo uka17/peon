@@ -1,11 +1,7 @@
 // routes/dummy_routes.js
-var util = require('../tools/util');
+let util = require('../tools/util');
 const config = require('../../config/config');
-var validation = require('../tools/validation');
-var ver = '/v1.0';
-var testData = require('../../test/test_data');
-var messageBox = require('../../config/message_labels')('en');
-let db = require('../tools/db');
+let ver = '/v1.0';
 
 module.exports = function(app, dbclient) {
   app.get(ver + '/dummy', (req, res) => {

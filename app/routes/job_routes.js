@@ -1,11 +1,13 @@
 // routes/job_routes.js
-var util = require('../tools/util');
-var jobEngine = require('../engines/job');
+let util = require('../tools/util');
+let jobEngine = require('../engines/job');
+let _ = require('lodash');
 const config = require('../../config/config');
+const restTemplateSelectAll = require('../../config/rest_templates').restTemplateSelectAll;
 const labels = require('../../config/message_labels')('en');
-var ver = '/v1.0';
+let ver = '/v1.0';
 
-module.exports = function(app, dbclient) {
+module.exports = function(app) {
   app.get(ver + '/jobs/count', async (req, res) => {
     //get jobs count
     try {
@@ -29,11 +31,43 @@ module.exports = function(app, dbclient) {
   app.get(ver + '/jobs', async (req, res) => {
     //get all jobs
     try {
-      let result = await jobEngine.getJobList();
+      let filter, sortingExpression, perPage, page;
+      if(req.query.sort !== undefined) {
+        sortingExpression = req.query.sort.split('|');
+        if(sortingExpression.length == 1)
+          sortingExpression.push('asc');
+      }
+      else 
+        sortingExpression = ['id', 'asc'];
+      
+      if(req.query.filter !== undefined)
+        filter = req.query.filter;
+      else 
+        filter = '';
+      
+      perPage = parseInt(req.query.per_page);
+      perPage = isNaN(perPage) ? 10 : perPage;
+
+      page = parseInt(req.query.page);
+      page = isNaN(page) ? 1 : page;
+
+      let result = await jobEngine.getJobList(filter, sortingExpression[0], sortingExpression[1], perPage, page);
       if(result == null)
         res.status(404).send();
-      else
-        res.status(200).send(result);
+      else {
+        let wrappedResult = JSON.parse(JSON.stringify(restTemplateSelectAll));
+        wrappedResult.data = result;
+        wrappedResult.pagination.total = 200;
+        wrappedResult.pagination.per_page = perPage;
+        wrappedResult.pagination.current_page = page;
+        wrappedResult.pagination.last_page = 100;
+        wrappedResult.pagination.next_page_url = 'mail.ru';
+        wrappedResult.pagination.prev_page_url = 'mail.ru';
+        wrappedResult.pagination.from = perPage*(page-1) + 1;
+        wrappedResult.pagination.to = perPage*page;
+
+        res.status(200).send(wrappedResult);
+      }
     }
     catch(e) {      
       /* istanbul ignore next */

@@ -36,13 +36,19 @@ function getJobCount() {
 module.exports.getJobCount = getJobCount;
 
 /**
- * Returns job list
- * @returns {Promise} Promise which resolves with list of `job` objects in case of success, `null` if job list is empty and rejects with error in case of failure
+ * Returns job list accordingly to filtering, sorting and page order and number
+ * @param {string} filter Filter will be applied to `name` and `description` columns
+ * @param {string} sortColumn Name of sorting column
+ * @param {string} sortOrder Sorting order (`asc` or `desc`)
+ * @param {number} perPage Number of record per page
+ * @param {number} page Page number
+ * @returns {Promise} Promise which resolves with list of `job` objects in case of success, `null` if job list is empty and rejects with error in case of failure 
  */
-function getJobList() {
+function getJobList(filter, sortColumn, sortOrder, perPage, page) {
   return new Promise((resolve, reject) => {
     const query = {
-      "text": 'SELECT public."fnJob_SelectAll"() as jobs'
+      "text": 'SELECT public."fnJob_SelectAll"($1, $2, $3, $4, $5) as jobs',
+      "values": [filter, sortColumn, sortOrder, perPage, page]
     };
     dbclient.query(query, (err, result) => {  
       /* istanbul ignore if */
