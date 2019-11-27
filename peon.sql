@@ -3,9 +3,9 @@
 --
 
 -- Dumped from database version 11.3 (Debian 11.3-1.pgdg90+1)
--- Dumped by pg_dump version 11.5 (Ubuntu 11.5-1.pgdg18.04+1)
+-- Dumped by pg_dump version 11.6 (Ubuntu 11.6-1.pgdg18.04+1)
 
--- Started on 2019-10-08 22:08:59 MSK
+-- Started on 2019-11-28 01:06:19 MSK
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -129,17 +129,17 @@ CREATE FUNCTION public."fnJobHistory_Insert"(message json, session_id uuid, job_
 
 
 --
--- TOC entry 216 (class 1255 OID 16393)
+-- TOC entry 239 (class 1255 OID 16393)
 -- Name: fnJob_Count(); Type: FUNCTION; Schema: public; Owner: -
 --
 
 CREATE FUNCTION public."fnJob_Count"() RETURNS bigint
     LANGUAGE sql
-    AS $$SELECT COUNT(1) as count FROM public."tblJob"$$;
+    AS $$SELECT COUNT(1) as count FROM public."tblJob" where nullif("isDeleted", false) is null $$;
 
 
 --
--- TOC entry 217 (class 1255 OID 16394)
+-- TOC entry 216 (class 1255 OID 16394)
 -- Name: fnJob_Delete(integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -159,7 +159,7 @@ $$;
 
 
 --
--- TOC entry 239 (class 1255 OID 40960)
+-- TOC entry 237 (class 1255 OID 40960)
 -- Name: fnJob_Delete(integer, text); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -180,7 +180,7 @@ $$;
 
 
 --
--- TOC entry 240 (class 1255 OID 49152)
+-- TOC entry 238 (class 1255 OID 49152)
 -- Name: fnJob_Insert(json, text); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -192,7 +192,7 @@ $$;
 
 
 --
--- TOC entry 218 (class 1255 OID 16395)
+-- TOC entry 217 (class 1255 OID 16395)
 -- Name: fnJob_Insert(json, timestamp without time zone, text); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -204,7 +204,7 @@ $$;
 
 
 --
--- TOC entry 219 (class 1255 OID 16396)
+-- TOC entry 218 (class 1255 OID 16396)
 -- Name: fnJob_Select(integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -218,19 +218,49 @@ $$;
 
 
 --
--- TOC entry 220 (class 1255 OID 16397)
--- Name: fnJob_SelectAll(); Type: FUNCTION; Schema: public; Owner: -
+-- TOC entry 240 (class 1255 OID 49175)
+-- Name: fnJob_SelectAll(text, text, text, integer, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public."fnJob_SelectAll"() RETURNS json
-    LANGUAGE sql
-    AS $$
-	SELECT array_to_json(array_agg(row_to_json(t))) FROM (SELECT * FROM "tblJob" WHERE NULLIF("isDeleted", false) IS NULL) t;	
-$$;
+CREATE FUNCTION public."fnJob_SelectAll"(_filtertext text, _sortcolumn text, _sortorder text, _perpage integer, _page integer) RETURNS SETOF json
+    LANGUAGE plpgsql
+    AS $_$ 
+declare 
+	sort_expression VARCHAR(256) := null;
+begin 	
+	sort_expression :=	
+	case regexp_replace(_sortcolumn, '[^\w]+','')
+		when 'name' then 'j.job::json->>''name'''
+		when 'description' then 'j.job::json->>''description'''
+		when 'enabled' then 'j.job::json->>''enabled'''
+		else 'j.id'
+	end;
+	
+	RETURN QUERY EXECUTE '         
+    select
+		array_to_json(array_agg(row_to_json(t)))
+	from
+		(
+		select
+			*
+		from
+			"tblJob" j
+		where
+			nullif("isDeleted", false) is null
+			and (
+				j.job::json->>''name'' like ''%' || regexp_replace($1, '[^\w]+','') || '%''
+				or j.job::json->>''description'' like ''%' || regexp_replace($1, '[^\w]+','') || '%''
+			)
+		order by ' || sort_expression || ' ' || regexp_replace($3, '[^\w]+','') ||
+		' limit ' || $4 || ' offset ' || ($5-1)*$4 || ') t;'
+	USING _filtertext, _sortcolumn, _sortorder, _perpage, _page;	
+end;
+
+$_$;
 
 
 --
--- TOC entry 221 (class 1255 OID 16398)
+-- TOC entry 219 (class 1255 OID 16398)
 -- Name: fnJob_ToRun(integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -249,7 +279,7 @@ $$;
 
 
 --
--- TOC entry 222 (class 1255 OID 16399)
+-- TOC entry 220 (class 1255 OID 16399)
 -- Name: fnJob_Update(integer, json, timestamp without time zone, text); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -272,7 +302,7 @@ $$;
 
 
 --
--- TOC entry 235 (class 1255 OID 16400)
+-- TOC entry 233 (class 1255 OID 16400)
 -- Name: fnJob_UpdateNextRun(integer, timestamp without time zone, text); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -294,7 +324,7 @@ $$;
 
 
 --
--- TOC entry 236 (class 1255 OID 16401)
+-- TOC entry 234 (class 1255 OID 16401)
 -- Name: fnJob_UpdateStatus(integer, integer, text); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -316,7 +346,7 @@ $$;
 
 
 --
--- TOC entry 237 (class 1255 OID 16402)
+-- TOC entry 235 (class 1255 OID 16402)
 -- Name: fnLog_Insert(integer, text, text); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -326,7 +356,7 @@ CREATE FUNCTION public."fnLog_Insert"(type integer, message text, createdby text
 
 
 --
--- TOC entry 238 (class 1255 OID 16403)
+-- TOC entry 236 (class 1255 OID 16403)
 -- Name: fnRunHistory_Insert(text, uuid, text); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -1097,6 +1127,14 @@ COPY public."tblConnection" (id, connection, "modifiedOn", "modifiedBy", "create
 458	{"name":"test_connection","host":"test","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-09-25 19:41:27.390141	testRobot	2019-09-25 19:41:27.364582	testRobot	t
 459	{"name":"test_connection","host":"127.0.0.1","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-09-26 20:25:43.753415	testRobot	2019-09-26 20:25:43.753415	testRobot	\N
 460	{"name":"test_connection","host":"test","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-09-26 20:25:43.807362	testRobot	2019-09-26 20:25:43.77699	testRobot	t
+461	{"name":"test_connection","host":"127.0.0.1","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-11-25 17:48:51.701543	testRobot	2019-11-25 17:48:51.701543	testRobot	\N
+462	{"name":"test_connection","host":"test","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-11-25 17:48:51.755821	testRobot	2019-11-25 17:48:51.730078	testRobot	t
+463	{"name":"test_connection","host":"127.0.0.1","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-11-25 17:59:26.826769	testRobot	2019-11-25 17:59:26.826769	testRobot	\N
+464	{"name":"test_connection","host":"test","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-11-25 17:59:26.879911	testRobot	2019-11-25 17:59:26.854063	testRobot	t
+465	{"name":"test_connection","host":"127.0.0.1","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-11-25 18:03:59.819564	testRobot	2019-11-25 18:03:59.819564	testRobot	\N
+466	{"name":"test_connection","host":"test","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-11-25 18:03:59.870538	testRobot	2019-11-25 18:03:59.844374	testRobot	t
+467	{"name":"test_connection","host":"127.0.0.1","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-11-25 18:05:05.015826	testRobot	2019-11-25 18:05:05.015826	testRobot	\N
+468	{"name":"test_connection","host":"test","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-11-25 18:05:05.061749	testRobot	2019-11-25 18:05:05.037976	testRobot	t
 \.
 
 
@@ -1107,11 +1145,8 @@ COPY public."tblConnection" (id, connection, "modifiedOn", "modifiedBy", "create
 --
 
 COPY public."tblJob" (id, job, "modifiedOn", "modifiedBy", "createdOn", "createdBy", "isDeleted", "statusId", "nextRun") FROM stdin;
-315	{"name":"test job","description":"test job description","enabled":true,"steps":[{"name":"step1","enabled":true,"connection":1,"database":"database","command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"database":"database","command":"select \\"fnLog_Insert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:12:11"}}]}	2019-05-30 19:57:04.969003	uat	2019-05-30 19:40:32.869116	test	\N	1	2019-05-31 11:12:11
-316	{"name":"job","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}]}	2019-05-31 19:47:13.997415	test	2019-05-31 19:47:13.997415	test	\N	1	2019-06-03 11:11:11
 317	{"name":"test","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}]}	2019-05-31 19:47:14.088451	test	2019-05-31 19:47:14.047296	test	t	1	2019-06-03 11:11:11
 287	{"name":"job","description":"job description","enabled":true,"steps":[],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:12:11"}}]}	2019-05-29 20:14:20.102342	system	2019-05-26 12:55:20.042693	test	\N	1	2019-05-31 11:12:11
-318	{"name":"job","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}]}	2019-05-31 19:49:08.955514	test	2019-05-31 19:49:08.955514	test	\N	1	2019-06-03 11:11:11
 319	{"name":"test","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}]}	2019-05-31 19:49:09.038855	test	2019-05-31 19:49:08.995673	test	t	1	2019-06-03 11:11:11
 320	{"name":"job","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}]}	2019-05-31 19:49:29.711821	test	2019-05-31 19:49:29.711821	test	\N	1	2019-06-03 11:11:11
 321	{"name":"test","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}]}	2019-05-31 19:49:29.795108	test	2019-05-31 19:49:29.752032	test	t	1	2019-06-03 11:11:11
@@ -1220,12 +1255,12 @@ COPY public."tblJob" (id, job, "modifiedOn", "modifiedBy", "createdOn", "created
 424	{"name":"job","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}]}	2019-07-03 20:32:19.29786	test	2019-07-03 20:32:19.29786	test	\N	1	2019-07-05 11:11:11
 431	{"name":"job","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}]}	2019-07-03 20:37:40.098236	test	2019-07-03 20:37:40.098236	test	t	1	2019-07-05 11:11:11
 425	{"name":"job","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}]}	2019-07-03 20:32:19.333104	test	2019-07-03 20:32:19.333104	test	t	1	2019-07-05 11:11:11
-426	{"name":"test","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}]}	2019-09-26 20:25:43.644743	testBot	2019-07-03 20:32:19.356644	test	\N	1	2019-09-27 11:11:11
 427	{"name":"job","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}]}	2019-07-03 20:32:48.27597	test	2019-07-03 20:32:48.27597	test	\N	1	2019-07-05 11:11:11
 429	{"name":"test","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}]}	2019-07-03 20:32:48.368947	test	2019-07-03 20:32:48.332837	test	\N	1	2019-07-05 11:11:11
 428	{"name":"job","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}]}	2019-07-03 20:32:48.308511	test	2019-07-03 20:32:48.308511	test	t	1	2019-07-05 11:11:11
 430	{"name":"job","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}]}	2019-07-03 20:37:40.056847	test	2019-07-03 20:37:40.056847	test	\N	1	2019-07-05 11:11:11
 432	{"name":"test","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}]}	2019-07-03 20:37:40.167608	test	2019-07-03 20:37:40.124852	test	\N	1	2019-07-05 11:11:11
+426	{"name":"test","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}]}	2019-11-25 18:05:04.950795	testBot	2019-07-03 20:32:19.356644	test	\N	1	2019-11-27 11:11:11
 433	{"name":"job","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}]}	2019-07-03 21:03:42.602582	test	2019-07-03 21:03:42.602582	test	\N	1	2019-07-05 11:11:11
 435	{"name":"test","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}]}	2019-07-03 21:03:42.700105	test	2019-07-03 21:03:42.665452	test	\N	1	2019-07-05 11:11:11
 434	{"name":"job","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}]}	2019-07-03 21:03:42.637826	test	2019-07-03 21:03:42.637826	test	t	1	2019-07-05 11:11:11
@@ -1370,11 +1405,22 @@ COPY public."tblJob" (id, job, "modifiedOn", "modifiedBy", "createdOn", "created
 598	{"name":"job","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}],"nextRun":"2019-09-27T11:11:11.000Z"}	2019-09-25 19:41:27.427035	testRobot	2019-09-25 19:41:27.427035	testRobot	\N	1	2019-09-27 11:11:11
 605	{"name":"job","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}]}	2019-09-26 20:25:43.866008	Fri, 27 Sep 2019 11:11:11 GMT	2019-09-26 20:25:43.84093	testRobot	\N	1	2019-09-27 11:11:11
 606	{"name":"test","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}],"nextRun":"2019-09-27T11:11:11.000Z"}	2019-09-26 20:25:43.979726	testRobot	2019-09-26 20:25:43.901926	testRobot	t	1	2019-09-27 11:11:11
+613	{"name":"job","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}]}	2019-11-25 18:05:05.124385	Wed, 27 Nov 2019 11:11:11 GMT	2019-11-25 18:05:05.095793	testRobot	\N	1	2019-11-27 11:11:11
 602	{"name":"test job","description":"test job description","enabled":true,"steps":[{"name":"step1","enabled":true,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}],"nextRun":"2019-09-26T20:10:00.000Z"}	2019-09-26 20:10:01.060139	system	2019-09-26 20:09:49.936981	dummy	\N	1	2019-09-26 20:15:00
 601	{"name":"test job","description":"test job description","enabled":true,"steps":[{"name":"step1","enabled":true,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}],"nextRun":"2019-09-26T20:00:00.000Z"}	2019-09-26 20:10:00.988589	system	2019-09-26 19:58:19.097831	dummy	\N	1	2019-09-26 20:15:00
+614	{"name":"test","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}],"nextRun":"2019-11-27T11:11:11.000Z"}	2019-11-25 18:05:05.233919	testRobot	2019-11-25 18:05:05.158411	testRobot	t	1	2019-11-27 11:11:11
 603	{"name":"test job","description":"test job description","enabled":true,"steps":[{"name":"step1","enabled":true,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}]}	2019-09-26 20:21:41.339221	dummy	2019-09-26 20:21:41.339221	dummy	\N	1	\N
 600	{\n  "name": "test job",\n  "description": "test job description",\n  "enabled": true,\n  "steps": [\n    {\n      "name": "step1",\n      "enabled": true,\n      "connection": 203,\n      "command": "select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')",\n      "retryAttempts": {\n        "number": 1,\n        "interval": 5\n      },\n      "onSucceed": "gotoNextStep",\n      "onFailure": "quitWithFailure"\n    },\n    {\n      "name": "step2",\n      "enabled": true,\n      "connection": 203,\n      "command": "select \\"fnLog_Insert\\"(1, 'Tomatoes!', 'test')",\n      "retryAttempts": {\n        "number": 1,\n        "interval": 5\n      },\n      "onSucceed": "gotoNextStep",\n      "onFailure": {\n        "gotoStep": 1\n      }\n    }\n  ],\n  "schedules": [\n    {\n      "enabled": true,\n      "startDateTime": "2018-01-31T20:55:23.071Z",\n      "eachNWeek": 1,\n      "dayOfWeek": [\n        "mon",\n        "tue",\n        "wed",\n        "thu",\n        "fri"\n      ],\n      "dailyFrequency": {\n        "start": "06:00:00",\n        "occursEvery": {\n          "intervalValue": 5,\n          "intervalType": "minute"\n        }\n      }\n    }\n  ]\n}	2019-10-08 18:57:27.824721	debug	2019-09-25 19:54:09.264355	dummy	\N	1	2019-10-08 19:00:00
+607	{"name":"job","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}]}	2019-11-25 17:48:51.823654	Wed, 27 Nov 2019 11:11:11 GMT	2019-11-25 17:48:51.788953	testRobot	\N	1	2019-11-27 11:11:11
+608	{"name":"test","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}],"nextRun":"2019-11-27T11:11:11.000Z"}	2019-11-25 17:48:51.931829	testRobot	2019-11-25 17:48:51.858144	testRobot	t	1	2019-11-27 11:11:11
 604	{"name":"test job","description":"test job description","enabled":true,"steps":[{"name":"step1","enabled":true,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}]}	2019-09-26 20:25:00.980083	system	2019-09-26 20:23:46.676145	dummy	\N	1	2019-09-26 20:30:00
+611	{"name":"job","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}]}	2019-11-25 18:03:59.933394	Wed, 27 Nov 2019 11:11:11 GMT	2019-11-25 18:03:59.904094	testRobot	\N	1	2019-11-27 11:11:11
+609	{"name":"job","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}]}	2019-11-25 17:59:26.95346	Wed, 27 Nov 2019 11:11:11 GMT	2019-11-25 17:59:26.915518	testRobot	\N	1	2019-11-27 11:11:11
+610	{"name":"test","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}],"nextRun":"2019-11-27T11:11:11.000Z"}	2019-11-25 17:59:27.075152	testRobot	2019-11-25 17:59:26.988095	testRobot	t	1	2019-11-27 11:11:11
+612	{"name":"test","enabled":true,"description":"job description","steps":[{"name":"step1","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"connection":1,"command":"command","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":{"gotoStep":1}}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:54:23.071Z","eachNWeek":1,"dayOfWeek":["mon","wed","fri"],"dailyFrequency":{"occursOnceAt":"11:11:11"}}],"nextRun":"2019-11-27T11:11:11.000Z"}	2019-11-25 18:04:00.047059	testRobot	2019-11-25 18:03:59.967154	testRobot	t	1	2019-11-27 11:11:11
+318	{\n  "name": "afucking_job",\n  "enabled": true,\n  "description": "xjob description",\n  "steps": [\n    {\n      "name": "step1",\n      "enabled": true,\n      "connection": 1,\n      "command": "command",\n      "retryAttempts": {\n        "number": 1,\n        "interval": 5\n      },\n      "onSucceed": "gotoNextStep",\n      "onFailure": "quitWithFailure"\n    },\n    {\n      "name": "step2",\n      "enabled": true,\n      "connection": 1,\n      "command": "command",\n      "retryAttempts": {\n        "number": 1,\n        "interval": 5\n      },\n      "onSucceed": "gotoNextStep",\n      "onFailure": {\n        "gotoStep": 1\n      }\n    }\n  ],\n  "schedules": [\n    {\n      "enabled": true,\n      "startDateTime": "2018-01-31T20:54:23.071Z",\n      "eachNWeek": 1,\n      "dayOfWeek": [\n        "mon",\n        "wed",\n        "fri"\n      ],\n      "dailyFrequency": {\n        "occursOnceAt": "11:11:11"\n      }\n    }\n  ]\n}	2019-05-31 19:49:08.955514	test	2019-05-31 19:49:08.955514	test	\N	1	2019-06-03 11:11:11
+316	{\n  "name": "bfucking_job",\n  "enabled": true,\n  "description": "yjob description",\n  "steps": [\n    {\n      "name": "step1",\n      "enabled": true,\n      "connection": 1,\n      "command": "command",\n      "retryAttempts": {\n        "number": 1,\n        "interval": 5\n      },\n      "onSucceed": "gotoNextStep",\n      "onFailure": "quitWithFailure"\n    },\n    {\n      "name": "step2",\n      "enabled": true,\n      "connection": 1,\n      "command": "command",\n      "retryAttempts": {\n        "number": 1,\n        "interval": 5\n      },\n      "onSucceed": "gotoNextStep",\n      "onFailure": {\n        "gotoStep": 1\n      }\n    }\n  ],\n  "schedules": [\n    {\n      "enabled": true,\n      "startDateTime": "2018-01-31T20:54:23.071Z",\n      "eachNWeek": 1,\n      "dayOfWeek": [\n        "mon",\n        "wed",\n        "fri"\n      ],\n      "dailyFrequency": {\n        "occursOnceAt": "11:11:11"\n      }\n    }\n  ]\n}	2019-05-29 19:47:13	test	2019-05-31 19:47:13.997415	test	\N	1	2019-06-03 11:11:11
+315	{\n  "name": "cfucking_job",\n  "description": "ztest job description",\n  "enabled": true,\n  "steps": [\n    {\n      "name": "step1",\n      "enabled": true,\n      "connection": 1,\n      "database": "database",\n      "command": "select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')",\n      "retryAttempts": {\n        "number": 1,\n        "interval": 5\n      },\n      "onSucceed": "gotoNextStep",\n      "onFailure": "quitWithFailure"\n    },\n    {\n      "name": "step2",\n      "enabled": true,\n      "connection": 1,\n      "database": "database",\n      "command": "select \\"fnLog_Insert\\"(1, 'Tomatoes!', 'test')",\n      "retryAttempts": {\n        "number": 1,\n        "interval": 5\n      },\n      "onSucceed": "gotoNextStep",\n      "onFailure": {\n        "gotoStep": 1\n      }\n    }\n  ],\n  "schedules": [\n    {\n      "enabled": true,\n      "startDateTime": "2018-01-31T20:55:23.071Z",\n      "eachNWeek": 1,\n      "dayOfWeek": [\n        "mon",\n        "wed",\n        "fri"\n      ],\n      "dailyFrequency": {\n        "occursOnceAt": "11:12:11"\n      }\n    }\n  ]\n}	2019-05-30 19:57:04.969003	uat	2019-05-30 19:40:32.869116	test	\N	1	2019-05-31 11:12:11
 \.
 
 
@@ -1403,6 +1449,54 @@ COPY public."tblJobHistory" (id, message, "createdOn", "createdBy", "jobId", ses
 11847	{"message":"Executing step 'step2'","level":2}	2019-10-08 18:45:33.686607	system	600	d6464593-75d5-4235-ae94-9b25a2f673c7
 11848	{"message":"Step 'step2' successfully executed","rowsAffected":1,"level":2}	2019-10-08 18:45:33.698242	system	600	d6464593-75d5-4235-ae94-9b25a2f673c7
 11849	{"message":"Execution finished","level":2}	2019-10-08 18:45:33.700799	system	600	d6464593-75d5-4235-ae94-9b25a2f673c7
+11850	{"message":"Execution started","level":2}	2019-11-25 17:48:51.431486	testBot	426	\N
+11851	{"message":"Execution started","level":2}	2019-11-25 17:48:51.444583	testBot	426	\N
+11852	{"message":"Executing step 'step1'","level":2}	2019-11-25 17:48:51.463092	testBot	426	\N
+11853	{"message":"Executing step 'step1'","level":2}	2019-11-25 17:48:51.463486	testBot	426	\N
+11854	{"message":"Failed to execute step 'step1'","error":"connect ECONNREFUSED 127.0.0.1:8080","level":0}	2019-11-25 17:48:51.477295	testBot	426	\N
+11855	{"message":"Failed to execute step 'step1'","error":"connect ECONNREFUSED 127.0.0.1:8080","level":0}	2019-11-25 17:48:51.478587	testBot	426	\N
+11856	{"message":"Executing step 'step2'","level":2}	2019-11-25 17:48:51.480673	testBot	426	\N
+11857	{"message":"Executing step 'step2'","level":2}	2019-11-25 17:48:51.481244	testBot	426	\N
+11858	{"message":"Failed to execute step 'step2'","error":"connect ECONNREFUSED 127.0.0.1:8080","level":0}	2019-11-25 17:48:51.496412	testBot	426	\N
+11859	{"message":"Failed to execute step 'step2'","error":"connect ECONNREFUSED 127.0.0.1:8080","level":0}	2019-11-25 17:48:51.496672	testBot	426	\N
+11860	{"message":"Execution finished","level":2}	2019-11-25 17:48:51.515652	testBot	426	\N
+11861	{"message":"Execution finished","level":2}	2019-11-25 17:48:51.515862	testBot	426	\N
+11862	{"message":"Execution started","level":2}	2019-11-25 17:59:26.574369	testBot	426	\N
+11863	{"message":"Execution started","level":2}	2019-11-25 17:59:26.588163	testBot	426	\N
+11864	{"message":"Executing step 'step1'","level":2}	2019-11-25 17:59:26.598843	testBot	426	\N
+11865	{"message":"Executing step 'step1'","level":2}	2019-11-25 17:59:26.607451	testBot	426	\N
+11866	{"message":"Failed to execute step 'step1'","error":"connect ECONNREFUSED 127.0.0.1:8080","level":0}	2019-11-25 17:59:26.616461	testBot	426	\N
+11867	{"message":"Failed to execute step 'step1'","error":"connect ECONNREFUSED 127.0.0.1:8080","level":0}	2019-11-25 17:59:26.617415	testBot	426	\N
+11868	{"message":"Executing step 'step2'","level":2}	2019-11-25 17:59:26.618453	testBot	426	\N
+11869	{"message":"Executing step 'step2'","level":2}	2019-11-25 17:59:26.619619	testBot	426	\N
+11870	{"message":"Failed to execute step 'step2'","error":"connect ECONNREFUSED 127.0.0.1:8080","level":0}	2019-11-25 17:59:26.623016	testBot	426	\N
+11871	{"message":"Failed to execute step 'step2'","error":"connect ECONNREFUSED 127.0.0.1:8080","level":0}	2019-11-25 17:59:26.624061	testBot	426	\N
+11872	{"message":"Execution finished","level":2}	2019-11-25 17:59:26.62528	testBot	426	\N
+11873	{"message":"Execution finished","level":2}	2019-11-25 17:59:26.627763	testBot	426	\N
+11874	{"message":"Execution started","level":2}	2019-11-25 18:03:59.569287	testBot	426	\N
+11875	{"message":"Execution started","level":2}	2019-11-25 18:03:59.582144	testBot	426	\N
+11876	{"message":"Executing step 'step1'","level":2}	2019-11-25 18:03:59.592933	testBot	426	\N
+11877	{"message":"Executing step 'step1'","level":2}	2019-11-25 18:03:59.601963	testBot	426	\N
+11878	{"message":"Failed to execute step 'step1'","error":"connect ECONNREFUSED 127.0.0.1:8080","level":0}	2019-11-25 18:03:59.603932	testBot	426	\N
+11879	{"message":"Failed to execute step 'step1'","error":"connect ECONNREFUSED 127.0.0.1:8080","level":0}	2019-11-25 18:03:59.606171	testBot	426	\N
+11880	{"message":"Executing step 'step2'","level":2}	2019-11-25 18:03:59.606443	testBot	426	\N
+11881	{"message":"Executing step 'step2'","level":2}	2019-11-25 18:03:59.608455	testBot	426	\N
+11882	{"message":"Failed to execute step 'step2'","error":"connect ECONNREFUSED 127.0.0.1:8080","level":0}	2019-11-25 18:03:59.610753	testBot	426	\N
+11883	{"message":"Execution finished","level":2}	2019-11-25 18:03:59.612934	testBot	426	\N
+11884	{"message":"Failed to execute step 'step2'","error":"connect ECONNREFUSED 127.0.0.1:8080","level":0}	2019-11-25 18:03:59.613168	testBot	426	\N
+11885	{"message":"Execution finished","level":2}	2019-11-25 18:03:59.616396	testBot	426	\N
+11886	{"message":"Execution started","level":2}	2019-11-25 18:05:04.770165	testBot	426	\N
+11887	{"message":"Execution started","level":2}	2019-11-25 18:05:04.782739	testBot	426	\N
+11888	{"message":"Executing step 'step1'","level":2}	2019-11-25 18:05:04.794323	testBot	426	\N
+11889	{"message":"Executing step 'step1'","level":2}	2019-11-25 18:05:04.801175	testBot	426	\N
+11890	{"message":"Failed to execute step 'step1'","error":"connect ECONNREFUSED 127.0.0.1:8080","level":0}	2019-11-25 18:05:04.806412	testBot	426	\N
+11891	{"message":"Failed to execute step 'step1'","error":"connect ECONNREFUSED 127.0.0.1:8080","level":0}	2019-11-25 18:05:04.80768	testBot	426	\N
+11892	{"message":"Executing step 'step2'","level":2}	2019-11-25 18:05:04.808721	testBot	426	\N
+11893	{"message":"Executing step 'step2'","level":2}	2019-11-25 18:05:04.809722	testBot	426	\N
+11894	{"message":"Failed to execute step 'step2'","error":"connect ECONNREFUSED 127.0.0.1:8080","level":0}	2019-11-25 18:05:04.81296	testBot	426	\N
+11895	{"message":"Failed to execute step 'step2'","error":"connect ECONNREFUSED 127.0.0.1:8080","level":0}	2019-11-25 18:05:04.814051	testBot	426	\N
+11896	{"message":"Execution finished","level":2}	2019-11-25 18:05:04.836164	testBot	426	\N
+11897	{"message":"Execution finished","level":2}	2019-11-25 18:05:04.836492	testBot	426	\N
 \.
 
 
@@ -1419,6 +1513,20 @@ COPY public."tblLog" (id, type, message, "createdOn", "createdBy") FROM stdin;
 3912	1	Tomatoes!	2019-10-08 18:40:00.608181	test
 3913	1	Potatoes!	2019-10-08 18:45:33.680966	test
 3914	1	Tomatoes!	2019-10-08 18:45:33.6952	test
+3915	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:31:45)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-11-25 17:48:51.468346	\N
+3916	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:35:45)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-11-25 17:48:51.479537	1
+3917	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:31:45)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-11-25 17:59:26.609892	\N
+3918	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:35:45)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-11-25 17:59:26.618009	1
+3919	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:31:45)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-11-25 18:03:59.604756	\N
+3920	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:35:45)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-11-25 18:03:59.609331	1
+3921	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:31:45)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-11-25 18:05:04.805679	\N
+3922	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:35:45)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-11-25 18:05:04.811602	1
+3923	1	{"type":"Error","message":"function public.fnJob_SelectAll(unknown, unknown, unknown, unknown) does not exist","name":"error","stack":"error: function public.fnJob_SelectAll(unknown, unknown, unknown, unknown) does not exist\\n    at Connection.parseE (/home/major/_code/peon/node_modules/pg/lib/connection.js:602:11)\\n    at Connection.parseMessage (/home/major/_code/peon/node_modules/pg/lib/connection.js:399:19)\\n    at Socket.<anonymous> (/home/major/_code/peon/node_modules/pg/lib/connection.js:121:22)\\n    at emitOne (events.js:116:13)\\n    at Socket.emit (events.js:211:7)\\n    at addChunk (_stream_readable.js:263:12)\\n    at readableAddChunk (_stream_readable.js:250:11)\\n    at Socket.Readable.push (_stream_readable.js:208:10)\\n    at TCP.onread (net.js:607:20)","code":"42883","length":250,"severity":"ERROR","hint":"No function matches the given name and argument types. You might need to add explicit type casts.","position":"8","file":"parse_func.c","line":"621","routine":"ParseFuncOrColumn"}	2019-11-27 18:25:31.299776	dummy
+3924	1	{"type":"Error","message":"query string argument of EXECUTE is null","name":"error","stack":"error: query string argument of EXECUTE is null\\n    at Connection.parseE (/home/major/_code/peon/node_modules/pg/lib/connection.js:602:11)\\n    at Connection.parseMessage (/home/major/_code/peon/node_modules/pg/lib/connection.js:399:19)\\n    at Socket.<anonymous> (/home/major/_code/peon/node_modules/pg/lib/connection.js:121:22)\\n    at emitOne (events.js:116:13)\\n    at Socket.emit (events.js:211:7)\\n    at addChunk (_stream_readable.js:263:12)\\n    at readableAddChunk (_stream_readable.js:250:11)\\n    at Socket.Readable.push (_stream_readable.js:208:10)\\n    at TCP.onread (net.js:607:20)","code":"22004","length":205,"severity":"ERROR","where":"PL/pgSQL function \\"fnJob_SelectAll\\"(text,text,text,integer,integer) line 13 at RETURN QUERY","file":"pl_exec.c","line":"8297","routine":"exec_dynquery_with_params"}	2019-11-27 18:38:41.279151	dummy
+3925	1	{"type":"Error","message":"query string argument of EXECUTE is null","name":"error","stack":"error: query string argument of EXECUTE is null\\n    at Connection.parseE (/home/major/_code/peon/node_modules/pg/lib/connection.js:602:11)\\n    at Connection.parseMessage (/home/major/_code/peon/node_modules/pg/lib/connection.js:399:19)\\n    at Socket.<anonymous> (/home/major/_code/peon/node_modules/pg/lib/connection.js:121:22)\\n    at emitOne (events.js:116:13)\\n    at Socket.emit (events.js:211:7)\\n    at addChunk (_stream_readable.js:263:12)\\n    at readableAddChunk (_stream_readable.js:250:11)\\n    at Socket.Readable.push (_stream_readable.js:208:10)\\n    at TCP.onread (net.js:607:20)","code":"22004","length":205,"severity":"ERROR","where":"PL/pgSQL function \\"fnJob_SelectAll\\"(text,text,text,integer,integer) line 13 at RETURN QUERY","file":"pl_exec.c","line":"8297","routine":"exec_dynquery_with_params"}	2019-11-27 18:41:01.418773	dummy
+3926	1	{"type":"Error","message":"query string argument of EXECUTE is null","name":"error","stack":"error: query string argument of EXECUTE is null\\n    at Connection.parseE (/home/major/_code/peon/node_modules/pg/lib/connection.js:602:11)\\n    at Connection.parseMessage (/home/major/_code/peon/node_modules/pg/lib/connection.js:399:19)\\n    at Socket.<anonymous> (/home/major/_code/peon/node_modules/pg/lib/connection.js:121:22)\\n    at emitOne (events.js:116:13)\\n    at Socket.emit (events.js:211:7)\\n    at addChunk (_stream_readable.js:263:12)\\n    at readableAddChunk (_stream_readable.js:250:11)\\n    at Socket.Readable.push (_stream_readable.js:208:10)\\n    at TCP.onread (net.js:607:20)","code":"22004","length":205,"severity":"ERROR","where":"PL/pgSQL function \\"fnJob_SelectAll\\"(text,text,text,integer,integer) line 13 at RETURN QUERY","file":"pl_exec.c","line":"8297","routine":"exec_dynquery_with_params"}	2019-11-27 18:43:37.794193	dummy
+3927	1	{"type":"TypeError","message":"Cannot read property 'split' of undefined","name":"TypeError","stack":"TypeError: Cannot read property 'split' of undefined\\n    at app.get (/home/major/_code/peon/app/routes/job_routes.js:33:33)\\n    at Layer.handle [as handle_request] (/home/major/_code/peon/node_modules/express/lib/router/layer.js:95:5)\\n    at next (/home/major/_code/peon/node_modules/express/lib/router/route.js:137:13)\\n    at Route.dispatch (/home/major/_code/peon/node_modules/express/lib/router/route.js:112:3)\\n    at Layer.handle [as handle_request] (/home/major/_code/peon/node_modules/express/lib/router/layer.js:95:5)\\n    at /home/major/_code/peon/node_modules/express/lib/router/index.js:281:22\\n    at Function.process_params (/home/major/_code/peon/node_modules/express/lib/router/index.js:335:12)\\n    at next (/home/major/_code/peon/node_modules/express/lib/router/index.js:275:10)\\n    at /home/major/_code/peon/app/tools/util.js:145:7\\n    at Layer.handle [as handle_request] (/home/major/_code/peon/node_modules/express/lib/router/layer.js:95:5)"}	2019-11-27 18:44:11.801389	dummy
+3928	1	{"type":"Error","message":"query string argument of EXECUTE is null","name":"error","stack":"error: query string argument of EXECUTE is null\\n    at Connection.parseE (/home/major/_code/peon/node_modules/pg/lib/connection.js:602:11)\\n    at Connection.parseMessage (/home/major/_code/peon/node_modules/pg/lib/connection.js:399:19)\\n    at Socket.<anonymous> (/home/major/_code/peon/node_modules/pg/lib/connection.js:121:22)\\n    at emitOne (events.js:116:13)\\n    at Socket.emit (events.js:211:7)\\n    at addChunk (_stream_readable.js:263:12)\\n    at readableAddChunk (_stream_readable.js:250:11)\\n    at Socket.Readable.push (_stream_readable.js:208:10)\\n    at TCP.onread (net.js:607:20)","code":"22004","length":205,"severity":"ERROR","where":"PL/pgSQL function \\"fnJob_SelectAll\\"(text,text,text,integer,integer) line 13 at RETURN QUERY","file":"pl_exec.c","line":"8297","routine":"exec_dynquery_with_params"}	2019-11-27 19:09:39.913679	dummy
 \.
 
 
@@ -1450,7 +1558,7 @@ SELECT pg_catalog.setval('public."refJobStatus_id_seq"', 4, true);
 -- Name: tblConnection_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public."tblConnection_id_seq"', 460, true);
+SELECT pg_catalog.setval('public."tblConnection_id_seq"', 468, true);
 
 
 --
@@ -1459,7 +1567,7 @@ SELECT pg_catalog.setval('public."tblConnection_id_seq"', 460, true);
 -- Name: tblJobHistory_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public."tblJobHistory_id_seq"', 11849, true);
+SELECT pg_catalog.setval('public."tblJobHistory_id_seq"', 11897, true);
 
 
 --
@@ -1468,7 +1576,7 @@ SELECT pg_catalog.setval('public."tblJobHistory_id_seq"', 11849, true);
 -- Name: tblJob_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public."tblJob_Id_seq"', 606, true);
+SELECT pg_catalog.setval('public."tblJob_Id_seq"', 614, true);
 
 
 --
@@ -1477,7 +1585,7 @@ SELECT pg_catalog.setval('public."tblJob_Id_seq"', 606, true);
 -- Name: tblLog_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public."tblLog_Id_seq"', 3914, true);
+SELECT pg_catalog.setval('public."tblLog_Id_seq"', 3928, true);
 
 
 --
@@ -1561,7 +1669,7 @@ ALTER TABLE ONLY public."tblJobHistory"
     ADD CONSTRAINT tbljobhistory_fk FOREIGN KEY ("jobId") REFERENCES public."tblJob"(id) ON UPDATE RESTRICT ON DELETE RESTRICT;
 
 
--- Completed on 2019-10-08 22:09:00 MSK
+-- Completed on 2019-11-28 01:06:20 MSK
 
 --
 -- PostgreSQL database dump complete

@@ -16,37 +16,37 @@ var toJSON = require( 'utils-error-to-json' );
  */
 /* istanbul ignore next */
 module.exports.handleServerException = function(e, createdBy, dbclient, res) {    
-    /* istanbul ignore next */
-    if(process.env.NODE_ENV !== "PROD") {
-        logDispatcher.error(e.stack);
-        res.status(500).send(toJSON(e));
-    }    
-    else {
-        let pr = new Promise((resolve, reject) => {
-            try {
-                const query = {
-                    "text": 'SELECT public."fnLog_Insert"($1, $2, $3) as logId',
-                    "values": [1, toJSON(e), createdBy]
-                  };                  
+  /* istanbul ignore next */
+  if(process.env.NODE_ENV !== "PROD") {
+    logDispatcher.error(e.stack);
+    res.status(500).send(toJSON(e));
+  }    
+  else {
+    let pr = new Promise((resolve, reject) => {
+      try {
+        const query = {
+          "text": 'SELECT public."fnLog_Insert"($1, $2, $3) as logId',
+          "values": [1, toJSON(e), createdBy]
+        };                  
 
-                dbclient.query(query, (err, result) => {
-                    if (err)
-                        reject(new Error(err));
-                    else 
-                        resolve(result);
-                });  
-            }
-            catch(e2) {
-                logDispatcher.error(e2);
-            }
+        dbclient.query(query, (err, result) => {
+          if (err)
+            reject(new Error(err));
+          else 
+            resolve(result);
+        });  
+      }
+      catch(e2) {
+        logDispatcher.error(e2);
+      }
                 
-        });
-        pr.then(
-            response => res.status(500).send({error: messageBox.common.debugMessage, logId: response.rows[0].logid}),
-            error => logDispatcher.error(error)
-        );    
-    }
-}
+    });
+    pr.then(
+      response => res.status(500).send({error: messageBox.common.debugMessage, logId: response.rows[0].logid}),
+      error => logDispatcher.error(error)
+    );    
+  }
+};
 module.exports.logServerError = function(e, createdBy) {    
   /* istanbul ignore next */
   if(process.env.NODE_ENV !== "PROD") {
@@ -75,7 +75,7 @@ module.exports.logServerError = function(e, createdBy) {
       }   
     });              
   });
-}
+};
 /**
  * Shows user error with proper HTTP response code
  * @param {string} message Error message
@@ -83,8 +83,8 @@ module.exports.logServerError = function(e, createdBy) {
  * @param {Object} res Response handler 
  */
 module.exports.handleUserException = function(message, errorCode, res) {
-    res.status(errorCode).send({error: message});
-}
+  res.status(errorCode).send({error: message});
+};
 //#endregion
 /**
  * Renames all properties in object which are equal to oldName
@@ -93,19 +93,19 @@ module.exports.handleUserException = function(message, errorCode, res) {
  * @param {string} newName New name for property
  */
 module.exports.renameProperty = function (obj, oldName, newName) {
-    /* istanbul ignore else */
-    if (obj.hasOwnProperty(oldName)) {
-        obj[newName] = obj[oldName];
-        delete obj[oldName];
-    } 
-    return obj;
+  /* istanbul ignore else */
+  if (obj.hasOwnProperty(oldName)) {
+    obj[newName] = obj[oldName];
+    delete obj[oldName];
+  } 
+  return obj;
 };
 /**
  * Return `date-time` in a proper format
  * @returns {Object} `date-time`
  */
 function getDateTime() { 
-    return new Date();
+  return new Date();
 }
 module.exports.getDateTime = getDateTime;
 
@@ -115,11 +115,11 @@ module.exports.getDateTime = getDateTime;
  * @returns {Object} `date-time`
  */
 function parseDateTime(stringDateTime) {
-    let preDate = Date.parse(stringDateTime);
-    if(!isNaN(preDate)) 
-        return new Date(preDate);            
-    else
-        return null;
+  let preDate = Date.parse(stringDateTime);
+  if(!isNaN(preDate)) 
+    return new Date(preDate);            
+  else
+    return null;
 }
 module.exports.parseDateTime = parseDateTime;
 
@@ -129,8 +129,8 @@ module.exports.parseDateTime = parseDateTime;
  * @returns {Object} `date-time`
  */
 function getMinDateTime(dateTimeList) { 
-    let castedDateTimeList = dateTimeList.map(parseDateTime).filter(val => val != null);    
-    return new Date(Math.min(...castedDateTimeList));
+  let castedDateTimeList = dateTimeList.map(parseDateTime).filter(val => val != null);    
+  return new Date(Math.min(...castedDateTimeList));
 }
 module.exports.getMinDateTime = getMinDateTime;
 /**
@@ -138,13 +138,13 @@ module.exports.getMinDateTime = getMinDateTime;
  * @returns {Object}
  */
 function expressInstance() {
-    const app = express();
-    app.use(bodyParser.json());
-    app.use(function (req, res, next) {
-      res.header("Content-Type",'application/json');
-      next();
-    });    
-    return app;
+  const app = express();
+  app.use(bodyParser.json());
+  app.use(function (req, res, next) {
+    res.header("Content-Type",'application/json');
+    next();
+  });    
+  return app;
 }
 module.exports.expressInstance = expressInstance;
 
@@ -154,7 +154,48 @@ module.exports.expressInstance = expressInstance;
  * @returns {Object} Object with app and dbclient
  */
 module.exports.expressPostgreInstance = function(router) {
-    let app = expressInstance();
-    router(app, dbclient);
-    return {"app": app, "dbclient": dbclient};   
+  let app = expressInstance();
+  router(app, dbclient);
+  return {"app": app, "dbclient": dbclient};   
+};
+
+/**
+ * Checks if `value` is a number. Returns `defaultNumber` otherwise.
+ * @param {number} value Number which should be checked
+ * @param {number} defaultNumber Number which will be returned in case if `value` is not a number
+ */
+function isNumber(value, defaultNumber) {
+  let intVal = parseInt(value);
+  if(isNaN(intVal))
+    return defaultNumber;
+  else
+    return intVal;
 }
+module.exports.isNumber = isNumber;
+/**
+ * Generates pagination info object
+ * @param {string} baseUrl URL which will be used for generating `next_page_url` and `next_page_url`
+ * @param {number} perPage Number of records per page
+ * @param {number} page Current page number
+ * @param {number} count Total number of records
+ * @param {string} filter Filter part
+ * @param {string} sort Sorting part
+ */
+function pagination(baseUrl, perPage, page, count, filter, sort) {
+  let result = {};
+  let lastPage = Math.ceil(count / perPage);
+  let nextPage = (page == lastPage) ? null : page + 1;
+  let prevPage = (page == 1) ? null : page - 1;
+  let filterExpression = (filter === undefined) ? '' : `&filter=${filter}`;
+  let sortExpression = (sort === undefined) ? '' : `&sort=${sort}`;
+  result.total = count;
+  result.per_page = perPage;
+  result.current_page = page;
+  result.last_page = lastPage;
+  result.next_page_url = (nextPage === null) ? null : `${baseUrl}/?page=${nextPage}&per_page=${perPage}${filterExpression}${sortExpression}`;
+  result.prev_page_url = (prevPage === null) ? null : `${baseUrl}/?page=${prevPage}&per_page=${perPage}${filterExpression}${sortExpression}`;
+  result.from = perPage*(page-1) + 1;
+  result.to = perPage*page;
+  return result;
+}
+module.exports.pagination = pagination;
