@@ -53,9 +53,10 @@ module.exports = function(app) {
         res.status(404).send();
       else {
         let wrappedResult = JSON.parse(JSON.stringify(restTemplateSelectAll));
-        let jobCount = await jobEngine.getJobCount();
+        let jobCount = await jobEngine.getJobCount(filter);
         wrappedResult.data = result;
-        wrappedResult.pagination = util.pagination('/', perPage, page, jobCount, req.query.filter, req.query.sort);
+        let url = `${req.protocol}://${req.get('host')}${req._parsedUrl.pathname}`;
+        wrappedResult.pagination = util.pagination(url, perPage, page, jobCount, req.query.filter, req.query.sort);
 
         res.status(200).send(wrappedResult);
       }

@@ -195,7 +195,10 @@ function pagination(baseUrl, perPage, page, count, filter, sort) {
   result.next_page_url = (nextPage === null) ? null : `${baseUrl}/?page=${nextPage}&per_page=${perPage}${filterExpression}${sortExpression}`;
   result.prev_page_url = (prevPage === null) ? null : `${baseUrl}/?page=${prevPage}&per_page=${perPage}${filterExpression}${sortExpression}`;
   result.from = perPage*(page-1) + 1;
-  result.to = perPage*page;
+  if(page == lastPage)
+    result.to = count;
+  else
+    result.to = perPage*page;
   return result;
 }
 module.exports.pagination = pagination;

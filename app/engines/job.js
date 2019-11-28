@@ -11,13 +11,15 @@ const stepEngine = require('./step');
 const labels = require('../../config/message_labels')('en');
 
 /**
- * Returns job count
+ * Returns job count accordingly to filtering
+ * @param {string} filter Filter will be applied to `name` and `description` columns
  * @returns {Promise} Promise which resolves with numeber of `job` objects in case of success, `null` if job list is empty and rejects with error in case of failure
  */
-function getJobCount() {
+function getJobCount(filter) {
   return new Promise((resolve, reject) => {
     const query = {
-      "text": 'SELECT public."fnJob_Count"() as count'
+      "text": 'SELECT public."fnJob_Count"($1) as count',
+      "values": [filter]
     };
     dbclient.query(query, (err, result) => {  
       /* istanbul ignore if */
