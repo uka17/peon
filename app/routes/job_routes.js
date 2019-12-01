@@ -1,9 +1,8 @@
 // routes/job_routes.js
 let util = require('../tools/util');
 let jobEngine = require('../engines/job');
-let _ = require('lodash');
 const config = require('../../config/config');
-const restTemplateSelectAll = require('../../config/rest_templates').restTemplateSelectAll;
+const restConfig = require('../../config/rest_config');
 const labels = require('../../config/message_labels')('en');
 let ver = '/v1.0';
 
@@ -11,7 +10,15 @@ module.exports = function(app) {
   app.get(ver + '/jobs/count', async (req, res) => {
     //get jobs count
     try {
-      let result = await jobEngine.getJobCount();
+      let filter;
+
+      if(req.query.filter !== undefined)
+        filter = req.query.filter;
+      else 
+        filter = '';      
+
+      let result = await jobEngine.getJobCount(filter);
+      /* istanbul ignore if */
       if(result == null)
         res.status(404).send();
       else {
@@ -45,14 +52,15 @@ module.exports = function(app) {
       else 
         filter = '';
       
-      perPage = util.isNumber(req.query.per_page);
-      page = util.isNumber(req.query.page);
+      perPage = util.isNumber(req.query.per_page, restConfig.defaultPerPage);
+      page = util.isNumber(req.query.page, 1);
 
       let result = await jobEngine.getJobList(filter, sortingExpression[0], sortingExpression[1], perPage, page);
+      /* istanbul ignore if */
       if(result == null)
         res.status(404).send();
       else {
-        let wrappedResult = JSON.parse(JSON.stringify(restTemplateSelectAll));
+        let wrappedResult = JSON.parse(JSON.stringify(restConfig.templates.selectAll));
         let jobCount = await jobEngine.getJobCount(filter);
         wrappedResult.data = result;
         let url = `${req.protocol}://${req.get('host')}${req._parsedUrl.pathname}`;
@@ -117,13 +125,13 @@ module.exports = function(app) {
     //update job by id
     try {
       const job = req.body;
-      let JobAssesmentResult = jobEngine.calculateNextRun(job);
+      let jobAssesmentResult = jobEngine.calculateNextRun(job);
       
       /* istanbul ignore next */
-      if(!JobAssesmentResult.isValid)
-        res.status(400).send({"requestValidationErrors": JobAssesmentResult.errorList});
+      if(!jobAssesmentResult.isValid)
+        res.status(400).send({"requestValidationErrors": jobAssesmentResult.errorList});
       else {
-        job.nextRun = JobAssesmentResult.nextRun;
+        job.nextRun = jobAssesmentResult.nextRun;
         let result = await jobEngine.updateJob(req.params.id, job, config.user);
         let resObject = {};
         resObject[labels.common.updated] = result;

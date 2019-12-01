@@ -88,7 +88,27 @@ describe('util', function() {
       assert.equal(util.isNumber('test', 1), 1);
       assert.equal(util.isNumber(undefined, 7), 7);
       done();
-    }); 
+    });
+
+    it('4.5 common pagination. 1st page', function(done) {            
+      let pag = util.pagination('pornhub.com', 10, 1, 100, 'filter', 'sort');
+      assert.equal(pag.last_page, 10);
+      assert.equal(pag.next_page_url, 'pornhub.com/?page=2&per_page=10&filter=filter&sort=sort');
+      assert.isNull(pag.prev_page_url);
+      assert.equal(pag.from, 1);
+      assert.equal(pag.to, 10);
+      done();
+    });
+
+    it('4.6 common pagination. Last page', function(done) {            
+      let pag = util.pagination('pornhub.com', 10, 10, 95, 'filter', 'sort');
+      assert.equal(pag.last_page, 10);
+      assert.isNull(pag.next_page_url);
+      assert.equal(pag.prev_page_url, 'pornhub.com/?page=9&per_page=10&filter=filter&sort=sort');
+      assert.equal(pag.from, 91);
+      assert.equal(pag.to, 95);
+      done();
+    });    
     
   });
 });    

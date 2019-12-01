@@ -60,6 +60,7 @@ module.exports.logServerError = function(e, createdBy) {
 
     dbclient.query(query, (err, result) => {
       try {
+        /* istanbul ignore next */        
         if (err) {
           logDispatcher.error(err);
           resolve(0);

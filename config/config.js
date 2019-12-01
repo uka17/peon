@@ -11,6 +11,7 @@ module.exports = {
   test_host: "http://localhost:8080/v1.0",    
   user: "dummy",
   systemUser: "system",
+  testUser: "testBot",
   emergencyUser: "er",
   logLevel: "info",
   enableDebugOutput: true,

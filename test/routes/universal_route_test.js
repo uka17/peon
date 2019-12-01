@@ -84,7 +84,7 @@ module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, refer
           done();
         });                    
     });          
-    it('1.4 successful count', (done) => {
+    it('1.4.1 successful count', (done) => {
       request(inst.app)
         .get(apiRoute + '/count')            
         .set('Accept', 'application/json')
@@ -94,6 +94,16 @@ module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, refer
           done();
         });                    
     });  
+    it('1.4.2 empty count', (done) => {
+      request(inst.app)
+        .get(apiRoute + '/count?filter=biteme')            
+        .set('Accept', 'application/json')
+        .end(function(err, res) { 
+          assert.equal(res.status, 200);
+          assert.equal(res.body[messageBox.common.count], 0);
+          done();
+        });                    
+    });      
     it('1.5 failed get (404)', (done) => {
       request(inst.app)                           
         .get(apiRoute + '/0')            
@@ -103,17 +113,36 @@ module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, refer
           done();                                
         });                    
     });             
-    it('1.6 successful list', (done) => {                              
+    it('1.6.1 successful list', (done) => {                              
       request(inst.app)
         .get(apiRoute)            
         .set('Accept', 'application/json')
         .end(function(err, res) { 
           assert.equal(res.status, 200);
-          assert.isAbove(res.body.length, 0);
+          assert.isAbove(res.body.data.length, 0);
           done();
         });                    
     });  
-
+    it('1.6.2 successful list with params', (done) => {                              
+      request(inst.app)
+        .get(`${apiRoute}?filter=a&sort=id|asc&page=1&perPage=1`)            
+        .set('Accept', 'application/json')
+        .end(function(err, res) { 
+          assert.equal(res.status, 200);
+          assert.isAbove(res.body.data.length, 0);
+          done();
+        });                    
+    });
+    it('1.6.3 successful list with partial "sort" params', (done) => {                              
+      request(inst.app)
+        .get(`${apiRoute}?filter=a&sort=id&page=1&perPage=1`)            
+        .set('Accept', 'application/json')
+        .end(function(err, res) { 
+          assert.equal(res.status, 200);
+          assert.isAbove(res.body.data.length, 0);
+          done();
+        });                    
+    });     
     it('1.7 successful get', (done) => {
       request(inst.app)                                     
         .get(apiRoute + '/' + objectId)            

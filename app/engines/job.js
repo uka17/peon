@@ -24,8 +24,10 @@ function getJobCount(filter) {
     dbclient.query(query, (err, result) => {  
       /* istanbul ignore if */
       if (err) {
+        log.error(`Failed to get job count (params=${query.values}). Stack: ${err.stack}`);     
         reject(err);
       } else {
+        /* istanbul ignore if */
         if(result.rows[0].count == null) {
           resolve(null);
         }
@@ -55,8 +57,10 @@ function getJobList(filter, sortColumn, sortOrder, perPage, page) {
     dbclient.query(query, (err, result) => {  
       /* istanbul ignore if */
       if (err) {
+        log.error(`Failed to get job list (params=${query.values}). Stack: ${err.stack}`);             
         reject(err);
       } else {
+        /* istanbul ignore if */
         if(result.rows[0].jobs == null) {
           resolve(null);
         }
@@ -82,8 +86,10 @@ function getJob(jobId) {
     dbclient.query(query, (err, result) => {  
       /* istanbul ignore if */
       if (err) {
+        log.error(`Failed to get job (jobId=${jobId}). Stack: ${err.stack}`);                             
         reject(err);
       } else {
+        /* istanbul ignore if */
         if(result.rows[0].job == null) {
           resolve(null);
         }
@@ -109,14 +115,17 @@ function createJob(job, createdBy) {
     };
     dbclient.query(query, async (err, result) => {           
       try {
+        /* istanbul ignore if */
         if (err) { 
+          log.error(`Failed to create job with content ${job}. Stack: ${err.stack}`);                     
           reject(err);
         } else {
           job.id = result.rows[0].id;
           resolve(job);
         }
-      }
-      catch(e) {
+      }            
+      catch(e) {        
+        /* istanbul ignore next */        
         reject(e);
       }
     });
@@ -126,26 +135,29 @@ module.exports.createJob = createJob;
 
 /**
  * Updates job in DB by id
- * @param {number} id Id of job to be updated
+ * @param {number} jobId Id of job to be updated
  * @param {Object} job Job object to be updated with
  * @param {string} updatedBy User who updates job
  * @returns {Promise} Promise which resolves with number of updated rows in case of success and rejects with error in case of failure 
  */
-function updateJob(id, job, updatedBy) {
+function updateJob(jobId, job, updatedBy) {
   return new Promise((resolve, reject) => {
     const query = {
       "text": 'SELECT public."fnJob_Update"($1, $2, $3, $4) as count',
-      "values": [id, job, job.nextRun.toUTCString(), updatedBy]
+      "values": [jobId, job, job.nextRun.toUTCString(), updatedBy]
     };
     dbclient.query(query, async (err, result) => {           
       try {
+        /* istanbul ignore if */
         if (err) { 
+          log.error(`Failed to update job (jobId=${jobId}) with content ${job}. Stack: ${err.stack}`);                     
           reject(err);
         } else {    
           resolve(result.rows[0].count);
         }
       }
       catch(e) {
+        /* istanbul ignore next */        
         reject(e);
       }
     });
@@ -155,25 +167,28 @@ module.exports.updateJob = updateJob;
 
 /**
  * Marks job in DB as deleted by id
- * @param {number} id Id of job to be deleted
+ * @param {number} jobId Id of job to be deleted
  * @param {string} deletedBy User updateJobNextRunho deletes job
  * @returns {Promise} Promise which resolves with number of deleted rows in case of success and rejects with error in case of failure 
  */
-function deleteJob(id, deletedBy) {
+function deleteJob(jobId, deletedBy) {
   return new Promise((resolve, reject) => {
     const query = {
       "text": 'SELECT public."fnJob_Delete"($1, $2) as count',
-      "values": [id, deletedBy]
+      "values": [jobId, deletedBy]
     };
     dbclient.query(query, async (err, result) => {           
       try {
-        if (err) { 
+        /* istanbul ignore if */
+        if (err) {
+          log.error(`Failed to delete job (jobId=${jobId}). Stack: ${err.stack}`);           
           reject(err);
         } else {    
           resolve(result.rows[0].count);
         }
       }
       catch(e) {
+        /* istanbul ignore next */
         reject(e);
       }
     });
@@ -226,6 +241,7 @@ function calculateNextRun(job) {
             }
           }
         }
+        /* istanbul ignore if */
         if (nextRunList.length == 0)
           return {
             "isValid": false,
@@ -244,7 +260,9 @@ function calculateNextRun(job) {
     return jobValidationResult;
   }
   catch(e) {
-    log.error(`Failed to calculate next run for job (id=${job.id}). Stack: ${e.stack}`);
+    /* istanbul ignore next */
+    log.error(`Failed to calculate next run for job (jobId=${job.id}). Stack: ${e.stack}`);
+    /* istanbul ignore next */
     return {"isValid": false, "errorList": e.message};
   }
 }
@@ -259,14 +277,15 @@ function updateJobNextRun(jobId, executedBy) {
   // eslint-disable-next-line no-async-promise-executor
   return new Promise(async (resolve, reject) => {
     let record = await getJob(jobId);
-    let JobAssesmentResult = calculateNextRun(record.job);
+    let jobAssesmentResult = calculateNextRun(record.job);
     const query = {
       "text": 'SELECT public."fnJob_UpdateNextRun"($1, $2, $3) as count',
-      "values": [jobId, JobAssesmentResult.nextRun.toUTCString(), executedBy]
+      "values": [jobId, jobAssesmentResult.nextRun.toUTCString(), executedBy]
     };
     dbclient.query(query, (err, result) => {     
+      /* istanbul ignore if */      
       if (err) {
-        log.error(`Failed to update job (id=${jobId}) next run date-time with ${JobAssesmentResult.nextRun}. Stack: ${err.stack}`);
+        log.error(`Failed to update job (jobId=${jobId}) next run date-time with ${jobAssesmentResult.nextRun}. Stack: ${err.stack}`);
         reject(false);
       } else {
         resolve(true);
@@ -275,6 +294,34 @@ function updateJobNextRun(jobId, executedBy) {
   });
 }
 module.exports.updateJobNextRun = updateJobNextRun;
+
+/**
+ * Changes job last run result. Last run date-time will be updated with current timestamp.
+ * @param {number} jobId Job id
+ * @param {number} runResult Job run result. `true` - success, `false` - failure
+ * @param {string} executedBy Author of change 
+ * @returns {Promise} Promise which returns `true` in case of success and `false` in case of failure
+ */
+function updateJobLastRun(jobId, runResult, executedBy) {
+  return new Promise((resolve, reject) => {
+    const query = {
+      "text": 'SELECT public."fnJob_UpdateLastRun"($1, $2, $3) as updated',
+      "values": [jobId, runResult, executedBy]
+    };                  
+
+    // eslint-disable-next-line no-unused-vars
+    dbclient.query(query, (err, result) => {
+      /* istanbul ignore if */      
+      if (err) {
+        log.error(`Failed to change job last run result (jobId=${jobId}) to '${runResult}'. Stack: ${err.stack}`);
+        reject(false);
+      }
+      else
+        resolve(true);
+    }); 
+  });
+}
+module.exports.updateJobLastRun = updateJobLastRun;
 
 /**
  * Changes job status
@@ -292,8 +339,9 @@ function updateJobStatus(jobId, status, executedBy) {
 
     // eslint-disable-next-line no-unused-vars
     dbclient.query(query, (err, result) => {
+      /* istanbul ignore if */      
       if (err) {
-        log.error(`Failed to change job (id=${jobId}) status to '${status}'. Stack: ${err.stack}`);
+        log.error(`Failed to change job (jobId=${jobId}) status to '${status}'. Stack: ${err.stack}`);
         reject(false);
       }
       else
@@ -320,8 +368,9 @@ function logJobHistory(message, jobId, createdBy, uid) {
 
     // eslint-disable-next-line no-unused-vars
     dbclient.query(query, (err, result) => {
+      /* istanbul ignore if */
       if (err) {
-        log.error(`Failed to insert job history (id=${jobId}). Stack: ${err.stack}`);
+        log.error(`Failed to insert job history (jobId=${jobId}). Stack: ${err.stack}`);
         reject(false); 
       }
       else
@@ -366,15 +415,15 @@ async function executeJob(jobId, executedBy, uid) {
           }
         }
       } else
-        log.error(`Failed to get job step list (id=${jobId})`);
+        log.error(`Failed to get job step list (jobId=${jobId})`);
     } else
-      log.error(`Failed to get job (id=${jobId}) for execution`);   
+      log.error(`Failed to get job (jobId=${jobId}) for execution`);   
 
     await logJobHistory({ message: labels.execution.jobFinished, level: 2 }, jobId, executedBy, uid);
-    log.info(`Job (id=${jobId}) successfully finsihed. usid: ${uid}`);
+    log.info(`Job (jobId=${jobId}) successfully finsihed. usid: ${uid}`);
   }
   catch(e) {
-    log.error(`Error during execution of job (id=${jobId}). Stack: ${e.stack}`);
+    log.error(`Error during execution of job (jobId=${jobId}). Stack: ${e.stack}`);
   }
   finally {
     await updateJobNextRun(jobId, executedBy);
