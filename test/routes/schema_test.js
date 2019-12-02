@@ -136,13 +136,20 @@ describe('schema validation', function() {
       assert.equal(DataVsSchemaErrors(nStep, schema.stepSchema), "data.enabled should be boolean");            
       done();
     });      
-    it('2.5 incorrect "connection" type', function(done) {                            
+    it('2.5.1 incorrect "connection" type', function(done) {                            
       let nStep = JSON.parse(JSON.stringify(testStep));
       nStep.connection = true;
       assert.equal(DataVsSchemaResult(nStep, schema.stepSchema), false);
       assert.equal(DataVsSchemaErrors(nStep, schema.stepSchema), "data.connection should be integer");            
       done();
     });      
+    it('2.5.2 incorrect "order" type', function(done) {                            
+      let nStep = JSON.parse(JSON.stringify(testStep));
+      nStep.order = true;
+      assert.equal(DataVsSchemaResult(nStep, schema.stepSchema), false);
+      assert.equal(DataVsSchemaErrors(nStep, schema.stepSchema), "data.order should be integer");            
+      done();
+    });          
     it('2.6 incorrect "command" type', function(done) {                            
       let nStep = JSON.parse(JSON.stringify(testStep));
       nStep.command = 1;

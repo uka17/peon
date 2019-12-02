@@ -125,7 +125,7 @@ module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, refer
     });  
     it('1.6.2 successful list with params', (done) => {                              
       request(inst.app)
-        .get(`${apiRoute}?filter=a&sort=id|asc&page=1&perPage=1`)            
+        .get(`${apiRoute}?filter=o&sort=id|asc&page=1&perPage=1`)            
         .set('Accept', 'application/json')
         .end(function(err, res) { 
           assert.equal(res.status, 200);
@@ -135,7 +135,7 @@ module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, refer
     });
     it('1.6.3 successful list with partial "sort" params', (done) => {                              
       request(inst.app)
-        .get(`${apiRoute}?filter=a&sort=id&page=1&perPage=1`)            
+        .get(`${apiRoute}?filter=o&sort=id&page=1&perPage=1`)            
         .set('Accept', 'application/json')
         .end(function(err, res) { 
           assert.equal(res.status, 200);

@@ -270,22 +270,23 @@ module.exports.calculateNextRun = calculateNextRun;
 /**
  * Calculates and save job next run
  * @param {number} jobId Job id
+ * @param {string} nextRun `date-time` of job next run 
  * @param {string} executedBy Author of change
  * @returns {Promise} Promise which returns `true` in case of success and `false` in case of failure 
  */
-function updateJobNextRun(jobId, executedBy) {
+function updateJobNextRun(jobId, nextRun, executedBy) {
+  //TODO
+  //check input parameters
   // eslint-disable-next-line no-async-promise-executor
   return new Promise(async (resolve, reject) => {
-    let record = await getJob(jobId);
-    let jobAssesmentResult = calculateNextRun(record.job);
     const query = {
       "text": 'SELECT public."fnJob_UpdateNextRun"($1, $2, $3) as count',
-      "values": [jobId, jobAssesmentResult.nextRun.toUTCString(), executedBy]
+      "values": [jobId, nextRun, executedBy]
     };
     dbclient.query(query, (err, result) => {     
       /* istanbul ignore if */      
       if (err) {
-        log.error(`Failed to update job (jobId=${jobId}) next run date-time with ${jobAssesmentResult.nextRun}. Stack: ${err.stack}`);
+        log.error(`Failed to update job (jobId=${jobId}) next run date-time with ${nextRun}. Stack: ${err.stack}`);
         reject(false);
       } else {
         resolve(true);
@@ -389,13 +390,17 @@ async function executeJob(jobId, executedBy, uid) {
   try {
     await logJobHistory({ message: labels.execution.jobStarted, level: 2 }, jobId, executedBy, uid);
 
-    let job = (await getJob(jobId)).job;
+    let job = await getJob(jobId).job;
+    let jobExecutionResult = true;
     if(job !== null) {
       if(job.hasOwnProperty("steps") && job.steps.length > 0) {
+        //TODO sort steps in right order
+        step_loop:
         for (let i = 0; i < job.steps.length; i++) {
           const step = job.steps[i];
           await logJobHistory({ message: labels.execution.executingStep(step.name), level: 2 }, jobId, executedBy, uid);
           let stepExecution = await stepEngine.execute(step);
+          //log execution result
           if(stepExecution.result) {
             await logJobHistory(
               { 
@@ -404,6 +409,16 @@ async function executeJob(jobId, executedBy, uid) {
                 level: 2 
               }, 
               jobId, executedBy, uid);
+            //take an action based on execution result
+            switch(step.onSucceed) {
+            case 'gotoNextStep':
+              break;          
+            case 'quitWithSuccess':               
+              break step_loop;
+            case 'quitWithFailure': 
+              jobExecutionResult = false;
+              break step_loop;                     
+            }              
           } else {
             await logJobHistory(
               { 
@@ -412,21 +427,43 @@ async function executeJob(jobId, executedBy, uid) {
                 level: 0 
               }, 
               jobId, executedBy, uid);
+            //TODO repeat attempt
+
+            //take an action based on execution result
+            switch(step.onFailure) {
+            case 'gotoNextStep':
+              break;          
+            case 'quitWithSuccess': 
+              jobExecutionResult = true;            
+              break step_loop;
+            case 'quitWithFailure':
+              jobExecutionResult = false;               
+              break step_loop;                     
+            }              
           }
         }
-      } else
-        log.error(`Failed to get job step list (jobId=${jobId})`);
+      } else {
+        log.warn(`No step list found for job (jobId=${jobId})`);
+      }
+      //log.info(`Job (jobId=${jobId}) successfully finsihed. usid: ${uid}`);
+
+      let jobAssesmentResult = calculateNextRun(job);
+  
+      /* istanbul ignore if */
+      if(!jobAssesmentResult.isValid) {
+        await updateJobNextRun(jobId, null, executedBy);
+      }        
+      else {
+        await updateJobNextRun(jobId, jobAssesmentResult.nextRun.toUTCString(), executedBy);
+      }  
+      await logJobHistory({ message: labels.execution.jobFinished, level: 2 }, jobId, executedBy, uid);        
     } else
       log.error(`Failed to get job (jobId=${jobId}) for execution`);   
-
-    await logJobHistory({ message: labels.execution.jobFinished, level: 2 }, jobId, executedBy, uid);
-    log.info(`Job (jobId=${jobId}) successfully finsihed. usid: ${uid}`);
   }
   catch(e) {
     log.error(`Error during execution of job (jobId=${jobId}). Stack: ${e.stack}`);
   }
   finally {
-    await updateJobNextRun(jobId, executedBy);
     await updateJobStatus(jobId, 1, executedBy);
   }  
 }

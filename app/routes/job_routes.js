@@ -98,14 +98,14 @@ module.exports = function(app) {
     //create new job
     try {
       const job = req.body;
-      let JobAssesmentResult = jobEngine.calculateNextRun(job);
+      let jobAssesmentResult = jobEngine.calculateNextRun(job);
       
       /* istanbul ignore if */
-      if(!JobAssesmentResult.isValid)
-        res.status(400).send({"requestValidationErrors": JobAssesmentResult.errorList});
+      if(!jobAssesmentResult.isValid)
+        res.status(400).send({"requestValidationErrors": jobAssesmentResult.errorList});
       else {
         let result = await jobEngine.createJob(job, config.user);
-        await jobEngine.updateJobNextRun(result.id, JobAssesmentResult.nextRun.toUTCString());
+        await jobEngine.updateJobNextRun(result.id, jobAssesmentResult.nextRun.toUTCString(), config.user);
         res.status(201).send(result);
       }
     }    

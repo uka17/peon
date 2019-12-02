@@ -7,6 +7,7 @@ module.exports.jobOK = {
     {
       "name": "step1",
       "enabled": true,      
+      "order": 1,
       "connection": 1,
       "command": "command",
       "retryAttempts": {"number": 1, "interval": 5},
@@ -15,7 +16,8 @@ module.exports.jobOK = {
     },        
     {
       "name": "step2",
-      "enabled": true,      
+      "enabled": true,   
+      "order": 2,   
       "connection": 1,
       "command": "command",
       "retryAttempts": {"number": 1, "interval": 5},
@@ -62,7 +64,8 @@ module.exports.jobTestCaseOK = [
     steps: [
       {
         name: 'step1',
-        enabled: true,      
+        enabled: true,    
+        order: 1,  
         connection: 1,
         command: 'command',
         retryAttempts: {number: 1, interval: 5},
@@ -71,7 +74,8 @@ module.exports.jobTestCaseOK = [
       },        
       {
         name: 'step2',
-        enabled: true,      
+        enabled: true,
+        order: 2,        
         connection: 1,
         command: 'command',
         retryAttempts: {number: 1, interval: 5},
@@ -96,6 +100,7 @@ module.exports.jobTestCaseOK = [
     steps: [
       {
         name: 'step1',
+        order: 1,  
         enabled: true,      
         connection: 1,
         command: 'command',
@@ -143,7 +148,8 @@ module.exports.jobTestCaseOK = [
 //step test data preparation
 module.exports.stepOK = {
   name: 'step',
-  enabled: true,      
+  enabled: true,
+  order: 1,      
   connection: 1,
   command: 'command',
   retryAttempts: {number: 1, interval: 5},

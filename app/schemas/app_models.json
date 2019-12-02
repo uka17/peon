@@ -21,7 +21,8 @@
     "type": "object",
     "properties": {
       "name": {"type": "string"},
-      "enabled": {"type": "boolean"},      
+      "enabled": {"type": "boolean"},
+      "order": {"type": "integer", "minimum": 1},      
       "connection": {"type": "integer", "minimum": 0},
       "command": {"type": "string"},    
       "onSucceed": {"oneOf": [
@@ -41,7 +42,7 @@
     },
     "additionalProperties": false
   },
-  "stepSchemaRequired": ["name", "enabled", "connection", "command", "onSucceed", "onFailure", "retryAttempts"],
+  "stepSchemaRequired": ["name", "enabled", "order", "connection", "command", "onSucceed", "onFailure", "retryAttempts"],
   "connectionSchema": {
     "$id": "http://example.com/connection",
     "type": "object",
