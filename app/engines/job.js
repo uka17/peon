@@ -390,7 +390,7 @@ async function executeJob(jobId, executedBy, uid) {
   try {
     await logJobHistory({ message: labels.execution.jobStarted, level: 2 }, jobId, executedBy, uid);
 
-    let job = await getJob(jobId).job;
+    let job = (await getJob(jobId)).job;
     let jobExecutionResult = true;
     if(job !== null) {
       if(job.hasOwnProperty("steps") && job.steps.length > 0) {
@@ -445,18 +445,23 @@ async function executeJob(jobId, executedBy, uid) {
       } else {
         log.warn(`No step list found for job (jobId=${jobId})`);
       }
-      //log.info(`Job (jobId=${jobId}) successfully finsihed. usid: ${uid}`);
+      if(jobExecutionResult) {
+        log.info(`Job (jobId=${jobId}) successfully finsihed. usid: ${uid}`);
+        await logJobHistory({ message: labels.execution.jobFinished, level: 2 }, jobId, executedBy, uid);        
 
-      let jobAssesmentResult = calculateNextRun(job);
-  
+      } else {
+        log.info(`Job (jobId=${jobId}) failed. usid: ${uid}`);
+        await logJobHistory({ message: labels.execution.jobFinished, level: 2 }, jobId, executedBy, uid);        
+      }      
+
+      let jobAssesmentResult = calculateNextRun(job);  
       /* istanbul ignore if */
       if(!jobAssesmentResult.isValid) {
         await updateJobNextRun(jobId, null, executedBy);
       }        
       else {
         await updateJobNextRun(jobId, jobAssesmentResult.nextRun.toUTCString(), executedBy);
-      }  
-      await logJobHistory({ message: labels.execution.jobFinished, level: 2 }, jobId, executedBy, uid);        
+      }                
     } else
       log.error(`Failed to get job (jobId=${jobId}) for execution`);   
   }

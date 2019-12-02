@@ -24,7 +24,8 @@ module.exports = (language = 'en') => {
       executingStep: (stepName) => `Executing step '${stepName}'`,
       stepExecuted: (stepName) => `Step '${stepName}' successfully executed`,
       stepFailed: (stepName) => `Failed to execute step '${stepName}'`,
-      jobFinished: 'Execution finished'
+      jobFailed: (jobId) => `Job (id=${jobId}) executed '${stepName}'`,
+      jobSuccessful: (jobId) => `Failed to execute step '${stepName}'`
     }
   };
 };
