@@ -1,39 +1,57 @@
 //job test data preparation
 module.exports.jobOK = {
-  "name": "job",
+  "name": "Test job",
+  "description": "Job created for testing purposes",
   "enabled": true,
-  "description": "job description",
   "steps": [
     {
       "name": "step1",
-      "enabled": true,      
+      "enabled": true,
       "order": 1,
-      "connection": 1,
-      "command": "command",
-      "retryAttempts": {"number": 1, "interval": 5},
+      "connection": 203,
+      "command": "select \"fnLog_Insert\"(1, 'Potatoes!', 'test')",
+      "retryAttempts": {
+        "number": 1,
+        "interval": 5
+      },
       "onSucceed": "gotoNextStep",
       "onFailure": "quitWithFailure"
-    },        
+    },
     {
       "name": "step2",
-      "enabled": true,   
-      "order": 2,   
-      "connection": 1,
-      "command": "command",
-      "retryAttempts": {"number": 1, "interval": 5},
-      "onSucceed": "gotoNextStep",
-      "onFailure": {"gotoStep": 1}
-    }  
+      "enabled": true,
+      "order": 2,
+      "connection": 203,
+      "command": "select \"fnLog_I2nsert\"(1, 'Tomatoes!', 'test')",
+      "retryAttempts": {
+        "number": 1,
+        "interval": 1
+      },
+      "onSucceed": "quitWithSuccess",
+      "onFailure": "quitWithFailure"
+    }
   ],
   "schedules": [
     {
       "enabled": true,
-      "startDateTime": "2018-01-31T20:54:23.071Z",
+      "startDateTime": "2018-01-31T20:55:23.071Z",
       "eachNWeek": 1,
-      "dayOfWeek": ["mon", "wed", "fri"],
-      "dailyFrequency": { "occursOnceAt": "11:11:11"}
+      "dayOfWeek": [
+        "mon",
+        "tue",
+        "wed",
+        "thu",
+        "fri"
+      ],
+      "dailyFrequency": {
+        "start": "06:00:00",
+        "occursEvery": {
+          "intervalValue": 5,
+          "intervalType": "minute"
+        }
+      }
     }
-  ]  
+  ]
 };
 module.exports.jobNOK = {
   name: 'job',

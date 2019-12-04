@@ -20,12 +20,15 @@ module.exports = (language = 'en') => {
       count: 'count'
     },
     execution: {
-      jobStarted: 'Execution started',
+      jobStarted: (jobId, executedBy) => `Job (id=${jobId}) execution started by '${executedBy}'`,
       executingStep: (stepName) => `Executing step '${stepName}'`,
+      repeatingStep: (stepName, attempt, total) => `Trying to repeat step '${stepName}'. Attempt ${attempt} of ${total}`,
       stepExecuted: (stepName) => `Step '${stepName}' successfully executed`,
+      stepRepeatSuccess: (stepName, attempt) => `Step '${stepName}' successfully executed after ${attempt} attempt`,
+      stepRepeatFailure: (stepName, attempt) => `${attempt} repeat attempt failed for step '${stepName}'`,
       stepFailed: (stepName) => `Failed to execute step '${stepName}'`,
-      jobFailed: (jobId) => `Job (id=${jobId}) executed '${stepName}'`,
-      jobSuccessful: (jobId) => `Failed to execute step '${stepName}'`
+      jobSuccessful: (jobId) => `Job (id=${jobId}) executed successfully`,
+      jobFailed: (jobId) => `Job (id=${jobId}) failed'`
     }
   };
 };

@@ -3,9 +3,9 @@ const dbclient = require("../tools/db");
 const connection = require('./connection');
 
 /**
- * Execute job's step
+ * Executes step
  * @param {Object} step Step object to be executed
- * @returns {Boolean} Returns `true` in case of successful execution and `false` in case of failure
+ * @returns {Promise} Promise which returns `true` and `number` of rows affected in case of successful execution and `false` and errpr message in case of failure
  */
 async function execute(step) {      
   try {
@@ -21,3 +21,18 @@ async function execute(step) {
   }
 }
 module.exports.execute = execute;
+/**
+ * Executes step
+ * @param {Object} step Step object to be executed
+ * @param {number} delay Dealy in seconds befor step will be executed 
+ * @returns {Promise} Promise which returns `true` and `number` of rows affected in case of successful execution and `false` and errpr message in case of failure
+ */
+function delayedExecute(step, delay) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(execute(step));
+    }, delay * 1000);
+  });
+}
+
+module.exports.delayedExecute = delayedExecute;

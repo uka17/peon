@@ -7,12 +7,10 @@ const jobEngine = require('./job');
 
 var executionLock;
 
-run(1);
-
 /**
  * Returns jobs list which should be executed
  * @param {number} tolerance Allowance of job next run searching criteria in minutes (BETWEEN now-tolerance AND now+tolerance)
- * @returns {Object[]} List of job objects to be executed
+ * @returns {Promis} Promsit which returns list of job records to be executed or error object in case of error
  */
 function getJobListToRun(tolerance) {
   return new Promise((resolve, reject) => {
@@ -61,21 +59,21 @@ async function run(tolerance) {
     if(executionLock)
       return;
     executionLock = true;    
-    let jobList = await getJobListToRun(tolerance);    
-    if(jobList !== null) {        
+    let jobRecordsList = await getJobListToRun(tolerance);    
+    if(jobRecordsList !== null) {        
       const uid = uuidv4();
-      log.info(`${jobList.length} job(s) in tolerance area to process`);
-      for (let i = 0; i < jobList.length; i++) {
-        const job = jobList[i];          
-        let executionDateTime = new Date(`${job.nextRun}Z`);
+      log.info(`${jobRecordsList.length} job(s) in tolerance area to process`);
+      for (let i = 0; i < jobRecordsList.length; i++) {
+        const jobRecord = jobRecordsList[i];          
+        let executionDateTime = new Date(`${jobRecord.nextRun}Z`);
         let currentDateTime = new Date(Date.now());
         if(currentDateTime >= executionDateTime) {
-          logRunHistory(`Starting execution of job (id=${job.id})`, config.systemUser, uid);
-          currentExecutableJobId = job.id;    
+          logRunHistory(`Starting execution of job (id=${jobRecord.id})`, config.systemUser, uid);
+          currentExecutableJobId = jobRecord.id;    
           //lock job to avoid second thread
-          if(!(await jobEngine.updateJobStatus(job.id, 2, config.systemUser)))
+          if(!(await jobEngine.updateJobStatus(jobRecord.id, 2, config.systemUser)))
             break;                          
-          jobEngine.executeJob(job.id, config.systemUser, uid);
+          jobEngine.executeJob(jobRecord, config.systemUser, uid);
         }
       }
       currentExecutableJobId = null;
@@ -84,12 +82,11 @@ async function run(tolerance) {
   }
   catch (e) {
     log.error(e.stack);
-    if(currentExecutableJobId === null)
+    //unlock job
+    if(currentExecutableJobId !== null)
       jobEngine.updateJobStatus(currentExecutableJobId, 1, config.emergencyUser);
     executionLock = false;
   }
 }
 
 module.exports.run = run;
-
-run(1);

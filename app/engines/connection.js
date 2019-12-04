@@ -115,8 +115,8 @@ function createConnection(connection, createdBy) {
           log.error(`Failed to create connection with content ${connection}. Stack: ${err.stack}`);          
           reject(err);
         } else {
-          connection.id = result.rows[0].id;
-          resolve(connection);
+          let newBornConnection = await getConnection(result.rows[0].id);
+          resolve(newBornConnection);
         }
       }
       catch(e) {        

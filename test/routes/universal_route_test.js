@@ -8,8 +8,9 @@ var objectId;
  * @param {object} testReferenceObject Correct object which will be used for tests
  * @param {string} referenceFieldName Name of object field which will be used for 'incorrect field type' and 'patch' tests
  * @param {string} referenceFieldType Type of object field which will be used for 'incorrect field type' and 'patch' tests
+ * @param {string} entity Name of entity which is being tested
  */
-module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, referenceFieldName, referenceFieldType) => {
+module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, referenceFieldName, referenceFieldType, entity) => {
   const request = require("supertest");
   var assert  = require('chai').assert;
   var messageBox = require('../../config/message_labels')('en');    
@@ -69,7 +70,8 @@ module.exports.testApiRoute = (apiRoute, routeObject, testReferenceObject, refer
         .set('Accept', 'application/json')
         .end(function(err, res) {               
           assert.equal(res.status, 201);
-          assert.equal(res.body[referenceFieldName], testReferenceObject[referenceFieldName]);
+          let testObject = res.body[entity];
+          assert.equal(testObject[referenceFieldName], testReferenceObject[referenceFieldName]);
           objectId = res.body.id;
           done();
         });                    
