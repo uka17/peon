@@ -14,7 +14,7 @@ const labels = require('../../config/message_labels')('en');
 /**
  * Returns job count accordingly to filtering
  * @param {string} filter Filter will be applied to `name` and `description` columns
- * @returns {Promise} Promise which resolves with numeber of `job` objects in case of success, `null` if job list is empty and rejects with error in case of failure
+ * @returns {Promise} Promise which resolves with numeber of `job` objects in case of success and rejects with error in case of failure
  */
 function getJobCount(filter) {
   return new Promise((resolve, reject) => {
@@ -28,12 +28,7 @@ function getJobCount(filter) {
         log.error(`Failed to get job count (params=${query.values}). Stack: ${err.stack}`);     
         reject(err);
       } else {
-        /* istanbul ignore if */
-        if(result.rows[0].count == null) {
-          resolve(null);
-        }
-        else
-          resolve(result.rows[0].count);
+        resolve(result.rows[0].count);
       } 
     });
   });
@@ -182,7 +177,7 @@ function deleteJob(jobId, deletedBy) {
       try {
         /* istanbul ignore if */
         if (err) {
-          log.error(`Failed to delete job (jobId=${jobId}). Stack: ${err.stack}`);           
+          log.error(`Failed to delete job (jobId=${jobId}). Stack: ${err}`);           
           reject(err);
         } else {    
           resolve(result.rows[0].count);
@@ -288,7 +283,7 @@ function updateJobNextRun(jobId, nextRun, executedBy) {
       /* istanbul ignore if */      
       if (err) {
         log.error(`Failed to update job (jobId=${jobId}) next run date-time with ${nextRun}. Stack: ${err.stack}`);
-        reject(false);
+        reject(err);
       } else {
         resolve(true);
       } 
@@ -316,7 +311,7 @@ function updateJobLastRun(jobId, runResult, executedBy) {
       /* istanbul ignore if */      
       if (err) {
         log.error(`Failed to change job last run result (jobId=${jobId}) to '${runResult}'. Stack: ${err.stack}`);
-        reject(false);
+        reject(err);
       }
       else
         resolve(true);
@@ -344,7 +339,7 @@ function updateJobStatus(jobId, status, executedBy) {
       /* istanbul ignore if */      
       if (err) {
         log.error(`Failed to change job (jobId=${jobId}) status to '${status}'. Stack: ${err.stack}`);
-        reject(false);
+        reject(err);
       }
       else
         resolve(true);
@@ -359,7 +354,7 @@ module.exports.updateJobStatus = updateJobStatus;
  * @param {number} jobId Id of job
  * @param {string} createdBy Author of message
  * @param {?string} uid Session id. Default is `null` 
- * @returns {Promise} Promise which returns `true` in case of success and error message in case of failure
+ * @returns {Promise} Promise which returns `true` in case of success and error in case of failure
  */
 function logJobHistory(message, jobId, createdBy, uid) {
   return new Promise((resolve, reject) => {
@@ -373,7 +368,7 @@ function logJobHistory(message, jobId, createdBy, uid) {
       /* istanbul ignore if */
       if (err) {
         log.error(`Failed to insert job history (jobId=${jobId}). Stack: ${err.stack}`);
-        reject(err.stack); 
+        reject(err); 
       }
       else
         resolve(true); 
@@ -485,6 +480,7 @@ async function executeJob(jobRecord, executedBy, uid) {
       } else {
         log.warn(`No step list found for job (jobRecord.id=${jobRecord.id})`);
       }
+      await updateJobLastRun(jobRecord.id, jobExecutionResult, executedBy);
       if(jobExecutionResult) {
         log.info(`Job (jobRecord.id=${jobRecord.id}) successfully finsihed. session: ${uid}`);
         await logJobHistory({ message: labels.execution.jobSuccessful(jobRecord.id), level: 2 }, jobRecord.id, executedBy, uid);        
