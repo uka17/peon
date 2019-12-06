@@ -23,13 +23,20 @@ function getJobCount(filter) {
       "values": [filter]
     };
     dbclient.query(query, (err, result) => {  
-      /* istanbul ignore if */
-      if (err) {
-        log.error(`Failed to get job count (params=${query.values}). Stack: ${err.stack}`);     
-        reject(err);
-      } else {
-        resolve(result.rows[0].count);
-      } 
+      try {
+        /* istanbul ignore if */
+        if (err) {
+          throw new Error(err);
+        } else {
+          resolve(result.rows[0].count);
+        } 
+      }            
+      catch(e) {        
+        /* istanbul ignore next */
+        log.error(`Failed to get job count with query ${query}. Stack: ${e}`);        
+        /* istanbul ignore next */
+        reject(e);
+      }      
     });
   });
 }
@@ -51,18 +58,22 @@ function getJobList(filter, sortColumn, sortOrder, perPage, page) {
       "values": [filter, sortColumn, sortOrder, perPage, page]
     };
     dbclient.query(query, (err, result) => {  
-      /* istanbul ignore if */
-      if (err) {
-        log.error(`Failed to get job list (params=${query.values}). Stack: ${err.stack}`);             
-        reject(err);
-      } else {
+      try {
+        if (err) {
+          throw new Error(err);
+        } else {
         /* istanbul ignore if */
-        if(result.rows[0].jobs == null) {
-          resolve(null);
-        }
-        else
-          resolve(result.rows[0].jobs);
-      } 
+          if(result.rows[0].jobs == null) {
+            resolve(null);
+          }
+          else
+            resolve(result.rows[0].jobs);
+        } 
+      }            
+      catch(e) {        
+        log.error(`Failed to get job list with query ${query}. Stack: ${e}`);              
+        reject(e);
+      }         
     });
   });
 }
@@ -80,18 +91,22 @@ function getJob(jobId) {
       "values": [jobId]
     };
     dbclient.query(query, (err, result) => {  
-      /* istanbul ignore if */
-      if (err) {
-        log.error(`Failed to get job (jobId=${jobId}). Stack: ${err.stack}`);                             
-        reject(err);
-      } else {
+      try {
+        if (err) {
+          throw new Error(err);
+        } else {
         /* istanbul ignore if */
-        if(result.rows[0].job == null) {
-          resolve(null);
-        }
-        else
-          resolve(result.rows[0].job);
-      } 
+          if(result.rows[0].job == null) {
+            resolve(null);
+          }
+          else
+            resolve(result.rows[0].job);
+        } 
+      }            
+      catch(e) {        
+        log.error(`Failed to get job with query ${query}. Stack: ${e}`);              
+        reject(e);
+      }       
     });
   });
 }
@@ -111,17 +126,15 @@ function createJob(job, createdBy) {
     };
     dbclient.query(query, async (err, result) => {           
       try {
-        /* istanbul ignore if */
         if (err) { 
-          log.error(`Failed to create job with content ${job}. Stack: ${err.stack}`);                     
-          reject(err);
+          throw new Error(err);
         } else {  
-          let newBornJob = await getJob(result.rows[0].id);        
+          let newBornJob = await module.exports.getJob(result.rows[0].id);        
           resolve(newBornJob);
         }
       }            
       catch(e) {        
-        /* istanbul ignore next */        
+        log.error(`Failed to create job with content ${job}. Stack: ${e}`);        
         reject(e);
       }
     });
@@ -138,25 +151,29 @@ module.exports.createJob = createJob;
  */
 function updateJob(jobId, job, updatedBy) {
   return new Promise((resolve, reject) => {
-    const query = {
-      "text": 'SELECT public."fnJob_Update"($1, $2, $3, $4) as count',
-      "values": [jobId, job, job.nextRun.toUTCString(), updatedBy]
-    };
-    dbclient.query(query, async (err, result) => {           
-      try {
-        /* istanbul ignore if */
-        if (err) { 
-          log.error(`Failed to update job (jobId=${jobId}) with content ${job}. Stack: ${err.stack}`);                     
-          reject(err);
-        } else {    
-          resolve(result.rows[0].count);
+    try {
+      const query = {
+        "text": 'SELECT public."fnJob_Update"($1, $2, $3, $4) as count',
+        "values": [jobId, job, job.nextRun.toUTCString(), updatedBy]
+      };
+      dbclient.query(query, async (err, result) => {           
+        try {
+          if (err) { 
+            throw new Error(err);
+          } else {    
+            resolve(result.rows[0].count);
+          }
+        }            
+        catch(e) {        
+          log.error(`Failed to update job with query ${query}. Stack: ${e}`);        
+          reject(e);
         }
-      }
-      catch(e) {
-        /* istanbul ignore next */        
-        reject(e);
-      }
-    });
+      });
+    }
+    catch(ee) {
+      log.error(`Failed to create query for job update with job ${job} and jobId ${job}. Stack: ${ee}`);        
+      reject(ee);
+    }    
   });
 }
 module.exports.updateJob = updateJob;
@@ -175,16 +192,14 @@ function deleteJob(jobId, deletedBy) {
     };
     dbclient.query(query, async (err, result) => {           
       try {
-        /* istanbul ignore if */
         if (err) {
-          log.error(`Failed to delete job (jobId=${jobId}). Stack: ${err}`);           
-          reject(err);
+          throw new Error(err);
         } else {    
           resolve(result.rows[0].count);
         }
-      }
-      catch(e) {
-        /* istanbul ignore next */
+      }            
+      catch(e) {        
+        log.error(`Failed to delete job with query ${query}. Stack: ${e}`);        
         reject(e);
       }
     });
@@ -273,20 +288,23 @@ module.exports.calculateNextRun = calculateNextRun;
 function updateJobNextRun(jobId, nextRun, executedBy) {
   //TODO
   //check input parameters
-  // eslint-disable-next-line no-async-promise-executor
-  return new Promise(async (resolve, reject) => {
+  return new Promise((resolve, reject) => {
     const query = {
       "text": 'SELECT public."fnJob_UpdateNextRun"($1, $2, $3) as count',
       "values": [jobId, nextRun, executedBy]
     };
     dbclient.query(query, (err, result) => {     
-      /* istanbul ignore if */      
-      if (err) {
-        log.error(`Failed to update job (jobId=${jobId}) next run date-time with ${nextRun}. Stack: ${err.stack}`);
-        reject(err);
-      } else {
-        resolve(true);
-      } 
+      try {
+        if (err) {
+          throw new Error(err);
+        } else {
+          resolve(true);
+        } 
+      }            
+      catch(e) {        
+        log.error(`Failed to update job next run with query ${query}. Stack: ${e}`);        
+        reject(e);
+      }    
     });
   });
 }
@@ -307,14 +325,18 @@ function updateJobLastRun(jobId, runResult, executedBy) {
     };                  
 
     // eslint-disable-next-line no-unused-vars
-    dbclient.query(query, (err, result) => {
-      /* istanbul ignore if */      
-      if (err) {
-        log.error(`Failed to change job last run result (jobId=${jobId}) to '${runResult}'. Stack: ${err.stack}`);
-        reject(err);
-      }
-      else
-        resolve(true);
+    dbclient.query(query, (err, result) => {  
+      try { 
+        if (err) {
+          throw new Error(err);
+        }
+        else
+          resolve(true);
+      }            
+      catch(e) {        
+        log.error(`Failed to update job last run with query ${query}. Stack: ${e}`);        
+        reject(e);
+      }  
     }); 
   });
 }
@@ -336,13 +358,17 @@ function updateJobStatus(jobId, status, executedBy) {
 
     // eslint-disable-next-line no-unused-vars
     dbclient.query(query, (err, result) => {
-      /* istanbul ignore if */      
-      if (err) {
-        log.error(`Failed to change job (jobId=${jobId}) status to '${status}'. Stack: ${err.stack}`);
-        reject(err);
+      try {
+        if (err) {
+          throw new Error(err);
+        }
+        else
+          resolve(true);
       }
-      else
-        resolve(true);
+      catch(e) {        
+        log.error(`Failed to update job status with query ${query}. Stack: ${e}`);        
+        reject(e);
+      }      
     }); 
   });
 }
@@ -365,16 +391,21 @@ function logJobHistory(message, jobId, createdBy, uid) {
 
     // eslint-disable-next-line no-unused-vars
     dbclient.query(query, (err, result) => {
-      /* istanbul ignore if */
-      if (err) {
-        log.error(`Failed to insert job history (jobId=${jobId}). Stack: ${err.stack}`);
-        reject(err); 
+      try {
+        if (err) {
+          throw new Error(err);
+        }
+        else
+          resolve(true); 
       }
-      else
-        resolve(true); 
+      catch(e) {        
+        log.error(`Failed to add record to log job history with query ${query}. Stack: ${e}`);        
+        reject(e);
+      }      
     }); 
   });
 }
+module.exports.logJobHistory = logJobHistory;
 
 /**
  * Executes job

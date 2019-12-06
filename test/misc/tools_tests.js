@@ -10,13 +10,24 @@ var ver = '/v1.0';
 var ut_routes = require('../../app/routes/ut_routes');
 const app = util.expressInstance();
 let config = require('../../config/config');
+let enableDebugOutput;
 
 const dbclient = require("../../app/tools/db");
 ut_routes(app);
-//temporary disable debug output due to have clear test output
-config.enableDebugOutput = false;
+
 
 describe('util', function() {
+  before(() => {
+    //temporary disable debug output due to have clear test output
+    enableDebugOutput = config.enableDebugOutput;
+    config.enableDebugOutput = false;
+  });
+
+  after(() => {
+    //restore initial debug output
+    config.enableDebugOutput = enableDebugOutput;
+  });
+
   describe('1 errors handling', function() {
     it('1.1 handleUserException', function(done) {            
       request(app)
