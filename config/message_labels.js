@@ -20,7 +20,8 @@ module.exports = (language = 'en') => {
       count: 'count'
     },
     execution: {
-      jobStarted: (jobId, executedBy) => `Job (id=${jobId}) execution started by '${executedBy}'`,
+      jobNoSteps: (jobId) => `No any steps were found for job (id=${jobId})`,
+      jobStarted: (jobId) => `Job (id=${jobId}) execution started`,
       executingStep: (stepName) => `Executing step '${stepName}'`,
       repeatingStep: (stepName, attempt, total) => `Trying to repeat step '${stepName}'. Attempt ${attempt} of ${total}`,
       stepExecuted: (stepName) => `Step '${stepName}' successfully executed`,

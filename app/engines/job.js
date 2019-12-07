@@ -238,26 +238,17 @@ function calculateNextRun(job) {
         let nextRunList = [];
         if (job.schedules) {
           for (let i = 0; i < job.schedules.length; i++) {
-            if (
-              job.schedules[i].enabled ||
-                !job.schedules[i].hasOwnProperty("enabled")
-            ) {
+            if (job.schedules[i].enabled) {
               let nextRun = schedulator.nextOccurrence(job.schedules[i]);
-              if (nextRun.result != null) nextRunList.push(nextRun.result);
+              if (nextRun.result != null) 
+                nextRunList.push(nextRun.result);
               else if (nextRun.error.includes("schema is incorrect"))
-                return {
-                  "isValid": false,
-                  "errorList": `schedule[${i}] ${nextRun.error}`
-                };
+                throw new Error(`schedule[${i}] ${nextRun.error}`);
             }
           }
         }
-        /* istanbul ignore if */
         if (nextRunList.length == 0)
-          return {
-            "isValid": false,
-            "errorList": labels.schedule.nextRunCanNotBeCalculated
-          };
+          throw new Error(labels.schedule.nextRunCanNotBeCalculated);
         else
           jobValidationResult = {
             "isValid": true,
@@ -271,9 +262,7 @@ function calculateNextRun(job) {
     return jobValidationResult;
   }
   catch(e) {
-    /* istanbul ignore next */
-    log.error(`Failed to calculate next run for job (jobId=${job.id}). Stack: ${e.stack}`);
-    /* istanbul ignore next */
+    log.error(`Failed to calculate next run for job (jobId=${job.id}). Stack: ${e}`);
     return {"isValid": false, "errorList": e.message};
   }
 }
@@ -415,128 +404,129 @@ module.exports.logJobHistory = logJobHistory;
  */
 async function executeJob(jobRecord, executedBy, uid) {
   try {
-    await logJobHistory({ message: labels.execution.jobStarted(jobRecord.id, executedBy), level: 2 }, jobRecord.id, executedBy, uid);
+    if(jobRecord === null || jobRecord === undefined)
+      throw new Error(`Failed to get job (jobRecord=${jobRecord}) for execution`);
 
+    await logJobHistory({ message: labels.execution.jobStarted(jobRecord.id), level: 2 }, jobRecord.id, executedBy, uid);
     let job = jobRecord.job;
     let jobExecutionResult = true;
-    if(job !== null) {
-      if(job.hasOwnProperty("steps") && job.steps.length > 0) {
-        //TODO sort steps in right order
-        step_loop:
-        for (let stepIndex = 0; stepIndex < job.steps.length; stepIndex++) {
-          const step = job.steps[stepIndex];
-          await logJobHistory({ message: labels.execution.executingStep(step.name), level: 2 }, jobRecord.id, executedBy, uid);
-          let stepExecution = await stepEngine.execute(step);
-          //log execution result
-          if(stepExecution.result) {
-            await logJobHistory(
-              { 
-                message: labels.execution.stepExecuted(step.name),
-                rowsAffected: stepExecution.affected, 
-                level: 2 
-              }, 
-              jobRecord.id, executedBy, uid);
-            //take an action based on execution result
-            switch(step.onSucceed) {
+    if(job.hasOwnProperty("steps") && job.steps.length > 0) {
+      //TODO sort steps in right order
+      step_loop:
+      for (let stepIndex = 0; stepIndex < job.steps.length; stepIndex++) {
+        const step = job.steps[stepIndex];
+        await logJobHistory({ message: labels.execution.executingStep(step.name), level: 2 }, jobRecord.id, executedBy, uid);
+        let stepExecution = await stepEngine.execute(step);
+        //log execution result
+        if(stepExecution.result) {
+          await logJobHistory(
+            { 
+              message: labels.execution.stepExecuted(step.name),
+              rowsAffected: stepExecution.affected, 
+              level: 2 
+            }, 
+            jobRecord.id, executedBy, uid);
+          //take an action based on execution result
+          switch(step.onSucceed) {
+          case 'gotoNextStep':
+            break;          
+          case 'quitWithSuccess': 
+            jobExecutionResult = true;              
+            break step_loop;
+          case 'quitWithFailure': 
+            jobExecutionResult = false;
+            break step_loop;
+          }              
+        } else {
+          await logJobHistory(
+            { 
+              message: labels.execution.stepFailed(step.name),
+              error: stepExecution.error, 
+              level: 0 
+            }, 
+            jobRecord.id, executedBy, uid);
+          let repeatSucceeded = false;
+          //There is a requierement to try to repeat step in case of failure              
+          if(step.retryAttempts.number > 0) {
+            attempt_loop:
+            for (let attempt = 0; attempt < step.retryAttempts.number; attempt++) {
+              await logJobHistory({ message: labels.execution.repeatingStep(step.name, attempt + 1, step.retryAttempts.number), level: 2 }, jobRecord.id, executedBy, uid);
+              let repeatExecution = await stepEngine.delayedExecute(step, step.retryAttempts.interval);
+              if(repeatExecution.result) {
+                await logJobHistory(
+                  { 
+                    message: labels.execution.stepRepeatSuccess(step.name, attempt + 1),
+                    rowsAffected: stepExecution.affected, 
+                    level: 2 
+                  }, 
+                  jobRecord.id, executedBy, uid);
+                //take an action based on execution result
+                switch(step.onSucceed) {
+                case 'gotoNextStep':
+                  repeatSucceeded = true;
+                  break attempt_loop;          
+                case 'quitWithSuccess':         
+                  jobExecutionResult = true;                        
+                  break step_loop;
+                case 'quitWithFailure': 
+                  jobExecutionResult = false;
+                  break step_loop;                     
+                }                                
+              } else {
+                await logJobHistory(
+                  { 
+                    message: labels.execution.stepRepeatFailure(step.name, attempt + 1),
+                    error: stepExecution.error, 
+                    level: 0 
+                  }, 
+                  jobRecord.id, executedBy, uid);
+              } 
+            }            
+          }
+          if(!repeatSucceeded) {
+            //all aditional attempts failed
+            switch(step.onFailure) {
             case 'gotoNextStep':
               break;          
             case 'quitWithSuccess': 
-              jobExecutionResult = true;              
+              jobExecutionResult = true;            
               break step_loop;
-            case 'quitWithFailure': 
-              jobExecutionResult = false;
-              break step_loop;
+            case 'quitWithFailure':
+              jobExecutionResult = false;               
+              break step_loop;                     
             }              
-          } else {
-            await logJobHistory(
-              { 
-                message: labels.execution.stepFailed(step.name),
-                error: stepExecution.error, 
-                level: 0 
-              }, 
-              jobRecord.id, executedBy, uid);
-            let repeatSucceeded = false;
-            //There is a requierement to try to repeat step in case of failure              
-            if(step.retryAttempts.number > 0) {
-              attempt_loop:
-              for (let attempt = 0; attempt < step.retryAttempts.number; attempt++) {
-                await logJobHistory({ message: labels.execution.repeatingStep(step.name, attempt + 1, step.retryAttempts.number), level: 2 }, jobRecord.id, executedBy, uid);
-                let repeatExecution = await stepEngine.delayedExecute(step, step.retryAttempts.interval);
-                if(repeatExecution.result) {
-                  await logJobHistory(
-                    { 
-                      message: labels.execution.stepRepeatSuccess(step.name, attempt + 1),
-                      rowsAffected: stepExecution.affected, 
-                      level: 2 
-                    }, 
-                    jobRecord.id, executedBy, uid);
-                  //take an action based on execution result
-                  switch(step.onSucceed) {
-                  case 'gotoNextStep':
-                    repeatSucceeded = true;
-                    break attempt_loop;          
-                  case 'quitWithSuccess':         
-                    jobExecutionResult = true;                        
-                    break step_loop;
-                  case 'quitWithFailure': 
-                    jobExecutionResult = false;
-                    break step_loop;                     
-                  }                                
-                } else {
-                  await logJobHistory(
-                    { 
-                      message: labels.execution.stepRepeatFailure(step.name, attempt + 1),
-                      error: stepExecution.error, 
-                      level: 0 
-                    }, 
-                    jobRecord.id, executedBy, uid);
-                } 
-              }            
-            }
-            if(!repeatSucceeded) {
-              //all aditional attempts failed
-              switch(step.onFailure) {
-              case 'gotoNextStep':
-                break;          
-              case 'quitWithSuccess': 
-                jobExecutionResult = true;            
-                break step_loop;
-              case 'quitWithFailure':
-                jobExecutionResult = false;               
-                break step_loop;                     
-              }              
-            }            
-          }
+          }            
         }
-      } else {
-        log.warn(`No step list found for job (jobRecord.id=${jobRecord.id})`);
       }
-      await updateJobLastRun(jobRecord.id, jobExecutionResult, executedBy);
-      if(jobExecutionResult) {
-        log.info(`Job (jobRecord.id=${jobRecord.id}) successfully finsihed. session: ${uid}`);
-        await logJobHistory({ message: labels.execution.jobSuccessful(jobRecord.id), level: 2 }, jobRecord.id, executedBy, uid);        
+    } else {
+      log.warn(`No step list found for job (jobRecord.id=${jobRecord.id})`);
+      await logJobHistory({ message: labels.execution.jobNoSteps(jobRecord.id), level: 0 }, jobRecord.id, executedBy, uid);
+    }
+    await updateJobLastRun(jobRecord.id, jobExecutionResult, executedBy);
+    if(jobExecutionResult) {
+      log.info(`Job (jobRecord.id=${jobRecord.id}) successfully finsihed. session: ${uid}`);
+      await logJobHistory({ message: labels.execution.jobSuccessful(jobRecord.id), level: 2 }, jobRecord.id, executedBy, uid);        
 
-      } else {
-        log.info(`Job (jobRecord.id=${jobRecord.id}) failed. session: ${uid}`);
-        await logJobHistory({ message: labels.execution.jobFailed(jobRecord.id), level: 0 }, jobRecord.id, executedBy, uid);        
-      }      
+    } else {
+      log.info(`Job (jobRecord.id=${jobRecord.id}) failed. session: ${uid}`);
+      await logJobHistory({ message: labels.execution.jobFailed(jobRecord.id), level: 0 }, jobRecord.id, executedBy, uid);        
+    }      
 
-      let jobAssesmentResult = calculateNextRun(job);  
-      /* istanbul ignore if */
-      if(!jobAssesmentResult.isValid) {
-        await updateJobNextRun(jobRecord.id, null, executedBy);
-      }        
-      else {
-        await updateJobNextRun(jobRecord.id, jobAssesmentResult.nextRun.toUTCString(), executedBy);
-      }                
-    } else
-      log.error(`Failed to get job (jobRecord.id=${jobRecord.id}) for execution`);   
+    let jobAssesmentResult = calculateNextRun(job);  
+    if(!jobAssesmentResult.isValid) {
+      await updateJobNextRun(jobRecord.id, null, executedBy);
+    }        
+    else {
+      await updateJobNextRun(jobRecord.id, jobAssesmentResult.nextRun.toUTCString(), executedBy);
+    }                
+ 
   }
   catch(e) {
-    log.error(`Error during execution of job (jobRecord.id=${jobRecord.id}). Stack: ${e.stack}`);
+    log.error(`Error during execution of job (jobRecord=${jobRecord}). Stack: ${e}`);
   }
   finally {
-    await updateJobStatus(jobRecord.id, 1, executedBy);
+    if(jobRecord !== null && jobRecord !== undefined)
+      await updateJobStatus(jobRecord.id, 1, executedBy);
   }  
 }
 module.exports.executeJob = executeJob;
