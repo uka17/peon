@@ -145,18 +145,8 @@ describe('1 job engine', function() {
   });  
 
   it('1.11.3 execute. Step 1 success, gotoNextStep, failed to repeat step 2, quitWithFailure finally', async () => {
-    let executeCalls = 0;
-    let stub1 = sinon.stub(stepEngine, 'execute').callsFake(() => {
-      executeCalls+=1;
-      if(executeCalls == 1)
-        return new Promise((resolve) => {
-          resolve({ result: true, rowsAffected: 1 });
-        });
-      else
-        return new Promise((resolve) => {
-          resolve({ result: false, error: 'attemp_error' });
-        });
-    });    
+    let stub1 = sinon.stub(stepEngine, 'execute').resolves({ result: false, error: 'execute_error' });
+    stub1.onFirstCall().resolves({ result: true, rowsAffected: 1 });
     let stub2 = sinon.stub(stepEngine, 'delayedExecute').resolves({ result: false, error: 'attemp_error' });
     try {
       await jobEngine.executeJob(job, config.testUser);
@@ -170,7 +160,8 @@ describe('1 job engine', function() {
   });
 
   it('1.11.4 execute. Step 1 success, gotoNextStep, failed to repeat step 2, quitWithSuccess finally', async () => {
-    let stub1 = sinon.stub(stepEngine, 'execute').resolves({ result: true, rowsAffected: 1 });    
+    let stub1 = sinon.stub(stepEngine, 'execute').resolves({ result: false, error: 'execute_error' });
+    stub1.onFirstCall().resolves({ result: true, rowsAffected: 1 });
     let stub2 = sinon.stub(stepEngine, 'delayedExecute').resolves({ result: false, error: 'attemp_error' });
     try {
       let quitWithSuccessJob = JSON.parse(JSON.stringify(job));
@@ -186,8 +177,9 @@ describe('1 job engine', function() {
   });   
 
   it('1.11.5 execute. Step 1 success, gotoNextStep, failed to repeat step 2, gotoNextStep finally', async () => {
-    let stub1 = sinon.stub(stepEngine, 'execute').resolves({ result: true, rowsAffected: 1 });    
-    let stub2 = sinon.stub(stepEngine, 'delayedExecute').resolves({ result: true, rowsAffected: 1 });
+    let stub1 = sinon.stub(stepEngine, 'execute').resolves({ result: false, error: 'execute_error' });
+    stub1.onFirstCall().resolves({ result: true, rowsAffected: 1 });
+    let stub2 = sinon.stub(stepEngine, 'delayedExecute').resolves({ result: false, error: 'attemp_error'});
     
     try {
       let gotoNextStepJob = JSON.parse(JSON.stringify(job));
@@ -203,7 +195,8 @@ describe('1 job engine', function() {
   });   
 
   it('1.11.6 execute. Step 1 success, gotoNextStep, success on repeating, gotoNextStep finally', async () => {
-    let stub1 = sinon.stub(stepEngine, 'execute').resolves({ result: true, rowsAffected: 1 });        
+    let stub1 = sinon.stub(stepEngine, 'execute').resolves({ result: false, error: 'execute_error' });
+    stub1.onFirstCall().resolves({ result: true, rowsAffected: 1 });     
     let stub2 = sinon.stub(stepEngine, 'delayedExecute').resolves({ result: true, rowsAffected: 1 });
     try {
       let gotoNextStepJob = JSON.parse(JSON.stringify(job));
@@ -220,7 +213,8 @@ describe('1 job engine', function() {
   });   
 
   it('1.11.7 execute. Step 1 success, gotoNextStep, success on repeating, quitWithSuccess finally', async () => {
-    let stub1 = sinon.stub(stepEngine, 'execute').resolves({ result: true, rowsAffected: 1 });        
+    let stub1 = sinon.stub(stepEngine, 'execute').resolves({ result: false, error: 'execute_error' });
+    stub1.onFirstCall().resolves({ result: true, rowsAffected: 1 });     
     let stub2 = sinon.stub(stepEngine, 'delayedExecute').resolves({ result: true, rowsAffected: 1 });
     try {
       let quitWithSuccessJob = JSON.parse(JSON.stringify(job));
@@ -236,7 +230,8 @@ describe('1 job engine', function() {
   });
 
   it('1.11.8 execute. Step 1 success, gotoNextStep, success on repeating, quitWithFailure finally', async () => {
-    let stub1 = sinon.stub(stepEngine, 'execute').resolves({ result: true, rowsAffected: 1 });        
+    let stub1 = sinon.stub(stepEngine, 'execute').resolves({ result: false, error: 'execute_error' });
+    stub1.onFirstCall().resolves({ result: true, rowsAffected: 1 });   
     let stub2 = sinon.stub(stepEngine, 'delayedExecute').resolves({ result: true, rowsAffected: 1 });
     try {
       let quitWithFailureJob = JSON.parse(JSON.stringify(job));
@@ -275,7 +270,8 @@ describe('1 job engine', function() {
   });
 
   it('1.11.11 execute. Failed to calculate next run', async () => {
-    let stub1 = sinon.stub(stepEngine, 'execute').resolves({ result: true, rowsAffected: 1 });        
+    let stub1 = sinon.stub(stepEngine, 'execute').resolves({ result: false, error: 'execute_error' });
+    stub1.onFirstCall().resolves({ result: true, rowsAffected: 1 });       
     let stub2 = sinon.stub(stepEngine, 'delayedExecute').resolves({ result: true, rowsAffected: 1 });
     try {
       let failedJob = JSON.parse(JSON.stringify(job));
