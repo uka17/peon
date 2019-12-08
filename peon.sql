@@ -5,7 +5,7 @@
 -- Dumped from database version 11.3 (Debian 11.3-1.pgdg90+1)
 -- Dumped by pg_dump version 11.6 (Ubuntu 11.6-1.pgdg18.04+1)
 
--- Started on 2019-12-08 14:10:54 MSK
+-- Started on 2019-12-08 14:55:02 MSK
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -1705,9 +1705,12 @@ COPY public."tblJob" (id, job, "modifiedOn", "modifiedBy", "createdOn", "created
 1124	{"name":"test","description":"Job created for testing purposes","enabled":true,"steps":[{"name":"step1","enabled":true,"order":1,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"order":2,"connection":203,"command":"select \\"fnLog_I2nsert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":1},"onSucceed":"quitWithSuccess","onFailure":"quitWithFailure"}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}],"nextRun":"2019-12-09T06:00:00.000Z"}	2019-12-07 10:16:23.432504	testRobot	2019-12-07 10:16:23.263835	testRobot	t	1	2019-12-09 06:00:00	\N	\N
 1125	{"name":"Test job","description":"Job created for testing purposes","enabled":true,"steps":[{"name":"step1","enabled":true,"order":1,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"order":2,"connection":203,"command":"select \\"fnLog_I2nsert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":1},"onSucceed":"quitWithSuccess","onFailure":"quitWithFailure"}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}]}	2019-12-07 20:40:40.305687	testBot	2019-12-07 20:40:39.47228	testBot	\N	1	\N	2019-12-07 20:40:40.274831	f
 1127	{"name":"Test job","description":"Job created for testing purposes","enabled":true,"steps":[{"name":"step1","enabled":true,"order":1,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"order":2,"connection":203,"command":"select \\"fnLog_I2nsert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":1},"onSucceed":"quitWithSuccess","onFailure":"quitWithFailure"}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}]}	2019-12-07 20:40:40.685029	testRobot	2019-12-07 20:40:40.67683	testRobot	\N	1	2019-12-09 06:00:00	\N	\N
+1131	{"name":"Test job","description":"Job created for testing purposes","enabled":true,"steps":[{"name":"step1","enabled":true,"order":1,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"order":2,"connection":203,"command":"select \\"fnLog_I2nsert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":1},"onSucceed":"quitWithSuccess","onFailure":"quitWithFailure"}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}]}	2019-12-08 11:25:17.524186	testBot	2019-12-08 11:25:17.422833	testBot	\N	1	2019-12-09 06:00:00	2019-12-08 11:25:17.459113	t
 1128	{"name":"test","description":"Job created for testing purposes","enabled":true,"steps":[{"name":"step1","enabled":true,"order":1,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"order":2,"connection":203,"command":"select \\"fnLog_I2nsert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":1},"onSucceed":"quitWithSuccess","onFailure":"quitWithFailure"}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}],"nextRun":"2019-12-09T06:00:00.000Z"}	2019-12-07 20:40:40.898637	testRobot	2019-12-07 20:40:40.728608	testRobot	t	1	2019-12-09 06:00:00	\N	\N
 1130	{"name":"Test job","description":"Job created for testing purposes","enabled":true,"steps":[{"name":"step1","enabled":true,"order":1,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"order":2,"connection":203,"command":"select \\"fnLog_I2nsert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":1},"onSucceed":"quitWithSuccess","onFailure":"quitWithFailure"}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}]}	2019-12-08 11:10:14.853357	testBot	2019-12-08 11:10:14.754797	testBot	\N	1	2019-12-09 06:00:00	2019-12-08 11:10:14.788928	t
 1129	{"name":"Test job","description":"Job created for testing purposes","enabled":true,"steps":[{"name":"step1","enabled":true,"order":1,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"order":2,"connection":203,"command":"select \\"fnLog_I2nsert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":1},"onSucceed":"quitWithSuccess","onFailure":"quitWithFailure"}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}]}	2019-12-08 11:08:17.662988	testBot	2019-12-08 11:08:17.496671	testBot	\N	1	2019-12-09 06:00:00	2019-12-08 11:08:17.585081	t
+1132	{"name":"Test job","description":"Job created for testing purposes","enabled":true,"steps":[{"name":"step1","enabled":true,"order":1,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"order":2,"connection":203,"command":"select \\"fnLog_I2nsert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":1},"onSucceed":"quitWithSuccess","onFailure":"quitWithFailure"}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}]}	2019-12-08 11:48:45.383293	testBot	2019-12-08 11:48:45.275741	testBot	\N	1	2019-12-09 06:00:00	2019-12-08 11:48:45.307236	t
+1133	{"name":"Test job","description":"Job created for testing purposes","enabled":true,"steps":[{"name":"step1","enabled":true,"order":1,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"order":2,"connection":203,"command":"select \\"fnLog_I2nsert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":1},"onSucceed":"quitWithSuccess","onFailure":"quitWithFailure"}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}]}	2019-12-08 11:53:35.652881	testBot	2019-12-08 11:53:35.545077	testBot	\N	1	2019-12-09 06:00:00	2019-12-08 11:53:35.587009	t
 \.
 
 
@@ -4264,6 +4267,18 @@ COPY public."tblJobHistory" (id, message, "createdOn", "createdBy", "jobId", ses
 15776	{"message":"Executing step 'step1'","level":2}	2019-12-08 11:10:14.772756	testBot	1130	\N
 15777	{"message":"Step 'step1' successfully executed","rowsAffected":1,"level":2}	2019-12-08 11:10:14.786215	testBot	1130	\N
 15778	{"message":"Job (id=1130) executed successfully","level":2}	2019-12-08 11:10:14.797747	testBot	1130	\N
+15779	{"message":"Job (id=1131) execution started","level":2}	2019-12-08 11:25:17.439518	testBot	1131	\N
+15780	{"message":"Executing step 'step1'","level":2}	2019-12-08 11:25:17.442671	testBot	1131	\N
+15781	{"message":"Step 'step1' successfully executed","rowsAffected":1,"level":2}	2019-12-08 11:25:17.456672	testBot	1131	\N
+15782	{"message":"Job (id=1131) executed successfully","level":2}	2019-12-08 11:25:17.46809	testBot	1131	\N
+15783	{"message":"Job (id=1132) execution started","level":2}	2019-12-08 11:48:45.289123	testBot	1132	\N
+15784	{"message":"Executing step 'step1'","level":2}	2019-12-08 11:48:45.292659	testBot	1132	\N
+15785	{"message":"Step 'step1' successfully executed","rowsAffected":1,"level":2}	2019-12-08 11:48:45.304839	testBot	1132	\N
+15786	{"message":"Job (id=1132) executed successfully","level":2}	2019-12-08 11:48:45.326058	testBot	1132	\N
+15787	{"message":"Job (id=1133) execution started","level":2}	2019-12-08 11:53:35.560546	testBot	1133	\N
+15788	{"message":"Executing step 'step1'","level":2}	2019-12-08 11:53:35.563952	testBot	1133	\N
+15789	{"message":"Step 'step1' successfully executed","rowsAffected":1,"level":2}	2019-12-08 11:53:35.579426	testBot	1133	\N
+15790	{"message":"Job (id=1133) executed successfully","level":2}	2019-12-08 11:53:35.595982	testBot	1133	\N
 \.
 
 
@@ -4631,6 +4646,9 @@ COPY public."tblLog" (id, type, message, "createdOn", "createdBy") FROM stdin;
 4730	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:46:45)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-12-07 20:40:40.380934	1
 4731	1	Potatoes!	2019-12-08 11:08:17.579518	test
 4732	1	Potatoes!	2019-12-08 11:10:14.782652	test
+4733	1	Potatoes!	2019-12-08 11:25:17.452942	test
+4734	1	Potatoes!	2019-12-08 11:48:45.301109	test
+4735	1	Potatoes!	2019-12-08 11:53:35.575088	test
 \.
 
 
@@ -4814,7 +4832,7 @@ SELECT pg_catalog.setval('public."tblConnection_id_seq"', 671, true);
 -- Name: tblJobHistory_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public."tblJobHistory_id_seq"', 15778, true);
+SELECT pg_catalog.setval('public."tblJobHistory_id_seq"', 15790, true);
 
 
 --
@@ -4823,7 +4841,7 @@ SELECT pg_catalog.setval('public."tblJobHistory_id_seq"', 15778, true);
 -- Name: tblJob_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public."tblJob_Id_seq"', 1130, true);
+SELECT pg_catalog.setval('public."tblJob_Id_seq"', 1133, true);
 
 
 --
@@ -4832,7 +4850,7 @@ SELECT pg_catalog.setval('public."tblJob_Id_seq"', 1130, true);
 -- Name: tblLog_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public."tblLog_Id_seq"', 4732, true);
+SELECT pg_catalog.setval('public."tblLog_Id_seq"', 4735, true);
 
 
 --
@@ -4916,7 +4934,7 @@ ALTER TABLE ONLY public."tblJobHistory"
     ADD CONSTRAINT tbljobhistory_fk FOREIGN KEY ("jobId") REFERENCES public."tblJob"(id) ON UPDATE RESTRICT ON DELETE RESTRICT;
 
 
--- Completed on 2019-12-08 14:10:54 MSK
+-- Completed on 2019-12-08 14:55:03 MSK
 
 --
 -- PostgreSQL database dump complete
