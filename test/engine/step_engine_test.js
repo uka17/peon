@@ -1,19 +1,27 @@
 /* eslint-disable no-undef */
-let objectId;
 let testData = require('../test_data');
 let config = require('../../config/config');
 let assert  = require('chai').assert;
-const jobEngine = require('../../app/engines/job');
-/*
-describe('1 job engine', function() {
-  
-  before(async () => {
-    objectId = await jobEngine.createJob(testData.jobOK, config.testUser);
-  }); 
+let dbclient = require('../../app/tools/db');
+let connectionEngine = require('../../app/engines/connection');
+let sinon = require('sinon');
+const stepEngine = require('../../app/engines/step');
 
-  it('1.1 execute job', (done) => {
-    jobEngine.executeJob(objectId, config.testUser);
-    done();
+describe.only('1 job engine', function() {
+
+  it('1.1 execute. Success', async () => {
+    let stub1 = sinon.stub(dbclient, 'userQuery').resolves(true);
+    let stub2 = sinon.stub(connectionEngine, 'getConnection').resolves({rowCount: 1});
+
+    try {
+      let res = stepEngine.execute({}, config.testUser);
+      console.log(res);
+      assert.equal(res.affected, 1);
+      assert.isTrue(res.result);
+    }
+    finally {
+      stub1.restore();
+      stub2.restore();
+    }
   });                                          
 });
-*/

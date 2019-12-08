@@ -1,13 +1,13 @@
 // tools/db.js
 const config = require('../../config/config');
-const { Pool, Client } = require('pg')
+const { Pool, Client } = require('pg');
 const log = require('../../log/dispatcher');
 
 //configure data type mapping postgres-node due to convert postgres data type to correct one at node side
 var types = require('pg').types;
 types.setTypeParser(20, function(val) {
-  return parseInt(val)
-})
+  return parseInt(val);
+});
 
 const sysPool = new Pool({
   "connectionString": config.connectionString, 
@@ -57,10 +57,10 @@ function executeUserQuery(query, connectionString, callback) {
   
   /* istanbul ignore next */
   let userPool = new Pool({
-      "connectionString": connectionString, 
-      "idleTimeoutMillis": 1000, 
-      "ssl": config.useDBSSL 
-  })
+    "connectionString": connectionString, 
+    "idleTimeoutMillis": 1000, 
+    "ssl": config.useDBSSL 
+  });
   
   //tested in executeSysQuery
   /* istanbul ignore next */

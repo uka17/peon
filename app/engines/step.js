@@ -30,7 +30,7 @@ module.exports.execute = execute;
 function delayedExecute(step, delay) {
   return new Promise((resolve) => {
     setTimeout(() => {
-      resolve(execute(step));
+      resolve(module.execute(step));
     }, delay * 1000);
   });
 }
