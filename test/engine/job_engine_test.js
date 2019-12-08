@@ -12,6 +12,8 @@ const jobTestObject = require('../test_data').jobOK;
 const config = require('../../config/config');
 
 describe('1 job engine', function() {
+  this.timeout(100000);
+
   before(async () => {
     //temporary disable debug output due to have clear test output
     enableDebugOutput = config.enableDebugOutput;
