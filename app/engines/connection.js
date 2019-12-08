@@ -18,6 +18,7 @@ function getConnectionCount(filter) {
     };
     dbclient.query(query, (err, result) => {  
       try {
+        /* istanbul ignore if */
         if (err) {
           throw new Error(err);
         } else {
@@ -30,7 +31,9 @@ function getConnectionCount(filter) {
         }
       }
       catch(e) {        
+        /* istanbul ignore next */
         log.error(`Failed to get conneciton count with query ${query}. Stack: ${e}`);        
+        /* istanbul ignore next */
         reject(e);
       }     
     });
@@ -50,7 +53,7 @@ module.exports.getConnectionCount = getConnectionCount;
 function getConnectionList(filter, sortColumn, sortOrder, perPage, page) {
   return new Promise((resolve, reject) => {
     const query = {
-      "text": 'SELECT public."fnConnection_SelectAll"($1, $2, $3, $4, $5) as Connections',
+      "text": 'SELECT public."fnConnection_SelectAll"($1, $2, $3, $4, $5) as connections',
       "values": [filter, sortColumn, sortOrder, perPage, page]
     };
     dbclient.query(query, (err, result) => {  

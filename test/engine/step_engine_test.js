@@ -7,15 +7,14 @@ let connectionEngine = require('../../app/engines/connection');
 let sinon = require('sinon');
 const stepEngine = require('../../app/engines/step');
 
-describe.only('1 job engine', function() {
+describe('1 step engine', function() {
 
   it('1.1 execute. Success', async () => {
-    let stub1 = sinon.stub(dbclient, 'userQuery').resolves(true);
-    let stub2 = sinon.stub(connectionEngine, 'getConnection').resolves({rowCount: 1});
+    let stub1 = sinon.stub(dbclient, 'userQuery').resolves({rowCount: 1});
+    let stub2 = sinon.stub(connectionEngine, 'getConnection').resolves({connection: true});
 
     try {
-      let res = stepEngine.execute({}, config.testUser);
-      console.log(res);
+      let res = await stepEngine.execute({}, config.testUser);
       assert.equal(res.affected, 1);
       assert.isTrue(res.result);
     }
@@ -23,5 +22,34 @@ describe.only('1 job engine', function() {
       stub1.restore();
       stub2.restore();
     }
-  });                                          
+  });    
+
+  it('1.2 execute. Success', async () => {
+    let stub1 = sinon.stub(dbclient, 'userQuery').rejects({});
+    let stub2 = sinon.stub(connectionEngine, 'getConnection').resolves({connection: true});
+
+    try {
+      let res = await stepEngine.execute({}, config.testUser);
+      assert.isFalse(res.result);
+    }
+    finally {
+      stub1.restore();
+      stub2.restore();
+    }
+  });    
+
+  it('1.3 delayedExecute. Success', async () => {
+    let stub1 = sinon.stub(dbclient, 'userQuery').resolves({rowCount: 1});
+    let stub2 = sinon.stub(connectionEngine, 'getConnection').resolves({connection: true});
+
+    try {
+      let res = await stepEngine.delayedExecute({}, 0.001);
+      assert.equal(res.affected, 1);
+      assert.isTrue(res.result);
+    }
+    finally {
+      stub1.restore();
+      stub2.restore();
+    }
+  });    
 });

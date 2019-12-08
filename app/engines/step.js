@@ -9,7 +9,7 @@ const connection = require('./connection');
  */
 async function execute(step) {      
   try {
-    let con = (await connection.getConnection(step.connection)).connection;
+    let con = (await connection.getConnection(step.connection)).connection;  
     if(con) {
       //'postgresql://postgres:255320@172.17.0.2:5432/peon'  
       let result = await dbclient.userQuery(step.command, `${con.type}://${con.login}:${con.password}@${con.host}:${con.port}/${con.database}`);
@@ -30,7 +30,7 @@ module.exports.execute = execute;
 function delayedExecute(step, delay) {
   return new Promise((resolve) => {
     setTimeout(() => {
-      resolve(module.execute(step));
+      resolve(module.exports.execute(step));
     }, delay * 1000);
   });
 }
