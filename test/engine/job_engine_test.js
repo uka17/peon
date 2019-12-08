@@ -119,6 +119,7 @@ describe('1 job engine', function() {
     quitWithSuccessJob.job.steps[0].onSucceed = 'quitWithSuccess';
     await jobEngine.executeJob(quitWithSuccessJob, config.testUser);
     let jobRecord = (await jobEngine.getJob(quitWithSuccessJob.id));
+    console.log(jobRecord);
     assert.isTrue(jobRecord.lastRunResult);
 
   }).timeout(100000);  
