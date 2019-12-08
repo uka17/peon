@@ -115,16 +115,12 @@ describe('1 job engine', function() {
   });  
 
   it.only('1.11.1 execute. Step 1 success, quitWithSuccess', async () => {
-    try {
-      let quitWithSuccessJob = JSON.parse(JSON.stringify(job));
-      quitWithSuccessJob.job.steps[0].onSucceed = 'quitWithSuccess';
-      await jobEngine.executeJob(quitWithSuccessJob, config.testUser);
-      let jobRecord = (await jobEngine.getJob(quitWithSuccessJob.id));
-      assert.isTrue(jobRecord.lastRunResult);
-    }
-    catch(e) {
-      assert.equal(e, 'a');
-    }
+    let quitWithSuccessJob = JSON.parse(JSON.stringify(job));
+    quitWithSuccessJob.job.steps[0].onSucceed = 'quitWithSuccess';
+    await jobEngine.executeJob(quitWithSuccessJob, config.testUser);
+    let jobRecord = (await jobEngine.getJob(quitWithSuccessJob.id));
+    console.log(jobRecord);
+    assert.isTrue(jobRecord.lastRunResult);
 
   });  
 
