@@ -114,121 +114,178 @@ describe('1 job engine', function() {
     }
   });  
 
-  it.only('1.11.1 execute. Step 1 success, quitWithSuccess', async () => {
-    let quitWithSuccessJob = JSON.parse(JSON.stringify(job));
-    quitWithSuccessJob.job.steps[0].onSucceed = 'quitWithSuccess';
-    await jobEngine.executeJob(quitWithSuccessJob, config.testUser);
-    let jobRecord = (await jobEngine.getJob(quitWithSuccessJob.id));
-    console.log(jobRecord);
-    assert.isTrue(jobRecord.lastRunResult);
-
+  it('1.11.1 execute. Step 1 success, quitWithSuccess', async () => {
+    let stub = sinon.stub(stepEngine, 'execute').resolves({ result: true, rowsAffected: 1 });
+    try {
+      let quitWithSuccessJob = JSON.parse(JSON.stringify(job));
+      quitWithSuccessJob.job.steps[0].onSucceed = 'quitWithSuccess';
+      await jobEngine.executeJob(quitWithSuccessJob, config.testUser);
+      let jobRecord = (await jobEngine.getJob(quitWithSuccessJob.id));
+      assert.isTrue(jobRecord.lastRunResult);
+    }
+    finally {
+      stub.restore();
+    }
   });  
 
   it('1.11.2 execute. Step 1 success, quitWithFailure', async () => {
-    let quitWithFailureJob = JSON.parse(JSON.stringify(job));
-    quitWithFailureJob.job.steps[0].onSucceed = 'quitWithFailure';
-    await jobEngine.executeJob(quitWithFailureJob, config.testUser);
-    let jobRecord = (await jobEngine.getJob(quitWithFailureJob.id));
-    assert.isFalse(jobRecord.lastRunResult);
+    let stub = sinon.stub(stepEngine, 'execute').resolves({ result: true, rowsAffected: 1 });
+    try {
+      let quitWithFailureJob = JSON.parse(JSON.stringify(job));
+      quitWithFailureJob.job.steps[0].onSucceed = 'quitWithFailure';
+      await jobEngine.executeJob(quitWithFailureJob, config.testUser);
+      let jobRecord = (await jobEngine.getJob(quitWithFailureJob.id));
+      assert.isFalse(jobRecord.lastRunResult);
+    }
+    finally {
+      stub.restore();
+    }
   });  
 
   it('1.11.3 execute. Step 1 success, gotoNextStep, failed to repeat step 2, quitWithFailure finally', async () => {
-    let stub = sinon.stub(stepEngine, 'delayedExecute').resolves({ result: false, error: 'attemp_error' });
-
-    await jobEngine.executeJob(job, config.testUser);
-    let jobRecord = (await jobEngine.getJob(job.id));
-    assert.isFalse(jobRecord.lastRunResult);
-
-    stub.restore();
+    let executeCalls = 0;
+    let stub1 = sinon.stub(stepEngine, 'execute').callsFake(() => {
+      executeCalls+=1;
+      if(executeCalls == 1)
+        return new Promise((resolve) => {
+          resolve({ result: true, rowsAffected: 1 });
+        });
+      else
+        return new Promise((resolve) => {
+          resolve({ result: false, error: 'attemp_error' });
+        });
+    });    
+    let stub2 = sinon.stub(stepEngine, 'delayedExecute').resolves({ result: false, error: 'attemp_error' });
+    try {
+      await jobEngine.executeJob(job, config.testUser);
+      let jobRecord = (await jobEngine.getJob(job.id));
+      assert.isFalse(jobRecord.lastRunResult);
+    }
+    finally {
+      stub1.restore();
+      stub2.restore();
+    }
   });
 
   it('1.11.4 execute. Step 1 success, gotoNextStep, failed to repeat step 2, quitWithSuccess finally', async () => {
-    let stub = sinon.stub(stepEngine, 'delayedExecute').resolves({ result: false, error: 'attemp_error' });
-
-    let quitWithSuccessJob = JSON.parse(JSON.stringify(job));
-    quitWithSuccessJob.job.steps[1].onFailure = 'quitWithSuccess';
-    await jobEngine.executeJob(quitWithSuccessJob, config.testUser);
-    let jobRecord = (await jobEngine.getJob(quitWithSuccessJob.id));
-    assert.isTrue(jobRecord.lastRunResult);
-
-    stub.restore();
+    let stub1 = sinon.stub(stepEngine, 'execute').resolves({ result: true, rowsAffected: 1 });    
+    let stub2 = sinon.stub(stepEngine, 'delayedExecute').resolves({ result: false, error: 'attemp_error' });
+    try {
+      let quitWithSuccessJob = JSON.parse(JSON.stringify(job));
+      quitWithSuccessJob.job.steps[1].onFailure = 'quitWithSuccess';
+      await jobEngine.executeJob(quitWithSuccessJob, config.testUser);
+      let jobRecord = (await jobEngine.getJob(quitWithSuccessJob.id));
+      assert.isTrue(jobRecord.lastRunResult);
+    }
+    finally {
+      stub1.restore();
+      stub2.restore();
+    }
   });   
 
   it('1.11.5 execute. Step 1 success, gotoNextStep, failed to repeat step 2, gotoNextStep finally', async () => {
-    let stub = sinon.stub(stepEngine, 'delayedExecute').resolves({ result: false, error: 'attemp_error' });
+    let stub1 = sinon.stub(stepEngine, 'execute').resolves({ result: true, rowsAffected: 1 });    
+    let stub2 = sinon.stub(stepEngine, 'delayedExecute').resolves({ result: true, rowsAffected: 1 });
     
-    let gotoNextStepJob = JSON.parse(JSON.stringify(job));
-    gotoNextStepJob.job.steps[1].onFailure = 'gotoNextStep';
-    await jobEngine.executeJob(gotoNextStepJob, config.testUser);
-    let jobRecord = (await jobEngine.getJob(gotoNextStepJob.id));
-    assert.isTrue(jobRecord.lastRunResult);
-
-    stub.restore();
+    try {
+      let gotoNextStepJob = JSON.parse(JSON.stringify(job));
+      gotoNextStepJob.job.steps[1].onFailure = 'gotoNextStep';
+      await jobEngine.executeJob(gotoNextStepJob, config.testUser);
+      let jobRecord = (await jobEngine.getJob(gotoNextStepJob.id));
+      assert.isTrue(jobRecord.lastRunResult);
+    }
+    finally {
+      stub1.restore();
+      stub2.restore();
+    }
   });   
 
   it('1.11.6 execute. Step 1 success, gotoNextStep, success on repeating, gotoNextStep finally', async () => {
-    let stub = sinon.stub(stepEngine, 'delayedExecute').resolves({ result: true, rowsAffected: 1 });
-    
-    let gotoNextStepJob = JSON.parse(JSON.stringify(job));
-    gotoNextStepJob.job.steps[1].onSucceed = 'gotoNextStep';
-    await jobEngine.executeJob(gotoNextStepJob, config.testUser);
-    let jobRecord = (await jobEngine.getJob(gotoNextStepJob.id));
-    assert.isTrue(jobRecord.lastRunResult);
+    let stub1 = sinon.stub(stepEngine, 'execute').resolves({ result: true, rowsAffected: 1 });        
+    let stub2 = sinon.stub(stepEngine, 'delayedExecute').resolves({ result: true, rowsAffected: 1 });
+    try {
+      let gotoNextStepJob = JSON.parse(JSON.stringify(job));
+      gotoNextStepJob.job.steps[1].onSucceed = 'gotoNextStep';
+      await jobEngine.executeJob(gotoNextStepJob, config.testUser);
+      let jobRecord = (await jobEngine.getJob(gotoNextStepJob.id));
+      assert.isTrue(jobRecord.lastRunResult);
 
-    stub.restore();
+    }
+    finally {
+      stub1.restore();
+      stub2.restore();
+    }
   });   
 
   it('1.11.7 execute. Step 1 success, gotoNextStep, success on repeating, quitWithSuccess finally', async () => {
-    let stub = sinon.stub(stepEngine, 'delayedExecute').resolves({ result: true, rowsAffected: 1 });
-    
-    let quitWithSuccessJob = JSON.parse(JSON.stringify(job));
-    quitWithSuccessJob.job.steps[1].onSucceed = 'quitWithSuccess';
-    await jobEngine.executeJob(quitWithSuccessJob, config.testUser);
-    let jobRecord = (await jobEngine.getJob(quitWithSuccessJob.id));
-    assert.isTrue(jobRecord.lastRunResult);
-
-    stub.restore();
+    let stub1 = sinon.stub(stepEngine, 'execute').resolves({ result: true, rowsAffected: 1 });        
+    let stub2 = sinon.stub(stepEngine, 'delayedExecute').resolves({ result: true, rowsAffected: 1 });
+    try {
+      let quitWithSuccessJob = JSON.parse(JSON.stringify(job));
+      quitWithSuccessJob.job.steps[1].onSucceed = 'quitWithSuccess';
+      await jobEngine.executeJob(quitWithSuccessJob, config.testUser);
+      let jobRecord = (await jobEngine.getJob(quitWithSuccessJob.id));
+      assert.isTrue(jobRecord.lastRunResult);
+    }
+    finally {
+      stub1.restore();
+      stub2.restore();
+    }
   });
 
   it('1.11.8 execute. Step 1 success, gotoNextStep, success on repeating, quitWithFailure finally', async () => {
-    let stub = sinon.stub(stepEngine, 'delayedExecute').resolves({ result: true, rowsAffected: 1 });
-    
-    let quitWithFailureJob = JSON.parse(JSON.stringify(job));
-    quitWithFailureJob.job.steps[1].onSucceed = 'quitWithFailure';
-    await jobEngine.executeJob(quitWithFailureJob, config.testUser);
-    let jobRecord = (await jobEngine.getJob(quitWithFailureJob.id));
-    assert.isFalse(jobRecord.lastRunResult);
-
-    stub.restore();
+    let stub1 = sinon.stub(stepEngine, 'execute').resolves({ result: true, rowsAffected: 1 });        
+    let stub2 = sinon.stub(stepEngine, 'delayedExecute').resolves({ result: true, rowsAffected: 1 });
+    try {
+      let quitWithFailureJob = JSON.parse(JSON.stringify(job));
+      quitWithFailureJob.job.steps[1].onSucceed = 'quitWithFailure';
+      await jobEngine.executeJob(quitWithFailureJob, config.testUser);
+      let jobRecord = (await jobEngine.getJob(quitWithFailureJob.id));
+      assert.isFalse(jobRecord.lastRunResult);
+    }
+    finally {
+      stub1.restore();
+      stub2.restore();
+    }
   });
 
   it('1.11.9 execute. Step list is empty', async () => {
-   
-    let noStepJob = JSON.parse(JSON.stringify(job));
-    noStepJob.job.steps = [];
     let spy = sinon.spy(log, 'warn');
-    await jobEngine.executeJob(noStepJob, config.testUser);
-
-    assert.include(spy.args[0][0], 'No step list found');
-    spy.restore();
+    try {   
+      let noStepJob = JSON.parse(JSON.stringify(job));
+      noStepJob.job.steps = [];    
+      await jobEngine.executeJob(noStepJob, config.testUser);
+      assert.include(spy.args[0][0], 'No step list found');
+    } finally {
+      spy.restore();
+    }
   });
 
   it('1.11.10 execute. Failed to get job', async () => {
     let spy = sinon.spy(log, 'error');
-    await jobEngine.executeJob();
-
-    assert.include(spy.args[0][0], 'Failed to get job');
-    spy.restore();
+    try {
+      await jobEngine.executeJob();
+      assert.include(spy.args[0][0], 'Failed to get job');
+    }
+    finally {
+      spy.restore();
+    }
   });
 
   it('1.11.11 execute. Failed to calculate next run', async () => {
-    let stub = sinon.stub(stepEngine, 'delayedExecute').resolves({ result: false, error: 'attemp_error' });
-    let failedJob = JSON.parse(JSON.stringify(job));
-    failedJob.job.schedules = [];
-    await jobEngine.executeJob(failedJob, config.testUser);
-    let jobRecord = (await jobEngine.getJob(failedJob.id));
-    assert.isNull(jobRecord.nextRun);
-    stub.restore();
+    let stub1 = sinon.stub(stepEngine, 'execute').resolves({ result: true, rowsAffected: 1 });        
+    let stub2 = sinon.stub(stepEngine, 'delayedExecute').resolves({ result: true, rowsAffected: 1 });
+    try {
+      let failedJob = JSON.parse(JSON.stringify(job));
+      failedJob.job.schedules = [];
+      await jobEngine.executeJob(failedJob, config.testUser);
+      let jobRecord = (await jobEngine.getJob(failedJob.id));
+      assert.isNull(jobRecord.nextRun);
+    }
+    finally {
+      stub1.restore();
+      stub2.restore();
+    }
   });
 
   it('1.12.1 calculateNextRun. Failed to validate schedule', (done) => {
