@@ -2,9 +2,11 @@
 if [ -z "$1" ]; then
     echo "Error: Provide a comment for commit"
 else
-    if [ -n "$2" ] && [ "$z" -eq "-db"]; then	
+    if [ "$2" = "-db" ]; then	
+        echo "Backuping DB..."
     	./tools/backup_restore.sh
     fi
+    echo "Pushing to git..."
     git status
     git add .
     git commit -m "$1"

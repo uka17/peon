@@ -121,7 +121,7 @@ describe('1 job engine', function() {
     let jobRecord = (await jobEngine.getJob(quitWithSuccessJob.id));
     assert.isTrue(jobRecord.lastRunResult);
 
-  }).timedOut(10000);  
+  }).timeout(10000);  
 
   it('1.11.2 execute. Step 1 success, quitWithFailure', async () => {
     let quitWithFailureJob = JSON.parse(JSON.stringify(job));
