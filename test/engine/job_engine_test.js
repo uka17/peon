@@ -119,10 +119,9 @@ describe('1 job engine', function() {
     quitWithSuccessJob.job.steps[0].onSucceed = 'quitWithSuccess';
     await jobEngine.executeJob(quitWithSuccessJob, config.testUser);
     let jobRecord = (await jobEngine.getJob(quitWithSuccessJob.id));
-    console.log(jobRecord);
     assert.isTrue(jobRecord.lastRunResult);
 
-  });  
+  }).timedOut(10000);  
 
   it('1.11.2 execute. Step 1 success, quitWithFailure', async () => {
     let quitWithFailureJob = JSON.parse(JSON.stringify(job));
