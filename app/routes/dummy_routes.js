@@ -1,6 +1,7 @@
 // routes/dummy_routes.js
 let util = require('../tools/util');
 const config = require('../../config/config');
+let jobEngine = require('../engines/job');
 let ver = '/v1.0';
 
 module.exports = function(app, dbclient) {
@@ -13,25 +14,15 @@ module.exports = function(app, dbclient) {
       res.status(500).send({error: e.message});
     }
   });  
-  app.get('/', (req, res) => {
+  app.get('/', async (req, res) => {
     //get jobs count
     try {
-      const query = {
-        "text": 'SELECT public."fnJob_Count"() as count'
-      };
-      dbclient.query(query, (err, result) => {
-        /* istanbul ignore if */
-        if (err) {        
-          util.handleServerException(err, config.user, dbclient, res);
-        } 
-        else {        
+     
           let resObject = {};
           resObject['Greeting:'] = 'Welcome, comrade!';
-          resObject['Jobs:'] = result.rows[0].count;
-          resObject['Deploy status:'] = 'Ok';
+          resObject['Deploy status:'] = 'Ok';          
+          resObject['Jobs:'] = await jobEngine.getJobCount();
           res.status(200).send(resObject);
-        } 
-      });
     }
     catch(e) {
       /* istanbul ignore next */
