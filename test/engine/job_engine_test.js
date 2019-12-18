@@ -1,6 +1,5 @@
 /* eslint-disable no-undef */
 let job;
-let testData = require('../test_data');
 let assert  = require('chai').assert;
 let sinon = require('sinon');
 let enableDebugOutput;
@@ -8,7 +7,7 @@ let log = require('../../log/dispatcher');
 const jobEngine = require('../../app/engines/job');
 const stepEngine = require('../../app/engines/step');
 const schedulator = require('schedulator');
-const jobTestObject = require('../test_data').jobOK;
+const testData = require('../test_data');
 const config = require('../../config/config');
 
 describe('1 job engine', function() {
@@ -25,6 +24,38 @@ describe('1 job engine', function() {
     //restore initial debug output
     config.enableDebugOutput = enableDebugOutput;
   });
+
+  it('1.1.1 normalizeStepList. Success 1', (done) => {
+    let testListData = JSON.parse(JSON.stringify(testData.stepList));
+    let stepCount = testListData.length;
+    jobEngine.normalizeStepList(testListData);
+    assert.equal(stepCount, testListData.length);
+    assert.equal(testListData[stepCount - 1].order, testListData.length);
+    assert.equal(testListData[0].order, 1);
+    done();
+  });  
+  
+  it('1.1.2 normalizeStepList. Success 2', (done) => {
+    let testListData = [{order: 1}, {order: 1}];
+    let stepCount = testListData.length;
+    jobEngine.normalizeStepList(testListData);
+    assert.equal(stepCount, testListData.length);
+    assert.equal(testListData[stepCount - 1].order, testListData.length);
+    assert.equal(testListData[0].order, 1);
+    done();
+  });      
+  
+  it('1.1.3 normalizeStepList. stepList should have type Array', (done) => {
+    assert.throws(jobEngine.normalizeStepList, 'stepList should have type Array');
+    done();
+  });    
+  
+  it('1.1.4 normalizeStepList. All step objects in the list should have order property', (done) => {
+    let testListData = JSON.parse(JSON.stringify(testData.stepList));
+    testListData[0] = 1;
+    assert.throws(() => { jobEngine.normalizeStepList(testListData); }, `All 'step' objects in the list should have 'order' property`);
+    done();
+  });   
   
   it('1.2 getJobList. DB failure', async () => {
     try {
@@ -287,7 +318,7 @@ describe('1 job engine', function() {
   });
 
   it('1.12.1 calculateNextRun. Failed to validate schedule', (done) => {
-    let job = JSON.parse(JSON.stringify(jobTestObject));
+    let job = JSON.parse(JSON.stringify(testData.jobOK));
     job.schedules[0].fail = true;
     let result = jobEngine.calculateNextRun(job);
     assert.isFalse(result.isValid);
@@ -295,7 +326,7 @@ describe('1 job engine', function() {
   });       
 
   it('1.12.2 calculateNextRun. Failed to calculate next run', (done) => {
-    let job = JSON.parse(JSON.stringify(jobTestObject));
+    let job = JSON.parse(JSON.stringify(testData.jobOK));
     let stub = sinon.stub(schedulator, 'nextOccurrence').returns({ result: null, error: 'dummy'});
 
     let result = jobEngine.calculateNextRun(job);

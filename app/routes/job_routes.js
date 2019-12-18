@@ -97,7 +97,8 @@ module.exports = function(app) {
   app.post(ver + '/jobs', async (req, res) => {
     //create new job
     try {
-      const job = req.body;
+      let job = req.body;
+      jobEngine.normalizeStepList(job.steps);
       let jobAssesmentResult = jobEngine.calculateNextRun(job);
       
       /* istanbul ignore if */
@@ -124,7 +125,9 @@ module.exports = function(app) {
   app.patch(ver + '/jobs/:id', async (req, res) => {
     //update job by id
     try {
-      const job = req.body;
+      let job = req.body;
+      jobEngine.normalizeStepList(job.steps);
+
       let jobAssesmentResult = jobEngine.calculateNextRun(job);
       
       /* istanbul ignore next */

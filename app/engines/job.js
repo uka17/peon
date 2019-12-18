@@ -531,6 +531,32 @@ async function executeJob(jobRecord, executedBy, uid) {
 }
 module.exports.executeJob = executeJob;
 
+/**
+ * Sorting step list in a correct order and eliminates gaps in sorting order (e.g. 1,2,2,9 will be changed to 1,2,3,4)
+ * @param {Array} stepList Array of step objects
+ */
+function normalizeStepList(stepList) {
+  //sort steps in correct order
+  if(!Array.isArray(stepList))
+    throw new Error('stepList should have type Array');
+  stepList.sort((a, b) => {
+    if(!a.hasOwnProperty('order') || !b.hasOwnProperty('order'))    
+      throw new Error(`All 'step' objects in the list should have 'order' property`);
+
+    if(a.order < b.order)
+      return -1;
+    if(a.order > b.order)
+      return 1;  
+    return 0;
+  });
+  //normilize
+  for (let index = 0; index < stepList.length; index++) {
+    stepList[index].order = index + 1;
+  }
+}
+
+module.exports.normalizeStepList = normalizeStepList;
+
 /*
 async function test() {
   await executeJob(await getJob(768), config.testUser);

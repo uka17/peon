@@ -163,6 +163,38 @@ module.exports.jobTestCaseOK = [
     ]  
   }
 ];
+
+
+module.exports.stepList = [
+  {
+    "name": "step1",
+    "order": 2
+  },
+  {
+    "name": "step2",
+    "order": 1
+  },
+  {
+    "name": "step3",
+    "order": 99
+  },
+  {
+    "name": "step4",
+    "order": 3
+  },
+  {
+    "name": "step5",
+    "order": 2
+  },
+  {
+    "name": "step6",
+    "order": 5
+  },
+  {
+    "name": "step7",
+    "order": 4
+  }                
+];
 //step test data preparation
 module.exports.stepOK = {
   name: 'step',
