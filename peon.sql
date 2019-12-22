@@ -5,7 +5,7 @@
 -- Dumped from database version 11.3 (Debian 11.3-1.pgdg90+1)
 -- Dumped by pg_dump version 11.6 (Ubuntu 11.6-1.pgdg18.04+1)
 
--- Started on 2019-12-08 16:14:01 MSK
+-- Started on 2019-12-23 02:46:46 MSK
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -19,7 +19,7 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- TOC entry 239 (class 1255 OID 49182)
+-- TOC entry 240 (class 1255 OID 49182)
 -- Name: fnConnection_Count(text); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -90,7 +90,7 @@ $$;
 
 
 --
--- TOC entry 238 (class 1255 OID 49180)
+-- TOC entry 239 (class 1255 OID 49180)
 -- Name: fnConnection_SelectAll(text, text, text, integer, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -335,6 +335,28 @@ $$;
 
 
 --
+-- TOC entry 238 (class 1255 OID 57372)
+-- Name: fnJob_Update(integer, json, text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public."fnJob_Update"(job_id integer, job_body json, modified_by text) RETURNS bigint
+    LANGUAGE plpgsql
+    AS $$
+DECLARE 
+	affected integer;
+BEGIN
+    UPDATE public."tblJob" j SET 
+		"job" = job_body,
+		"modifiedBy" = modified_by,
+		"modifiedOn" = NOW()
+	WHERE "id" = job_id AND NULLIF("isDeleted", false) IS NULL;
+	GET DIAGNOSTICS affected := ROW_COUNT;
+	RETURN affected as affected;
+END ;
+$$;
+
+
+--
 -- TOC entry 215 (class 1255 OID 16399)
 -- Name: fnJob_Update(integer, json, timestamp without time zone, text); Type: FUNCTION; Schema: public; Owner: -
 --
@@ -479,7 +501,7 @@ CREATE SEQUENCE public."refJobStatus_id_seq"
 
 
 --
--- TOC entry 2964 (class 0 OID 0)
+-- TOC entry 2965 (class 0 OID 0)
 -- Dependencies: 197
 -- Name: refJobStatus_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -518,7 +540,7 @@ CREATE SEQUENCE public."tblConnection_id_seq"
 
 
 --
--- TOC entry 2965 (class 0 OID 0)
+-- TOC entry 2966 (class 0 OID 0)
 -- Dependencies: 199
 -- Name: tblConnection_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -576,7 +598,7 @@ CREATE SEQUENCE public."tblJobHistory_id_seq"
 
 
 --
--- TOC entry 2966 (class 0 OID 0)
+-- TOC entry 2967 (class 0 OID 0)
 -- Dependencies: 202
 -- Name: tblJobHistory_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -599,7 +621,7 @@ CREATE SEQUENCE public."tblJob_Id_seq"
 
 
 --
--- TOC entry 2967 (class 0 OID 0)
+-- TOC entry 2968 (class 0 OID 0)
 -- Dependencies: 203
 -- Name: tblJob_Id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -636,7 +658,7 @@ CREATE SEQUENCE public."tblLog_Id_seq"
 
 
 --
--- TOC entry 2968 (class 0 OID 0)
+-- TOC entry 2969 (class 0 OID 0)
 -- Dependencies: 205
 -- Name: tblLog_Id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -673,7 +695,7 @@ CREATE SEQUENCE public."tblRunHistory_id_seq"
 
 
 --
--- TOC entry 2969 (class 0 OID 0)
+-- TOC entry 2970 (class 0 OID 0)
 -- Dependencies: 207
 -- Name: tblRunHistory_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -682,7 +704,7 @@ ALTER SEQUENCE public."tblRunHistory_id_seq" OWNED BY public."tblRunHistory".id;
 
 
 --
--- TOC entry 2798 (class 2604 OID 16462)
+-- TOC entry 2799 (class 2604 OID 16462)
 -- Name: refJobStatus id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -690,7 +712,7 @@ ALTER TABLE ONLY public."refJobStatus" ALTER COLUMN id SET DEFAULT nextval('publ
 
 
 --
--- TOC entry 2801 (class 2604 OID 16463)
+-- TOC entry 2802 (class 2604 OID 16463)
 -- Name: tblConnection id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -698,7 +720,7 @@ ALTER TABLE ONLY public."tblConnection" ALTER COLUMN id SET DEFAULT nextval('pub
 
 
 --
--- TOC entry 2805 (class 2604 OID 16464)
+-- TOC entry 2806 (class 2604 OID 16464)
 -- Name: tblJob id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -706,7 +728,7 @@ ALTER TABLE ONLY public."tblJob" ALTER COLUMN id SET DEFAULT nextval('public."tb
 
 
 --
--- TOC entry 2807 (class 2604 OID 16465)
+-- TOC entry 2808 (class 2604 OID 16465)
 -- Name: tblJobHistory id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -714,7 +736,7 @@ ALTER TABLE ONLY public."tblJobHistory" ALTER COLUMN id SET DEFAULT nextval('pub
 
 
 --
--- TOC entry 2809 (class 2604 OID 16466)
+-- TOC entry 2810 (class 2604 OID 16466)
 -- Name: tblLog id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -722,7 +744,7 @@ ALTER TABLE ONLY public."tblLog" ALTER COLUMN id SET DEFAULT nextval('public."tb
 
 
 --
--- TOC entry 2811 (class 2604 OID 16467)
+-- TOC entry 2812 (class 2604 OID 16467)
 -- Name: tblRunHistory id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -730,7 +752,7 @@ ALTER TABLE ONLY public."tblRunHistory" ALTER COLUMN id SET DEFAULT nextval('pub
 
 
 --
--- TOC entry 2947 (class 0 OID 16404)
+-- TOC entry 2948 (class 0 OID 16404)
 -- Dependencies: 196
 -- Data for Name: refJobStatus; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -743,7 +765,7 @@ COPY public."refJobStatus" (id, status, "modifiedOn", "modifiedBy", "createdOn",
 
 
 --
--- TOC entry 2949 (class 0 OID 16414)
+-- TOC entry 2950 (class 0 OID 16414)
 -- Dependencies: 198
 -- Data for Name: tblConnection; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -1396,6 +1418,7 @@ COPY public."tblConnection" (id, connection, "modifiedOn", "modifiedBy", "create
 645	{"name":"test_connection","host":"test","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-12-06 21:27:04.447174	testRobot	2019-12-06 21:27:04.335134	testRobot	t
 646	{"name":"test_connection","host":"127.0.0.1","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-12-06 22:22:33.579804	testRobot	2019-12-06 22:22:33.579804	testRobot	\N
 647	{"name":"test_connection","host":"test","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-12-06 22:22:33.723498	testRobot	2019-12-06 22:22:33.612275	testRobot	t
+681	{"name":"test_connection","host":"test","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-12-08 13:41:34.720494	testRobot	2019-12-08 13:41:34.611595	testRobot	t
 648	{"name":"test_connection","host":"127.0.0.1","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-12-07 09:51:41.295402	testRobot	2019-12-07 09:51:41.295402	testRobot	\N
 649	{"name":"test_connection","host":"test","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-12-07 09:51:41.44798	testRobot	2019-12-07 09:51:41.323389	testRobot	t
 650	{"name":"test_connection","host":"127.0.0.1","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-12-07 09:53:20.164701	testRobot	2019-12-07 09:53:20.164701	testRobot	\N
@@ -1423,14 +1446,32 @@ COPY public."tblConnection" (id, connection, "modifiedOn", "modifiedBy", "create
 673	{"name":"test_connection","host":"test","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-12-08 12:24:31.569059	testRobot	2019-12-08 12:24:31.452583	testRobot	t
 671	{"name":"test_connection","host":"test","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-12-07 20:40:40.636419	testRobot	2019-12-07 20:40:40.518782	testRobot	t
 674	{"name":"test_connection","host":"127.0.0.1","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-12-08 12:25:52.712743	testRobot	2019-12-08 12:25:52.712743	testRobot	\N
+678	{"name":"test_connection","host":"127.0.0.1","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-12-08 13:20:22.902121	testRobot	2019-12-08 13:20:22.902121	testRobot	\N
 675	{"name":"test_connection","host":"test","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-12-08 12:25:52.857682	testRobot	2019-12-08 12:25:52.741572	testRobot	t
 676	{"name":"test_connection","host":"127.0.0.1","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-12-08 13:12:14.720039	testRobot	2019-12-08 13:12:14.720039	testRobot	\N
 677	{"name":"test_connection","host":"test","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-12-08 13:12:14.846315	testRobot	2019-12-08 13:12:14.742272	testRobot	t
+679	{"name":"test_connection","host":"test","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-12-08 13:20:23.03296	testRobot	2019-12-08 13:20:22.932022	testRobot	t
+680	{"name":"test_connection","host":"127.0.0.1","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-12-08 13:41:34.582623	testRobot	2019-12-08 13:41:34.582623	testRobot	\N
+682	{"name":"test_connection","host":"127.0.0.1","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-12-08 13:41:42.892531	testRobot	2019-12-08 13:41:42.892531	testRobot	\N
+683	{"name":"test_connection","host":"test","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-12-08 13:41:43.030584	testRobot	2019-12-08 13:41:42.917669	testRobot	t
+684	{"name":"test_connection","host":"127.0.0.1","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-12-08 13:42:56.799026	testRobot	2019-12-08 13:42:56.799026	testRobot	\N
+685	{"name":"test_connection","host":"test","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-12-08 13:42:56.946924	testRobot	2019-12-08 13:42:56.827107	testRobot	t
+686	{"name":"test_connection","host":"127.0.0.1","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-12-08 18:29:20.125774	testRobot	2019-12-08 18:29:20.125774	testRobot	\N
+687	{"name":"test_connection","host":"test","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-12-08 18:29:20.264733	testRobot	2019-12-08 18:29:20.158994	testRobot	t
+688	{"name":"test_connection","host":"127.0.0.1","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-12-08 18:38:32.626133	testBot	2019-12-08 18:38:32.626133	testBot	\N
+690	{"name":"test_connection","host":"127.0.0.1","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-12-08 18:44:22.51945	testBot	2019-12-08 18:44:22.51945	testBot	\N
+691	{"name":"test_connection","host":"127.0.0.1","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-12-08 18:44:54.017758	testBot	2019-12-08 18:44:54.017758	testBot	\N
+692	{"name":"test_connection","host":"127.0.0.1","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-12-08 18:45:15.178119	testBot	2019-12-08 18:45:15.178119	testBot	\N
+693	{"name":"test_connection","host":"127.0.0.1","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-12-08 18:46:49.812703	testBot	2019-12-08 18:46:49.812703	testBot	\N
+694	{"name":"test_connection","host":"127.0.0.1","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-12-08 18:47:27.768382	testBot	2019-12-08 18:47:27.768382	testBot	\N
+696	{"name":"test_connection","host":"127.0.0.1","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-12-08 18:47:44.787299	testBot	2019-12-08 18:47:44.787299	testBot	\N
+698	{"name":"test_connection","host":"127.0.0.1","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-12-08 18:47:45.671359	testRobot	2019-12-08 18:47:45.671359	testRobot	\N
+699	{"name":"test_connection","host":"test","port":8080,"database":"database","enabled":true,"login":"user","password":"password","type":"mongodb"}	2019-12-08 18:47:45.800895	testRobot	2019-12-08 18:47:45.697971	testRobot	t
 \.
 
 
 --
--- TOC entry 2951 (class 0 OID 16424)
+-- TOC entry 2952 (class 0 OID 16424)
 -- Dependencies: 200
 -- Data for Name: tblJob; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -1727,11 +1768,35 @@ COPY public."tblJob" (id, job, "modifiedOn", "modifiedBy", "createdOn", "created
 1138	{"name":"Test job","description":"Job created for testing purposes","enabled":true,"steps":[{"name":"step1","enabled":true,"order":1,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"order":2,"connection":203,"command":"select \\"fnLog_I2nsert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":1},"onSucceed":"quitWithSuccess","onFailure":"quitWithFailure"}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}]}	2019-12-08 12:25:52.510817	testBot	2019-12-08 12:25:51.851252	testBot	\N	1	\N	2019-12-08 12:25:52.478375	f
 1144	{"name":"Test job","description":"Job created for testing purposes","enabled":true,"steps":[{"name":"step1","enabled":true,"order":1,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"order":2,"connection":203,"command":"select \\"fnLog_I2nsert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":1},"onSucceed":"quitWithSuccess","onFailure":"quitWithFailure"}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}]}	2019-12-08 13:12:14.51777	testBot	2019-12-08 13:12:13.917244	testBot	\N	1	\N	2019-12-08 13:12:14.485823	t
 1147	{"name":"test","description":"Job created for testing purposes","enabled":true,"steps":[{"name":"step1","enabled":true,"order":1,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"order":2,"connection":203,"command":"select \\"fnLog_I2nsert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":1},"onSucceed":"quitWithSuccess","onFailure":"quitWithFailure"}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}],"nextRun":"2019-12-09T06:00:00.000Z"}	2019-12-08 13:12:15.09156	testRobot	2019-12-08 13:12:14.922479	testRobot	t	1	2019-12-09 06:00:00	\N	\N
+1154	{"name":"Test job","description":"Job created for testing purposes","enabled":true,"steps":[{"name":"step1","enabled":true,"order":1,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"order":2,"connection":203,"command":"select \\"fnLog_I2nsert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":1},"onSucceed":"quitWithSuccess","onFailure":"quitWithFailure"}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}]}	2019-12-08 13:36:40.801049	testBot	2019-12-08 13:36:40.801049	testBot	\N	1	\N	\N	\N
+1151	{"name":"test","description":"Job created for testing purposes","enabled":true,"steps":[{"name":"step1","enabled":true,"order":1,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"order":2,"connection":203,"command":"select \\"fnLog_I2nsert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":1},"onSucceed":"quitWithSuccess","onFailure":"quitWithFailure"}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}],"nextRun":"2019-12-09T06:00:00.000Z"}	2019-12-08 13:20:23.268921	testRobot	2019-12-08 13:20:23.101448	testRobot	t	1	2019-12-09 06:00:00	\N	\N
+1148	{"name":"Test job","description":"Job created for testing purposes","enabled":true,"steps":[{"name":"step1","enabled":true,"order":1,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"order":2,"connection":203,"command":"select \\"fnLog_I2nsert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":1},"onSucceed":"quitWithSuccess","onFailure":"quitWithFailure"}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}]}	2019-12-08 13:20:22.710994	testBot	2019-12-08 13:20:22.124581	testBot	\N	1	\N	2019-12-08 13:20:22.680135	t
+1150	{"name":"Test job","description":"Job created for testing purposes","enabled":true,"steps":[{"name":"step1","enabled":true,"order":1,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"order":2,"connection":203,"command":"select \\"fnLog_I2nsert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":1},"onSucceed":"quitWithSuccess","onFailure":"quitWithFailure"}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}]}	2019-12-08 13:20:23.067607	testRobot	2019-12-08 13:20:23.063983	testRobot	\N	1	2019-12-09 06:00:00	\N	\N
+1152	{"name":"Test job","description":"Job created for testing purposes","enabled":true,"steps":[{"name":"step1","enabled":true,"order":1,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"order":2,"connection":203,"command":"select \\"fnLog_I2nsert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":1},"onSucceed":"quitWithSuccess","onFailure":"quitWithFailure"}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}]}	2019-12-08 13:23:44.894322	testBot	2019-12-08 13:23:44.858161	testBot	\N	1	\N	\N	\N
+1153	{"name":"Test job","description":"Job created for testing purposes","enabled":true,"steps":[{"name":"step1","enabled":true,"order":1,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"order":2,"connection":203,"command":"select \\"fnLog_I2nsert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":1},"onSucceed":"quitWithSuccess","onFailure":"quitWithFailure"}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}]}	2019-12-08 13:30:37.698938	testBot	2019-12-08 13:30:37.698938	testBot	\N	1	\N	\N	\N
+1155	{"name":"Test job","description":"Job created for testing purposes","enabled":true,"steps":[{"name":"step1","enabled":true,"order":1,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"order":2,"connection":203,"command":"select \\"fnLog_I2nsert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":1},"onSucceed":"quitWithSuccess","onFailure":"quitWithFailure"}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}]}	2019-12-08 13:36:54.606899	testBot	2019-12-08 13:36:54.507109	testBot	\N	1	2019-12-09 06:00:00	2019-12-08 13:36:54.536376	t
+1156	{"name":"Test job","description":"Job created for testing purposes","enabled":true,"steps":[{"name":"step1","enabled":true,"order":1,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"order":2,"connection":203,"command":"select \\"fnLog_I2nsert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":1},"onSucceed":"quitWithSuccess","onFailure":"quitWithFailure"}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}]}	2019-12-08 13:38:36.578192	testBot	2019-12-08 13:38:36.464967	testBot	\N	1	2019-12-09 06:00:00	2019-12-08 13:38:36.505917	f
+1162	{"name":"Test job","description":"Job created for testing purposes","enabled":true,"steps":[{"name":"step1","enabled":true,"order":1,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"order":2,"connection":203,"command":"select \\"fnLog_I2nsert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":1},"onSucceed":"quitWithSuccess","onFailure":"quitWithFailure"}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}]}	2019-12-08 13:41:42.674043	testBot	2019-12-08 13:41:42.041815	testBot	\N	1	\N	2019-12-08 13:41:42.642875	t
+1157	{"name":"Test job","description":"Job created for testing purposes","enabled":true,"steps":[{"name":"step1","enabled":true,"order":1,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"order":2,"connection":203,"command":"select \\"fnLog_I2nsert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":1},"onSucceed":"quitWithSuccess","onFailure":"quitWithFailure"}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}]}	2019-12-08 13:40:26.41622	testBot	2019-12-08 13:40:26.317784	testBot	\N	1	2019-12-09 06:00:00	2019-12-08 13:40:26.352184	f
+1161	{"name":"test","description":"Job created for testing purposes","enabled":true,"steps":[{"name":"step1","enabled":true,"order":1,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"order":2,"connection":203,"command":"select \\"fnLog_I2nsert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":1},"onSucceed":"quitWithSuccess","onFailure":"quitWithFailure"}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}],"nextRun":"2019-12-09T06:00:00.000Z"}	2019-12-08 13:41:34.963617	testRobot	2019-12-08 13:41:34.795281	testRobot	t	1	2019-12-09 06:00:00	\N	\N
+1158	{"name":"Test job","description":"Job created for testing purposes","enabled":true,"steps":[{"name":"step1","enabled":true,"order":1,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"order":2,"connection":203,"command":"select \\"fnLog_I2nsert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":1},"onSucceed":"quitWithSuccess","onFailure":"quitWithFailure"}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}]}	2019-12-08 13:41:34.382743	testBot	2019-12-08 13:41:33.741262	testBot	\N	1	\N	2019-12-08 13:41:34.349277	t
+1160	{"name":"Test job","description":"Job created for testing purposes","enabled":true,"steps":[{"name":"step1","enabled":true,"order":1,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"order":2,"connection":203,"command":"select \\"fnLog_I2nsert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":1},"onSucceed":"quitWithSuccess","onFailure":"quitWithFailure"}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}]}	2019-12-08 13:41:34.756951	testRobot	2019-12-08 13:41:34.752465	testRobot	\N	1	2019-12-09 06:00:00	\N	\N
+1164	{"name":"Test job","description":"Job created for testing purposes","enabled":true,"steps":[{"name":"step1","enabled":true,"order":1,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"order":2,"connection":203,"command":"select \\"fnLog_I2nsert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":1},"onSucceed":"quitWithSuccess","onFailure":"quitWithFailure"}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}]}	2019-12-08 13:41:43.065329	testRobot	2019-12-08 13:41:43.061175	testRobot	\N	1	2019-12-09 06:00:00	\N	\N
+1165	{"name":"test","description":"Job created for testing purposes","enabled":true,"steps":[{"name":"step1","enabled":true,"order":1,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"order":2,"connection":203,"command":"select \\"fnLog_I2nsert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":1},"onSucceed":"quitWithSuccess","onFailure":"quitWithFailure"}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}],"nextRun":"2019-12-09T06:00:00.000Z"}	2019-12-08 13:41:43.277459	testRobot	2019-12-08 13:41:43.098109	testRobot	t	1	2019-12-09 06:00:00	\N	\N
+1166	{"name":"Test job","description":"Job created for testing purposes","enabled":true,"steps":[{"name":"step1","enabled":true,"order":1,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"order":2,"connection":203,"command":"select \\"fnLog_I2nsert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":1},"onSucceed":"quitWithSuccess","onFailure":"quitWithFailure"}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}]}	2019-12-08 13:42:56.603967	testBot	2019-12-08 13:42:55.985284	testBot	\N	1	\N	2019-12-08 13:42:56.57229	t
+1168	{"name":"Test job","description":"Job created for testing purposes","enabled":true,"steps":[{"name":"step1","enabled":true,"order":1,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"order":2,"connection":203,"command":"select \\"fnLog_I2nsert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":1},"onSucceed":"quitWithSuccess","onFailure":"quitWithFailure"}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}]}	2019-12-08 13:42:56.981122	testRobot	2019-12-08 13:42:56.977426	testRobot	\N	1	2019-12-09 06:00:00	\N	\N
+1176	{"name":"Test job","description":"Job created for testing purposes","enabled":true,"steps":[{"name":"step1","enabled":true,"order":1,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"order":2,"connection":203,"command":"select \\"fnLog_I2nsert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":1},"onSucceed":"quitWithSuccess","onFailure":"quitWithFailure"}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}]}	2019-12-08 18:47:45.834914	testRobot	2019-12-08 18:47:45.83151	testRobot	\N	1	2019-12-09 06:00:00	\N	\N
+1169	{"name":"test","description":"Job created for testing purposes","enabled":true,"steps":[{"name":"step1","enabled":true,"order":1,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"order":2,"connection":203,"command":"select \\"fnLog_I2nsert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":1},"onSucceed":"quitWithSuccess","onFailure":"quitWithFailure"}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}],"nextRun":"2019-12-09T06:00:00.000Z"}	2019-12-08 13:42:57.186681	testRobot	2019-12-08 13:42:57.019441	testRobot	t	1	2019-12-09 06:00:00	\N	\N
+1170	{"name":"Test job","description":"Job created for testing purposes","enabled":true,"steps":[{"name":"step1","enabled":true,"order":1,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"order":2,"connection":203,"command":"select \\"fnLog_I2nsert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":1},"onSucceed":"quitWithSuccess","onFailure":"quitWithFailure"}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}]}	2019-12-08 18:29:19.889128	testBot	2019-12-08 18:29:19.24355	testBot	\N	1	\N	2019-12-08 18:29:19.852316	t
+1172	{"name":"Test job","description":"Job created for testing purposes","enabled":true,"steps":[{"name":"step1","enabled":true,"order":1,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"order":2,"connection":203,"command":"select \\"fnLog_I2nsert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":1},"onSucceed":"quitWithSuccess","onFailure":"quitWithFailure"}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}]}	2019-12-08 18:29:20.307644	testRobot	2019-12-08 18:29:20.298545	testRobot	\N	1	2019-12-09 06:00:00	\N	\N
+1173	{"name":"test","description":"Job created for testing purposes","enabled":true,"steps":[{"name":"step1","enabled":true,"order":1,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"order":2,"connection":203,"command":"select \\"fnLog_I2nsert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":1},"onSucceed":"quitWithSuccess","onFailure":"quitWithFailure"}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}],"nextRun":"2019-12-09T06:00:00.000Z"}	2019-12-08 18:29:20.526612	testRobot	2019-12-08 18:29:20.348723	testRobot	t	1	2019-12-09 06:00:00	\N	\N
+1174	{"name":"Test job","description":"Job created for testing purposes","enabled":true,"steps":[{"name":"step1","enabled":true,"order":1,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"order":2,"connection":203,"command":"select \\"fnLog_I2nsert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":1},"onSucceed":"quitWithSuccess","onFailure":"quitWithFailure"}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}]}	2019-12-08 18:47:45.440426	testBot	2019-12-08 18:47:44.837844	testBot	\N	1	\N	2019-12-08 18:47:45.404985	t
+1177	{"name":"test","description":"Job created for testing purposes","enabled":true,"steps":[{"name":"step1","enabled":true,"order":1,"connection":203,"command":"select \\"fnLog_Insert\\"(1, 'Potatoes!', 'test')","retryAttempts":{"number":1,"interval":5},"onSucceed":"gotoNextStep","onFailure":"quitWithFailure"},{"name":"step2","enabled":true,"order":2,"connection":203,"command":"select \\"fnLog_I2nsert\\"(1, 'Tomatoes!', 'test')","retryAttempts":{"number":1,"interval":1},"onSucceed":"quitWithSuccess","onFailure":"quitWithFailure"}],"schedules":[{"enabled":true,"startDateTime":"2018-01-31T20:55:23.071Z","eachNWeek":1,"dayOfWeek":["mon","tue","wed","thu","fri"],"dailyFrequency":{"start":"06:00:00","occursEvery":{"intervalValue":5,"intervalType":"minute"}}}],"nextRun":"2019-12-09T06:00:00.000Z"}	2019-12-08 18:47:46.047641	testRobot	2019-12-08 18:47:45.873086	testRobot	t	1	2019-12-09 06:00:00	\N	\N
 \.
 
 
 --
--- TOC entry 2952 (class 0 OID 16433)
+-- TOC entry 2953 (class 0 OID 16433)
 -- Dependencies: 201
 -- Data for Name: tblJobHistory; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -1985,11 +2050,425 @@ COPY public."tblJobHistory" (id, message, "createdOn", "createdBy", "jobId", ses
 16036	{"message":"Executing step 'step2'","level":2}	2019-12-08 13:12:14.482025	testBot	1144	\N
 16037	{"message":"Step 'step2' successfully executed","level":2}	2019-12-08 13:12:14.483999	testBot	1144	\N
 16038	{"message":"Job (id=1144) executed successfully","level":2}	2019-12-08 13:12:14.487686	testBot	1144	\N
+16039	{"message":"Job (id=1148) execution started","level":2}	2019-12-08 13:20:22.20105	testBot	1148	\N
+16040	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:20:22.205617	testBot	1148	\N
+16041	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:20:22.209105	testBot	1148	\N
+16042	{"message":"Job (id=1148) executed successfully","level":2}	2019-12-08 13:20:22.223669	testBot	1148	\N
+16043	{"message":"Job (id=1148) execution started","level":2}	2019-12-08 13:20:22.295411	testBot	1148	\N
+16044	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:20:22.297801	testBot	1148	\N
+16045	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:20:22.300256	testBot	1148	\N
+16046	{"message":"Job (id=1148) failed'","level":0}	2019-12-08 13:20:22.304421	testBot	1148	\N
+16047	{"message":"Job (id=1148) execution started","level":2}	2019-12-08 13:20:22.346148	testBot	1148	\N
+16048	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:20:22.348062	testBot	1148	\N
+16049	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:20:22.356117	testBot	1148	\N
+16050	{"message":"Executing step 'step2'","level":2}	2019-12-08 13:20:22.358182	testBot	1148	\N
+16051	{"message":"Failed to execute step 'step2'","error":"attemp_error","level":0}	2019-12-08 13:20:22.360551	testBot	1148	\N
+16052	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 13:20:22.36276	testBot	1148	\N
+16053	{"message":"1 repeat attempt failed for step 'step2'","error":"attemp_error","level":0}	2019-12-08 13:20:22.365059	testBot	1148	\N
+16054	{"message":"Job (id=1148) failed'","level":0}	2019-12-08 13:20:22.369349	testBot	1148	\N
+16055	{"message":"Job (id=1148) execution started","level":2}	2019-12-08 13:20:22.41133	testBot	1148	\N
+16056	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:20:22.413894	testBot	1148	\N
+16057	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:20:22.416747	testBot	1148	\N
+16058	{"message":"Executing step 'step2'","level":2}	2019-12-08 13:20:22.419318	testBot	1148	\N
+16059	{"message":"Step 'step2' successfully executed","level":2}	2019-12-08 13:20:22.421545	testBot	1148	\N
+16060	{"message":"Job (id=1148) executed successfully","level":2}	2019-12-08 13:20:22.426054	testBot	1148	\N
+16061	{"message":"Job (id=1148) execution started","level":2}	2019-12-08 13:20:22.465158	testBot	1148	\N
+16062	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:20:22.467409	testBot	1148	\N
+16063	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:20:22.469369	testBot	1148	\N
+16064	{"message":"Executing step 'step2'","level":2}	2019-12-08 13:20:22.471335	testBot	1148	\N
+16065	{"message":"Step 'step2' successfully executed","level":2}	2019-12-08 13:20:22.473429	testBot	1148	\N
+16066	{"message":"Job (id=1148) executed successfully","level":2}	2019-12-08 13:20:22.477663	testBot	1148	\N
+16067	{"message":"Job (id=1148) execution started","level":2}	2019-12-08 13:20:22.511713	testBot	1148	\N
+16068	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:20:22.513553	testBot	1148	\N
+16069	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:20:22.515355	testBot	1148	\N
+16070	{"message":"Executing step 'step2'","level":2}	2019-12-08 13:20:22.517334	testBot	1148	\N
+16071	{"message":"Step 'step2' successfully executed","level":2}	2019-12-08 13:20:22.519379	testBot	1148	\N
+16072	{"message":"Job (id=1148) executed successfully","level":2}	2019-12-08 13:20:22.523149	testBot	1148	\N
+16073	{"message":"Job (id=1148) execution started","level":2}	2019-12-08 13:20:22.555417	testBot	1148	\N
+16074	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:20:22.55722	testBot	1148	\N
+16075	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:20:22.559127	testBot	1148	\N
+16076	{"message":"Executing step 'step2'","level":2}	2019-12-08 13:20:22.561112	testBot	1148	\N
+16077	{"message":"Step 'step2' successfully executed","level":2}	2019-12-08 13:20:22.562918	testBot	1148	\N
+16078	{"message":"Job (id=1148) executed successfully","level":2}	2019-12-08 13:20:22.566852	testBot	1148	\N
+16079	{"message":"Job (id=1148) execution started","level":2}	2019-12-08 13:20:22.599982	testBot	1148	\N
+16080	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:20:22.601822	testBot	1148	\N
+16081	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:20:22.603689	testBot	1148	\N
+16082	{"message":"Executing step 'step2'","level":2}	2019-12-08 13:20:22.605401	testBot	1148	\N
+16083	{"message":"Step 'step2' successfully executed","level":2}	2019-12-08 13:20:22.607111	testBot	1148	\N
+16084	{"message":"Job (id=1148) failed'","level":0}	2019-12-08 13:20:22.611234	testBot	1148	\N
+16085	{"message":"Job (id=1148) execution started","level":2}	2019-12-08 13:20:22.643515	testBot	1148	\N
+16086	{"message":"No any steps were found for job (id=1148)","level":0}	2019-12-08 13:20:22.645931	testBot	1148	\N
+16087	{"message":"Job (id=1148) executed successfully","level":2}	2019-12-08 13:20:22.65005	testBot	1148	\N
+16088	{"message":"Job (id=1148) execution started","level":2}	2019-12-08 13:20:22.669839	testBot	1148	\N
+16089	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:20:22.672111	testBot	1148	\N
+16090	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:20:22.673977	testBot	1148	\N
+16091	{"message":"Executing step 'step2'","level":2}	2019-12-08 13:20:22.675938	testBot	1148	\N
+16092	{"message":"Step 'step2' successfully executed","level":2}	2019-12-08 13:20:22.678075	testBot	1148	\N
+16093	{"message":"Job (id=1148) executed successfully","level":2}	2019-12-08 13:20:22.682284	testBot	1148	\N
+16094	{"message":"Job (id=1152) execution started","level":2}	2019-12-08 13:23:44.885605	testBot	1152	\N
+16095	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:23:44.888817	testBot	1152	\N
+16096	{"message":"Job (id=1155) execution started","level":2}	2019-12-08 13:36:54.523691	testBot	1155	\N
+16097	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:36:54.526736	testBot	1155	\N
+16098	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:36:54.52995	testBot	1155	\N
+16099	{"message":"Executing step 'step2'","level":2}	2019-12-08 13:36:54.531841	testBot	1155	\N
+16100	{"message":"Step 'step2' successfully executed","level":2}	2019-12-08 13:36:54.533834	testBot	1155	\N
+16101	{"message":"Job (id=1155) executed successfully","level":2}	2019-12-08 13:36:54.550664	testBot	1155	\N
+16102	{"message":"Job (id=1156) execution started","level":2}	2019-12-08 13:38:36.480598	testBot	1156	\N
+16103	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:38:36.483688	testBot	1156	\N
+16104	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:38:36.486679	testBot	1156	\N
+16105	{"message":"Executing step 'step2'","level":2}	2019-12-08 13:38:36.488603	testBot	1156	\N
+16106	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 13:38:36.49092	testBot	1156	\N
+16107	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 13:38:36.498565	testBot	1156	\N
+16108	{"message":"1 repeat attempt failed for step 'step2'","error":"execute_error","level":0}	2019-12-08 13:38:36.502428	testBot	1156	\N
+16109	{"message":"Job (id=1156) failed'","level":0}	2019-12-08 13:38:36.514625	testBot	1156	\N
+16110	{"message":"Job (id=1157) execution started","level":2}	2019-12-08 13:40:26.333539	testBot	1157	\N
+16111	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:40:26.336669	testBot	1157	\N
+16112	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:40:26.340354	testBot	1157	\N
+16113	{"message":"Executing step 'step2'","level":2}	2019-12-08 13:40:26.342417	testBot	1157	\N
+16114	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 13:40:26.34453	testBot	1157	\N
+16115	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 13:40:26.34743	testBot	1157	\N
+16116	{"message":"1 repeat attempt failed for step 'step2'","error":"execute_error","level":0}	2019-12-08 13:40:26.349826	testBot	1157	\N
+16117	{"message":"Job (id=1157) failed'","level":0}	2019-12-08 13:40:26.361229	testBot	1157	\N
+16118	{"message":"Job (id=1158) execution started","level":2}	2019-12-08 13:41:33.830294	testBot	1158	\N
+16119	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:41:33.834708	testBot	1158	\N
+16120	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:41:33.838908	testBot	1158	\N
+16121	{"message":"Job (id=1158) executed successfully","level":2}	2019-12-08 13:41:33.845213	testBot	1158	\N
+16122	{"message":"Job (id=1158) execution started","level":2}	2019-12-08 13:41:33.911758	testBot	1158	\N
+16123	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:41:33.91361	testBot	1158	\N
+16124	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:41:33.915551	testBot	1158	\N
+16125	{"message":"Job (id=1158) failed'","level":0}	2019-12-08 13:41:33.924414	testBot	1158	\N
+16126	{"message":"Job (id=1158) execution started","level":2}	2019-12-08 13:41:33.969643	testBot	1158	\N
+16127	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:41:33.971713	testBot	1158	\N
+16128	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:41:33.973745	testBot	1158	\N
+16129	{"message":"Executing step 'step2'","level":2}	2019-12-08 13:41:33.975583	testBot	1158	\N
+16130	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 13:41:33.978448	testBot	1158	\N
+16131	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 13:41:33.980256	testBot	1158	\N
+16132	{"message":"1 repeat attempt failed for step 'step2'","error":"execute_error","level":0}	2019-12-08 13:41:33.982383	testBot	1158	\N
+16133	{"message":"Job (id=1158) failed'","level":0}	2019-12-08 13:41:33.987119	testBot	1158	\N
+16134	{"message":"Job (id=1158) execution started","level":2}	2019-12-08 13:41:34.029606	testBot	1158	\N
+16135	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:41:34.031861	testBot	1158	\N
+16136	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:41:34.033849	testBot	1158	\N
+16137	{"message":"Executing step 'step2'","level":2}	2019-12-08 13:41:34.035904	testBot	1158	\N
+16138	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 13:41:34.03806	testBot	1158	\N
+16139	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 13:41:34.039995	testBot	1158	\N
+16140	{"message":"1 repeat attempt failed for step 'step2'","error":"execute_error","level":0}	2019-12-08 13:41:34.042259	testBot	1158	\N
+16141	{"message":"Job (id=1158) executed successfully","level":2}	2019-12-08 13:41:34.04694	testBot	1158	\N
+16142	{"message":"Job (id=1158) execution started","level":2}	2019-12-08 13:41:34.082651	testBot	1158	\N
+16143	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:41:34.084635	testBot	1158	\N
+16144	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:41:34.086655	testBot	1158	\N
+16145	{"message":"Executing step 'step2'","level":2}	2019-12-08 13:41:34.088717	testBot	1158	\N
+16146	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 13:41:34.090812	testBot	1158	\N
+16147	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 13:41:34.092803	testBot	1158	\N
+16148	{"message":"Step 'step2' successfully executed after 1 attempt","level":2}	2019-12-08 13:41:34.095279	testBot	1158	\N
+16149	{"message":"Job (id=1158) executed successfully","level":2}	2019-12-08 13:41:34.099858	testBot	1158	\N
+16150	{"message":"Job (id=1158) execution started","level":2}	2019-12-08 13:41:34.138431	testBot	1158	\N
+16151	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:41:34.141173	testBot	1158	\N
+16152	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:41:34.144698	testBot	1158	\N
+16153	{"message":"Executing step 'step2'","level":2}	2019-12-08 13:41:34.14748	testBot	1158	\N
+16154	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 13:41:34.149878	testBot	1158	\N
+16155	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 13:41:34.152619	testBot	1158	\N
+16156	{"message":"Step 'step2' successfully executed after 1 attempt","level":2}	2019-12-08 13:41:34.154829	testBot	1158	\N
+16157	{"message":"Job (id=1158) executed successfully","level":2}	2019-12-08 13:41:34.159195	testBot	1158	\N
+16158	{"message":"Job (id=1158) execution started","level":2}	2019-12-08 13:41:34.196966	testBot	1158	\N
+16159	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:41:34.203565	testBot	1158	\N
+16160	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:41:34.205699	testBot	1158	\N
+16161	{"message":"Executing step 'step2'","level":2}	2019-12-08 13:41:34.20762	testBot	1158	\N
+16162	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 13:41:34.210095	testBot	1158	\N
+16163	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 13:41:34.212387	testBot	1158	\N
+16164	{"message":"Step 'step2' successfully executed after 1 attempt","level":2}	2019-12-08 13:41:34.214899	testBot	1158	\N
+16165	{"message":"Job (id=1158) executed successfully","level":2}	2019-12-08 13:41:34.219055	testBot	1158	\N
+16166	{"message":"Job (id=1158) execution started","level":2}	2019-12-08 13:41:34.254131	testBot	1158	\N
+16167	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:41:34.256265	testBot	1158	\N
+16168	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:41:34.258406	testBot	1158	\N
+16169	{"message":"Executing step 'step2'","level":2}	2019-12-08 13:41:34.260294	testBot	1158	\N
+16170	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 13:41:34.262303	testBot	1158	\N
+16171	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 13:41:34.264278	testBot	1158	\N
+16172	{"message":"Step 'step2' successfully executed after 1 attempt","level":2}	2019-12-08 13:41:34.266451	testBot	1158	\N
+16173	{"message":"Job (id=1158) failed'","level":0}	2019-12-08 13:41:34.271067	testBot	1158	\N
+16174	{"message":"Job (id=1158) execution started","level":2}	2019-12-08 13:41:34.308765	testBot	1158	\N
+16175	{"message":"No any steps were found for job (id=1158)","level":0}	2019-12-08 13:41:34.31157	testBot	1158	\N
+16176	{"message":"Job (id=1158) executed successfully","level":2}	2019-12-08 13:41:34.31618	testBot	1158	\N
+16177	{"message":"Job (id=1158) execution started","level":2}	2019-12-08 13:41:34.335333	testBot	1158	\N
+16178	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:41:34.33764	testBot	1158	\N
+16179	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:41:34.339788	testBot	1158	\N
+16180	{"message":"Executing step 'step2'","level":2}	2019-12-08 13:41:34.341752	testBot	1158	\N
+16181	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 13:41:34.343492	testBot	1158	\N
+16182	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 13:41:34.345285	testBot	1158	\N
+16183	{"message":"Step 'step2' successfully executed after 1 attempt","level":2}	2019-12-08 13:41:34.347431	testBot	1158	\N
+16184	{"message":"Job (id=1158) executed successfully","level":2}	2019-12-08 13:41:34.351499	testBot	1158	\N
+16185	{"message":"Job (id=1162) execution started","level":2}	2019-12-08 13:41:42.123065	testBot	1162	\N
+16186	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:41:42.128466	testBot	1162	\N
+16187	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:41:42.131719	testBot	1162	\N
+16188	{"message":"Job (id=1162) executed successfully","level":2}	2019-12-08 13:41:42.13795	testBot	1162	\N
+16189	{"message":"Job (id=1162) execution started","level":2}	2019-12-08 13:41:42.21196	testBot	1162	\N
+16190	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:41:42.214438	testBot	1162	\N
+16191	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:41:42.216976	testBot	1162	\N
+16192	{"message":"Job (id=1162) failed'","level":0}	2019-12-08 13:41:42.22192	testBot	1162	\N
+16193	{"message":"Job (id=1162) execution started","level":2}	2019-12-08 13:41:42.26209	testBot	1162	\N
+16194	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:41:42.264061	testBot	1162	\N
+16195	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:41:42.266585	testBot	1162	\N
+16196	{"message":"Executing step 'step2'","level":2}	2019-12-08 13:41:42.268704	testBot	1162	\N
+16197	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 13:41:42.270568	testBot	1162	\N
+16198	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 13:41:42.272328	testBot	1162	\N
+16199	{"message":"1 repeat attempt failed for step 'step2'","error":"execute_error","level":0}	2019-12-08 13:41:42.276104	testBot	1162	\N
+16200	{"message":"Job (id=1162) failed'","level":0}	2019-12-08 13:41:42.279611	testBot	1162	\N
+16201	{"message":"Job (id=1162) execution started","level":2}	2019-12-08 13:41:42.319098	testBot	1162	\N
+16202	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:41:42.320897	testBot	1162	\N
+16203	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:41:42.327621	testBot	1162	\N
+16204	{"message":"Executing step 'step2'","level":2}	2019-12-08 13:41:42.329769	testBot	1162	\N
+16205	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 13:41:42.331813	testBot	1162	\N
+16206	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 13:41:42.333588	testBot	1162	\N
+16207	{"message":"1 repeat attempt failed for step 'step2'","error":"execute_error","level":0}	2019-12-08 13:41:42.335386	testBot	1162	\N
+16208	{"message":"Job (id=1162) executed successfully","level":2}	2019-12-08 13:41:42.339119	testBot	1162	\N
+16209	{"message":"Job (id=1162) execution started","level":2}	2019-12-08 13:41:42.375402	testBot	1162	\N
+16210	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:41:42.37768	testBot	1162	\N
+16211	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:41:42.384912	testBot	1162	\N
+16212	{"message":"Executing step 'step2'","level":2}	2019-12-08 13:41:42.387128	testBot	1162	\N
+16213	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 13:41:42.388913	testBot	1162	\N
+16214	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 13:41:42.390933	testBot	1162	\N
+16215	{"message":"Step 'step2' successfully executed after 1 attempt","level":2}	2019-12-08 13:41:42.393545	testBot	1162	\N
+16216	{"message":"Job (id=1162) executed successfully","level":2}	2019-12-08 13:41:42.398233	testBot	1162	\N
+16217	{"message":"Job (id=1162) execution started","level":2}	2019-12-08 13:41:42.439948	testBot	1162	\N
+16218	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:41:42.441866	testBot	1162	\N
+16219	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:41:42.444032	testBot	1162	\N
+16220	{"message":"Executing step 'step2'","level":2}	2019-12-08 13:41:42.446283	testBot	1162	\N
+16221	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 13:41:42.448069	testBot	1162	\N
+16222	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 13:41:42.449636	testBot	1162	\N
+16223	{"message":"Step 'step2' successfully executed after 1 attempt","level":2}	2019-12-08 13:41:42.451546	testBot	1162	\N
+16224	{"message":"Job (id=1162) executed successfully","level":2}	2019-12-08 13:41:42.456288	testBot	1162	\N
+16225	{"message":"Job (id=1162) execution started","level":2}	2019-12-08 13:41:42.494721	testBot	1162	\N
+16226	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:41:42.496776	testBot	1162	\N
+16227	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:41:42.498852	testBot	1162	\N
+16228	{"message":"Executing step 'step2'","level":2}	2019-12-08 13:41:42.500876	testBot	1162	\N
+16229	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 13:41:42.502799	testBot	1162	\N
+16230	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 13:41:42.504642	testBot	1162	\N
+16231	{"message":"Step 'step2' successfully executed after 1 attempt","level":2}	2019-12-08 13:41:42.50656	testBot	1162	\N
+16232	{"message":"Job (id=1162) executed successfully","level":2}	2019-12-08 13:41:42.510851	testBot	1162	\N
+16233	{"message":"Job (id=1162) execution started","level":2}	2019-12-08 13:41:42.547936	testBot	1162	\N
+16234	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:41:42.549629	testBot	1162	\N
+16235	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:41:42.551369	testBot	1162	\N
+16236	{"message":"Executing step 'step2'","level":2}	2019-12-08 13:41:42.553085	testBot	1162	\N
+16237	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 13:41:42.555648	testBot	1162	\N
+16238	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 13:41:42.55762	testBot	1162	\N
+16239	{"message":"Step 'step2' successfully executed after 1 attempt","level":2}	2019-12-08 13:41:42.559885	testBot	1162	\N
+16240	{"message":"Job (id=1162) failed'","level":0}	2019-12-08 13:41:42.563908	testBot	1162	\N
+16241	{"message":"Job (id=1162) execution started","level":2}	2019-12-08 13:41:42.596793	testBot	1162	\N
+16242	{"message":"No any steps were found for job (id=1162)","level":0}	2019-12-08 13:41:42.59907	testBot	1162	\N
+16243	{"message":"Job (id=1162) executed successfully","level":2}	2019-12-08 13:41:42.602815	testBot	1162	\N
+16244	{"message":"Job (id=1162) execution started","level":2}	2019-12-08 13:41:42.629751	testBot	1162	\N
+16245	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:41:42.631658	testBot	1162	\N
+16246	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:41:42.633469	testBot	1162	\N
+16247	{"message":"Executing step 'step2'","level":2}	2019-12-08 13:41:42.635451	testBot	1162	\N
+16248	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 13:41:42.637434	testBot	1162	\N
+16249	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 13:41:42.639402	testBot	1162	\N
+16250	{"message":"Step 'step2' successfully executed after 1 attempt","level":2}	2019-12-08 13:41:42.641181	testBot	1162	\N
+16251	{"message":"Job (id=1162) executed successfully","level":2}	2019-12-08 13:41:42.644631	testBot	1162	\N
+16252	{"message":"Job (id=1166) execution started","level":2}	2019-12-08 13:42:56.06903	testBot	1166	\N
+16253	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:42:56.074827	testBot	1166	\N
+16254	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:42:56.078179	testBot	1166	\N
+16255	{"message":"Job (id=1166) executed successfully","level":2}	2019-12-08 13:42:56.085033	testBot	1166	\N
+16256	{"message":"Job (id=1166) execution started","level":2}	2019-12-08 13:42:56.154576	testBot	1166	\N
+16257	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:42:56.157335	testBot	1166	\N
+16258	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:42:56.159872	testBot	1166	\N
+16259	{"message":"Job (id=1166) failed'","level":0}	2019-12-08 13:42:56.163859	testBot	1166	\N
+16260	{"message":"Job (id=1166) execution started","level":2}	2019-12-08 13:42:56.204601	testBot	1166	\N
+16261	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:42:56.206481	testBot	1166	\N
+16262	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:42:56.208339	testBot	1166	\N
+16263	{"message":"Executing step 'step2'","level":2}	2019-12-08 13:42:56.210962	testBot	1166	\N
+16264	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 13:42:56.213339	testBot	1166	\N
+16265	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 13:42:56.215532	testBot	1166	\N
+16266	{"message":"1 repeat attempt failed for step 'step2'","error":"execute_error","level":0}	2019-12-08 13:42:56.217643	testBot	1166	\N
+16267	{"message":"Job (id=1166) failed'","level":0}	2019-12-08 13:42:56.227025	testBot	1166	\N
+16268	{"message":"Job (id=1166) execution started","level":2}	2019-12-08 13:42:56.264787	testBot	1166	\N
+16269	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:42:56.26678	testBot	1166	\N
+16270	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:42:56.2689	testBot	1166	\N
+16271	{"message":"Executing step 'step2'","level":2}	2019-12-08 13:42:56.270937	testBot	1166	\N
+16272	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 13:42:56.273085	testBot	1166	\N
+16273	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 13:42:56.275252	testBot	1166	\N
+16274	{"message":"1 repeat attempt failed for step 'step2'","error":"execute_error","level":0}	2019-12-08 13:42:56.277433	testBot	1166	\N
+16275	{"message":"Job (id=1166) executed successfully","level":2}	2019-12-08 13:42:56.282376	testBot	1166	\N
+16276	{"message":"Job (id=1166) execution started","level":2}	2019-12-08 13:42:56.317635	testBot	1166	\N
+16277	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:42:56.319628	testBot	1166	\N
+16278	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:42:56.321512	testBot	1166	\N
+16279	{"message":"Executing step 'step2'","level":2}	2019-12-08 13:42:56.323333	testBot	1166	\N
+16280	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 13:42:56.325167	testBot	1166	\N
+16281	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 13:42:56.332159	testBot	1166	\N
+16282	{"message":"1 repeat attempt failed for step 'step2'","error":"execute_error","level":0}	2019-12-08 13:42:56.334499	testBot	1166	\N
+16283	{"message":"Job (id=1166) executed successfully","level":2}	2019-12-08 13:42:56.338865	testBot	1166	\N
+16284	{"message":"Job (id=1166) execution started","level":2}	2019-12-08 13:42:56.37784	testBot	1166	\N
+16285	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:42:56.379861	testBot	1166	\N
+16286	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:42:56.381917	testBot	1166	\N
+16287	{"message":"Executing step 'step2'","level":2}	2019-12-08 13:42:56.383744	testBot	1166	\N
+16288	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 13:42:56.385647	testBot	1166	\N
+16289	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 13:42:56.387581	testBot	1166	\N
+16290	{"message":"Step 'step2' successfully executed after 1 attempt","level":2}	2019-12-08 13:42:56.389715	testBot	1166	\N
+16291	{"message":"Job (id=1166) executed successfully","level":2}	2019-12-08 13:42:56.39364	testBot	1166	\N
+16292	{"message":"Job (id=1166) execution started","level":2}	2019-12-08 13:42:56.429565	testBot	1166	\N
+16293	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:42:56.431497	testBot	1166	\N
+16294	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:42:56.433274	testBot	1166	\N
+16295	{"message":"Executing step 'step2'","level":2}	2019-12-08 13:42:56.435839	testBot	1166	\N
+16296	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 13:42:56.437698	testBot	1166	\N
+16297	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 13:42:56.439433	testBot	1166	\N
+16298	{"message":"Step 'step2' successfully executed after 1 attempt","level":2}	2019-12-08 13:42:56.441625	testBot	1166	\N
+16299	{"message":"Job (id=1166) executed successfully","level":2}	2019-12-08 13:42:56.445818	testBot	1166	\N
+16300	{"message":"Job (id=1166) execution started","level":2}	2019-12-08 13:42:56.480213	testBot	1166	\N
+16301	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:42:56.481988	testBot	1166	\N
+16302	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:42:56.483777	testBot	1166	\N
+16303	{"message":"Executing step 'step2'","level":2}	2019-12-08 13:42:56.485764	testBot	1166	\N
+16304	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 13:42:56.488188	testBot	1166	\N
+16305	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 13:42:56.490585	testBot	1166	\N
+16306	{"message":"Step 'step2' successfully executed after 1 attempt","level":2}	2019-12-08 13:42:56.49292	testBot	1166	\N
+16307	{"message":"Job (id=1166) failed'","level":0}	2019-12-08 13:42:56.498275	testBot	1166	\N
+16308	{"message":"Job (id=1166) execution started","level":2}	2019-12-08 13:42:56.534884	testBot	1166	\N
+16309	{"message":"No any steps were found for job (id=1166)","level":0}	2019-12-08 13:42:56.537021	testBot	1166	\N
+16310	{"message":"Job (id=1166) executed successfully","level":2}	2019-12-08 13:42:56.540646	testBot	1166	\N
+16311	{"message":"Job (id=1166) execution started","level":2}	2019-12-08 13:42:56.557006	testBot	1166	\N
+16312	{"message":"Executing step 'step1'","level":2}	2019-12-08 13:42:56.559294	testBot	1166	\N
+16313	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 13:42:56.561372	testBot	1166	\N
+16314	{"message":"Executing step 'step2'","level":2}	2019-12-08 13:42:56.56308	testBot	1166	\N
+16315	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 13:42:56.564833	testBot	1166	\N
+16316	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 13:42:56.568026	testBot	1166	\N
+16317	{"message":"Step 'step2' successfully executed after 1 attempt","level":2}	2019-12-08 13:42:56.570204	testBot	1166	\N
+16318	{"message":"Job (id=1166) executed successfully","level":2}	2019-12-08 13:42:56.574347	testBot	1166	\N
+16319	{"message":"Job (id=1170) execution started","level":2}	2019-12-08 18:29:19.331131	testBot	1170	\N
+16320	{"message":"Executing step 'step1'","level":2}	2019-12-08 18:29:19.335475	testBot	1170	\N
+16321	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 18:29:19.338792	testBot	1170	\N
+16322	{"message":"Job (id=1170) executed successfully","level":2}	2019-12-08 18:29:19.360674	testBot	1170	\N
+16323	{"message":"Job (id=1170) execution started","level":2}	2019-12-08 18:29:19.425983	testBot	1170	\N
+16324	{"message":"Executing step 'step1'","level":2}	2019-12-08 18:29:19.428935	testBot	1170	\N
+16325	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 18:29:19.431336	testBot	1170	\N
+16326	{"message":"Job (id=1170) failed'","level":0}	2019-12-08 18:29:19.435442	testBot	1170	\N
+16327	{"message":"Job (id=1170) execution started","level":2}	2019-12-08 18:29:19.477816	testBot	1170	\N
+16328	{"message":"Executing step 'step1'","level":2}	2019-12-08 18:29:19.480001	testBot	1170	\N
+16329	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 18:29:19.482163	testBot	1170	\N
+16330	{"message":"Executing step 'step2'","level":2}	2019-12-08 18:29:19.484197	testBot	1170	\N
+16331	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 18:29:19.48641	testBot	1170	\N
+16332	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 18:29:19.488424	testBot	1170	\N
+16333	{"message":"1 repeat attempt failed for step 'step2'","error":"execute_error","level":0}	2019-12-08 18:29:19.490555	testBot	1170	\N
+16334	{"message":"Job (id=1170) failed'","level":0}	2019-12-08 18:29:19.495664	testBot	1170	\N
+16335	{"message":"Job (id=1170) execution started","level":2}	2019-12-08 18:29:19.534636	testBot	1170	\N
+16336	{"message":"Executing step 'step1'","level":2}	2019-12-08 18:29:19.536802	testBot	1170	\N
+16337	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 18:29:19.538917	testBot	1170	\N
+16338	{"message":"Executing step 'step2'","level":2}	2019-12-08 18:29:19.541111	testBot	1170	\N
+16339	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 18:29:19.543417	testBot	1170	\N
+16340	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 18:29:19.545585	testBot	1170	\N
+16341	{"message":"1 repeat attempt failed for step 'step2'","error":"execute_error","level":0}	2019-12-08 18:29:19.547952	testBot	1170	\N
+16342	{"message":"Job (id=1170) executed successfully","level":2}	2019-12-08 18:29:19.552188	testBot	1170	\N
+16343	{"message":"Job (id=1170) execution started","level":2}	2019-12-08 18:29:19.592499	testBot	1170	\N
+16344	{"message":"Executing step 'step1'","level":2}	2019-12-08 18:29:19.59456	testBot	1170	\N
+16345	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 18:29:19.59686	testBot	1170	\N
+16346	{"message":"Executing step 'step2'","level":2}	2019-12-08 18:29:19.599073	testBot	1170	\N
+16347	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 18:29:19.601323	testBot	1170	\N
+16348	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 18:29:19.603582	testBot	1170	\N
+16349	{"message":"1 repeat attempt failed for step 'step2'","error":"execute_error","level":0}	2019-12-08 18:29:19.606012	testBot	1170	\N
+16350	{"message":"Job (id=1170) executed successfully","level":2}	2019-12-08 18:29:19.609934	testBot	1170	\N
+16351	{"message":"Job (id=1170) execution started","level":2}	2019-12-08 18:29:19.647132	testBot	1170	\N
+16352	{"message":"Executing step 'step1'","level":2}	2019-12-08 18:29:19.649073	testBot	1170	\N
+16353	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 18:29:19.651019	testBot	1170	\N
+16354	{"message":"Executing step 'step2'","level":2}	2019-12-08 18:29:19.652848	testBot	1170	\N
+16355	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 18:29:19.654781	testBot	1170	\N
+16356	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 18:29:19.656623	testBot	1170	\N
+16357	{"message":"Step 'step2' successfully executed after 1 attempt","level":2}	2019-12-08 18:29:19.658797	testBot	1170	\N
+16358	{"message":"Job (id=1170) executed successfully","level":2}	2019-12-08 18:29:19.663658	testBot	1170	\N
+16359	{"message":"Job (id=1170) execution started","level":2}	2019-12-08 18:29:19.699089	testBot	1170	\N
+16360	{"message":"Executing step 'step1'","level":2}	2019-12-08 18:29:19.701169	testBot	1170	\N
+16361	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 18:29:19.703367	testBot	1170	\N
+16362	{"message":"Executing step 'step2'","level":2}	2019-12-08 18:29:19.705362	testBot	1170	\N
+16363	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 18:29:19.707474	testBot	1170	\N
+16364	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 18:29:19.709672	testBot	1170	\N
+16365	{"message":"Step 'step2' successfully executed after 1 attempt","level":2}	2019-12-08 18:29:19.711851	testBot	1170	\N
+16366	{"message":"Job (id=1170) executed successfully","level":2}	2019-12-08 18:29:19.715989	testBot	1170	\N
+16367	{"message":"Job (id=1170) execution started","level":2}	2019-12-08 18:29:19.75535	testBot	1170	\N
+16368	{"message":"Executing step 'step1'","level":2}	2019-12-08 18:29:19.757223	testBot	1170	\N
+16369	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 18:29:19.759142	testBot	1170	\N
+16370	{"message":"Executing step 'step2'","level":2}	2019-12-08 18:29:19.761213	testBot	1170	\N
+16371	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 18:29:19.763241	testBot	1170	\N
+16372	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 18:29:19.765222	testBot	1170	\N
+16373	{"message":"Step 'step2' successfully executed after 1 attempt","level":2}	2019-12-08 18:29:19.767417	testBot	1170	\N
+16374	{"message":"Job (id=1170) failed'","level":0}	2019-12-08 18:29:19.771961	testBot	1170	\N
+16375	{"message":"Job (id=1170) execution started","level":2}	2019-12-08 18:29:19.811052	testBot	1170	\N
+16376	{"message":"No any steps were found for job (id=1170)","level":0}	2019-12-08 18:29:19.81366	testBot	1170	\N
+16377	{"message":"Job (id=1170) executed successfully","level":2}	2019-12-08 18:29:19.81771	testBot	1170	\N
+16378	{"message":"Job (id=1170) execution started","level":2}	2019-12-08 18:29:19.837949	testBot	1170	\N
+16379	{"message":"Executing step 'step1'","level":2}	2019-12-08 18:29:19.84031	testBot	1170	\N
+16380	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 18:29:19.842379	testBot	1170	\N
+16381	{"message":"Executing step 'step2'","level":2}	2019-12-08 18:29:19.844299	testBot	1170	\N
+16382	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 18:29:19.846229	testBot	1170	\N
+16383	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 18:29:19.84834	testBot	1170	\N
+16384	{"message":"Step 'step2' successfully executed after 1 attempt","level":2}	2019-12-08 18:29:19.850288	testBot	1170	\N
+16385	{"message":"Job (id=1170) executed successfully","level":2}	2019-12-08 18:29:19.854477	testBot	1170	\N
+16386	{"message":"Job (id=1174) execution started","level":2}	2019-12-08 18:47:44.898347	testBot	1174	\N
+16387	{"message":"Executing step 'step1'","level":2}	2019-12-08 18:47:44.902237	testBot	1174	\N
+16388	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 18:47:44.905496	testBot	1174	\N
+16389	{"message":"Job (id=1174) executed successfully","level":2}	2019-12-08 18:47:44.911434	testBot	1174	\N
+16390	{"message":"Job (id=1174) execution started","level":2}	2019-12-08 18:47:44.988513	testBot	1174	\N
+16391	{"message":"Executing step 'step1'","level":2}	2019-12-08 18:47:44.990835	testBot	1174	\N
+16392	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 18:47:44.993	testBot	1174	\N
+16393	{"message":"Job (id=1174) failed'","level":0}	2019-12-08 18:47:45.001932	testBot	1174	\N
+16394	{"message":"Job (id=1174) execution started","level":2}	2019-12-08 18:47:45.0413	testBot	1174	\N
+16395	{"message":"Executing step 'step1'","level":2}	2019-12-08 18:47:45.043178	testBot	1174	\N
+16396	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 18:47:45.045071	testBot	1174	\N
+16397	{"message":"Executing step 'step2'","level":2}	2019-12-08 18:47:45.047304	testBot	1174	\N
+16398	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 18:47:45.049099	testBot	1174	\N
+16399	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 18:47:45.051193	testBot	1174	\N
+16400	{"message":"1 repeat attempt failed for step 'step2'","error":"execute_error","level":0}	2019-12-08 18:47:45.053436	testBot	1174	\N
+16401	{"message":"Job (id=1174) failed'","level":0}	2019-12-08 18:47:45.057717	testBot	1174	\N
+16402	{"message":"Job (id=1174) execution started","level":2}	2019-12-08 18:47:45.096724	testBot	1174	\N
+16403	{"message":"Executing step 'step1'","level":2}	2019-12-08 18:47:45.098525	testBot	1174	\N
+16404	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 18:47:45.100333	testBot	1174	\N
+16405	{"message":"Executing step 'step2'","level":2}	2019-12-08 18:47:45.102029	testBot	1174	\N
+16406	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 18:47:45.103787	testBot	1174	\N
+16407	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 18:47:45.105507	testBot	1174	\N
+16408	{"message":"1 repeat attempt failed for step 'step2'","error":"execute_error","level":0}	2019-12-08 18:47:45.107415	testBot	1174	\N
+16409	{"message":"Job (id=1174) executed successfully","level":2}	2019-12-08 18:47:45.111627	testBot	1174	\N
+16410	{"message":"Job (id=1174) execution started","level":2}	2019-12-08 18:47:45.148786	testBot	1174	\N
+16411	{"message":"Executing step 'step1'","level":2}	2019-12-08 18:47:45.150523	testBot	1174	\N
+16412	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 18:47:45.152216	testBot	1174	\N
+16413	{"message":"Executing step 'step2'","level":2}	2019-12-08 18:47:45.154033	testBot	1174	\N
+16414	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 18:47:45.155783	testBot	1174	\N
+16415	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 18:47:45.157413	testBot	1174	\N
+16416	{"message":"1 repeat attempt failed for step 'step2'","error":"execute_error","level":0}	2019-12-08 18:47:45.159117	testBot	1174	\N
+16417	{"message":"Job (id=1174) executed successfully","level":2}	2019-12-08 18:47:45.162825	testBot	1174	\N
+16418	{"message":"Job (id=1174) execution started","level":2}	2019-12-08 18:47:45.207138	testBot	1174	\N
+16419	{"message":"Executing step 'step1'","level":2}	2019-12-08 18:47:45.209407	testBot	1174	\N
+16420	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 18:47:45.211298	testBot	1174	\N
+16421	{"message":"Executing step 'step2'","level":2}	2019-12-08 18:47:45.212995	testBot	1174	\N
+16422	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 18:47:45.214736	testBot	1174	\N
+16423	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 18:47:45.21655	testBot	1174	\N
+16424	{"message":"Step 'step2' successfully executed after 1 attempt","level":2}	2019-12-08 18:47:45.219076	testBot	1174	\N
+16425	{"message":"Job (id=1174) executed successfully","level":2}	2019-12-08 18:47:45.223568	testBot	1174	\N
+16426	{"message":"Job (id=1174) execution started","level":2}	2019-12-08 18:47:45.262305	testBot	1174	\N
+16427	{"message":"Executing step 'step1'","level":2}	2019-12-08 18:47:45.264498	testBot	1174	\N
+16428	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 18:47:45.266787	testBot	1174	\N
+16429	{"message":"Executing step 'step2'","level":2}	2019-12-08 18:47:45.268769	testBot	1174	\N
+16430	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 18:47:45.270564	testBot	1174	\N
+16431	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 18:47:45.272521	testBot	1174	\N
+16432	{"message":"Step 'step2' successfully executed after 1 attempt","level":2}	2019-12-08 18:47:45.274972	testBot	1174	\N
+16433	{"message":"Job (id=1174) executed successfully","level":2}	2019-12-08 18:47:45.279817	testBot	1174	\N
+16434	{"message":"Job (id=1174) execution started","level":2}	2019-12-08 18:47:45.315894	testBot	1174	\N
+16435	{"message":"Executing step 'step1'","level":2}	2019-12-08 18:47:45.317696	testBot	1174	\N
+16436	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 18:47:45.319506	testBot	1174	\N
+16437	{"message":"Executing step 'step2'","level":2}	2019-12-08 18:47:45.321212	testBot	1174	\N
+16438	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 18:47:45.323185	testBot	1174	\N
+16439	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 18:47:45.324972	testBot	1174	\N
+16440	{"message":"Step 'step2' successfully executed after 1 attempt","level":2}	2019-12-08 18:47:45.32685	testBot	1174	\N
+16441	{"message":"Job (id=1174) failed'","level":0}	2019-12-08 18:47:45.331361	testBot	1174	\N
+16442	{"message":"Job (id=1174) execution started","level":2}	2019-12-08 18:47:45.365449	testBot	1174	\N
+16443	{"message":"No any steps were found for job (id=1174)","level":0}	2019-12-08 18:47:45.367601	testBot	1174	\N
+16444	{"message":"Job (id=1174) executed successfully","level":2}	2019-12-08 18:47:45.371229	testBot	1174	\N
+16445	{"message":"Job (id=1174) execution started","level":2}	2019-12-08 18:47:45.390225	testBot	1174	\N
+16446	{"message":"Executing step 'step1'","level":2}	2019-12-08 18:47:45.392495	testBot	1174	\N
+16447	{"message":"Step 'step1' successfully executed","level":2}	2019-12-08 18:47:45.394505	testBot	1174	\N
+16448	{"message":"Executing step 'step2'","level":2}	2019-12-08 18:47:45.396253	testBot	1174	\N
+16449	{"message":"Failed to execute step 'step2'","error":"execute_error","level":0}	2019-12-08 18:47:45.398041	testBot	1174	\N
+16450	{"message":"Trying to repeat step 'step2'. Attempt 1 of 1","level":2}	2019-12-08 18:47:45.401033	testBot	1174	\N
+16451	{"message":"Step 'step2' successfully executed after 1 attempt","level":2}	2019-12-08 18:47:45.403003	testBot	1174	\N
+16452	{"message":"Job (id=1174) executed successfully","level":2}	2019-12-08 18:47:45.406929	testBot	1174	\N
 \.
 
 
 --
--- TOC entry 2955 (class 0 OID 16444)
+-- TOC entry 2956 (class 0 OID 16444)
 -- Dependencies: 204
 -- Data for Name: tblLog; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -2024,11 +2503,23 @@ COPY public."tblLog" (id, type, message, "createdOn", "createdBy") FROM stdin;
 4762	1	Potatoes!	2019-12-08 12:26:22.512567	test
 4763	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:42:45)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-12-08 13:12:14.598655	\N
 4764	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:46:45)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-12-08 13:12:14.601806	1
+4765	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:42:45)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-12-08 13:20:22.788035	\N
+4766	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:46:45)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-12-08 13:20:22.7914	1
+4767	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:42:45)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-12-08 13:41:34.465947	\N
+4768	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:46:45)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-12-08 13:41:34.469068	1
+4769	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:42:45)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-12-08 13:41:42.760466	\N
+4770	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:46:45)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-12-08 13:41:42.763932	1
+4771	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:42:45)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-12-08 13:42:56.680958	\N
+4772	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:46:45)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-12-08 13:42:56.684228	1
+4773	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:42:45)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-12-08 18:29:19.976396	\N
+4774	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:46:45)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-12-08 18:29:19.980085	1
+4775	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:42:45)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-12-08 18:47:45.525111	\N
+4776	1	{"type":"Error","message":"dummy","name":"Error","stack":"Error: dummy\\n    at Context.<anonymous> (/home/major/_code/peon/test/misc/tools_tests.js:46:45)\\n    at callFn (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:372:21)\\n    at Test.Runnable.run (/home/major/_code/peon/node_modules/mocha/lib/runnable.js:364:7)\\n    at Runner.runTest (/home/major/_code/peon/node_modules/mocha/lib/runner.js:455:10)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:573:12\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:369:14)\\n    at /home/major/_code/peon/node_modules/mocha/lib/runner.js:379:7\\n    at next (/home/major/_code/peon/node_modules/mocha/lib/runner.js:303:14)\\n    at Immediate.<anonymous> (/home/major/_code/peon/node_modules/mocha/lib/runner.js:347:5)\\n    at runCallback (timers.js:794:20)\\n    at tryOnImmediate (timers.js:752:5)\\n    at processImmediate [as _immediateCallback] (timers.js:729:5)"}	2019-12-08 18:47:45.529726	1
 \.
 
 
 --
--- TOC entry 2957 (class 0 OID 16453)
+-- TOC entry 2958 (class 0 OID 16453)
 -- Dependencies: 206
 -- Data for Name: tblRunHistory; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -2038,7 +2529,7 @@ COPY public."tblRunHistory" (id, message, "createdOn", "createdBy", session) FRO
 
 
 --
--- TOC entry 2970 (class 0 OID 0)
+-- TOC entry 2971 (class 0 OID 0)
 -- Dependencies: 197
 -- Name: refJobStatus_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
@@ -2047,43 +2538,43 @@ SELECT pg_catalog.setval('public."refJobStatus_id_seq"', 4, true);
 
 
 --
--- TOC entry 2971 (class 0 OID 0)
+-- TOC entry 2972 (class 0 OID 0)
 -- Dependencies: 199
 -- Name: tblConnection_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public."tblConnection_id_seq"', 677, true);
-
-
---
--- TOC entry 2972 (class 0 OID 0)
--- Dependencies: 202
--- Name: tblJobHistory_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('public."tblJobHistory_id_seq"', 16038, true);
+SELECT pg_catalog.setval('public."tblConnection_id_seq"', 699, true);
 
 
 --
 -- TOC entry 2973 (class 0 OID 0)
--- Dependencies: 203
--- Name: tblJob_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+-- Dependencies: 202
+-- Name: tblJobHistory_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public."tblJob_Id_seq"', 1147, true);
+SELECT pg_catalog.setval('public."tblJobHistory_id_seq"', 16452, true);
 
 
 --
 -- TOC entry 2974 (class 0 OID 0)
--- Dependencies: 205
--- Name: tblLog_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+-- Dependencies: 203
+-- Name: tblJob_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public."tblLog_Id_seq"', 4764, true);
+SELECT pg_catalog.setval('public."tblJob_Id_seq"', 1177, true);
 
 
 --
 -- TOC entry 2975 (class 0 OID 0)
+-- Dependencies: 205
+-- Name: tblLog_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public."tblLog_Id_seq"', 4776, true);
+
+
+--
+-- TOC entry 2976 (class 0 OID 0)
 -- Dependencies: 207
 -- Name: tblRunHistory_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
@@ -2092,7 +2583,7 @@ SELECT pg_catalog.setval('public."tblRunHistory_id_seq"', 7938, true);
 
 
 --
--- TOC entry 2813 (class 2606 OID 16469)
+-- TOC entry 2814 (class 2606 OID 16469)
 -- Name: refJobStatus refJobStatus_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2101,7 +2592,7 @@ ALTER TABLE ONLY public."refJobStatus"
 
 
 --
--- TOC entry 2815 (class 2606 OID 16471)
+-- TOC entry 2816 (class 2606 OID 16471)
 -- Name: tblConnection tblConnection_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2110,7 +2601,7 @@ ALTER TABLE ONLY public."tblConnection"
 
 
 --
--- TOC entry 2823 (class 2606 OID 16473)
+-- TOC entry 2824 (class 2606 OID 16473)
 -- Name: tblRunHistory tblHistory_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2119,7 +2610,7 @@ ALTER TABLE ONLY public."tblRunHistory"
 
 
 --
--- TOC entry 2819 (class 2606 OID 16475)
+-- TOC entry 2820 (class 2606 OID 16475)
 -- Name: tblJobHistory tblJobHistory_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2128,7 +2619,7 @@ ALTER TABLE ONLY public."tblJobHistory"
 
 
 --
--- TOC entry 2817 (class 2606 OID 16477)
+-- TOC entry 2818 (class 2606 OID 16477)
 -- Name: tblJob tblJob_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2137,7 +2628,7 @@ ALTER TABLE ONLY public."tblJob"
 
 
 --
--- TOC entry 2821 (class 2606 OID 16479)
+-- TOC entry 2822 (class 2606 OID 16479)
 -- Name: tblLog tblLog_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2146,7 +2637,7 @@ ALTER TABLE ONLY public."tblLog"
 
 
 --
--- TOC entry 2824 (class 2606 OID 16480)
+-- TOC entry 2825 (class 2606 OID 16480)
 -- Name: tblJob tbljob_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2155,7 +2646,7 @@ ALTER TABLE ONLY public."tblJob"
 
 
 --
--- TOC entry 2825 (class 2606 OID 16485)
+-- TOC entry 2826 (class 2606 OID 16485)
 -- Name: tblJobHistory tbljobhistory_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2163,7 +2654,7 @@ ALTER TABLE ONLY public."tblJobHistory"
     ADD CONSTRAINT tbljobhistory_fk FOREIGN KEY ("jobId") REFERENCES public."tblJob"(id) ON UPDATE RESTRICT ON DELETE RESTRICT;
 
 
--- Completed on 2019-12-08 16:14:01 MSK
+-- Completed on 2019-12-23 02:46:46 MSK
 
 --
 -- PostgreSQL database dump complete

@@ -95,7 +95,7 @@ describe('1 job engine', function() {
 
   it('1.5.2 updateJob. DB failure', async () => {
     try {
-      await jobEngine.updateJob('a', {nextRun: new Date()});      
+      await jobEngine.updateJob('a');      
     }
     catch(e) {
       assert.include(e.stack, 'Error');

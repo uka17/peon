@@ -153,8 +153,8 @@ function updateJob(jobId, job, updatedBy) {
   return new Promise((resolve, reject) => {
     try {
       const query = {
-        "text": 'SELECT public."fnJob_Update"($1, $2, $3, $4) as count',
-        "values": [jobId, job, job.nextRun.toUTCString(), updatedBy]
+        "text": 'SELECT public."fnJob_Update"($1, $2, $3) as count',
+        "values": [jobId, job, updatedBy]
       };
       dbclient.query(query, async (err, result) => {           
         try {

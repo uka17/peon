@@ -133,9 +133,9 @@ module.exports = function(app) {
       /* istanbul ignore next */
       if(!jobAssesmentResult.isValid)
         res.status(400).send({"requestValidationErrors": jobAssesmentResult.errorList});
-      else {
-        job.nextRun = jobAssesmentResult.nextRun;
+      else {        
         let result = await jobEngine.updateJob(req.params.id, job, config.user);
+        jobEngine.updateJobNextRun(req.params.id, jobAssesmentResult.nextRun, config.user);
         let resObject = {};
         resObject[labels.common.updated] = result;
         res.status(200).send(resObject);
