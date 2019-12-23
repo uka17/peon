@@ -53,28 +53,40 @@ module.exports.getJobCount = getJobCount;
  */
 function getJobList(filter, sortColumn, sortOrder, perPage, page) {
   return new Promise((resolve, reject) => {
-    const query = {
-      "text": 'SELECT public."fnJob_SelectAll"($1, $2, $3, $4, $5) as jobs',
-      "values": [filter, sortColumn, sortOrder, perPage, page]
-    };
-    dbclient.query(query, (err, result) => {  
-      try {
-        if (err) {
-          throw new Error(err);
-        } else {
-        /* istanbul ignore if */
-          if(result.rows[0].jobs == null) {
-            resolve(null);
-          }
-          else
-            resolve(result.rows[0].jobs);
-        } 
-      }            
-      catch(e) {        
-        log.error(`Failed to get job list with query ${query}. Stack: ${e}`);              
-        reject(e);
-      }         
-    });
+    try {
+      if(sortOrder !== 'asc' && sortOrder !== 'desc')
+        throw new TypeError('sortOrder should have value `asc` or `desc`');
+      if(typeof perPage !== 'number')
+        throw new TypeError('perPage should be a number');        
+      if(typeof page !== 'number')
+        throw new TypeError('page should be a number');                
+      const query = {
+        "text": 'SELECT public."fnJob_SelectAll"($1, $2, $3, $4, $5) as jobs',
+        "values": [filter, sortColumn, sortOrder, perPage, page]
+      };
+      dbclient.query(query, (err, result) => {  
+        try {
+          if (err) {
+            throw new Error(err);
+          } else {
+          /* istanbul ignore if */
+            if(result.rows[0].jobs == null) {
+              resolve(null);
+            }
+            else
+              resolve(result.rows[0].jobs);
+          } 
+        }            
+        catch(e) {        
+          log.error(`Failed to get job list with query ${query}. Stack: ${e}`);              
+          reject(e);
+        }         
+      });
+    }
+    catch(err) {
+      log.error(`Parameters type mismatch. Stack: ${err}`);              
+      reject(err);   
+    }
   });
 }
 module.exports.getJobList = getJobList;
@@ -86,28 +98,36 @@ module.exports.getJobList = getJobList;
  */
 function getJob(jobId) {
   return new Promise((resolve, reject) => {
-    const query = {
-      "text": 'SELECT public."fnJob_Select"($1) as job',
-      "values": [jobId]
-    };
-    dbclient.query(query, (err, result) => {  
-      try {
-        if (err) {
-          throw new Error(err);
-        } else {
-        /* istanbul ignore if */
-          if(result.rows[0].job == null) {
-            resolve(null);
-          }
-          else
-            resolve(result.rows[0].job);
-        } 
-      }            
-      catch(e) {        
-        log.error(`Failed to get job with query ${query}. Stack: ${e}`);              
-        reject(e);
-      }       
-    });
+    try {
+      if(typeof jobId !== 'number')
+        throw new TypeError('jobId should be a number');        
+      const query = {
+        "text": 'SELECT public."fnJob_Select"($1) as job',
+        "values": [jobId]
+      };
+      dbclient.query(query, (err, result) => {  
+        try {
+          if (err) {
+            throw new Error(err);
+          } else {
+          /* istanbul ignore if */
+            if(result.rows[0].job == null) {
+              resolve(null);
+            }
+            else
+              resolve(result.rows[0].job);
+          } 
+        }            
+        catch(e) {        
+          log.error(`Failed to get job with query ${query}. Stack: ${e}`);              
+          reject(e);
+        }       
+      });
+    } 
+    catch(err) {
+      log.error(`Parameters type mismatch. Stack: ${err}`);              
+      reject(err);   
+    }
   });
 }
 module.exports.getJob = getJob;
@@ -120,24 +140,34 @@ module.exports.getJob = getJob;
  */
 function createJob(job, createdBy) {
   return new Promise((resolve, reject) => {
-    const query = {
-      "text": 'SELECT public."fnJob_Insert"($1, $2) as id',
-      "values": [job, createdBy]
-    };
-    dbclient.query(query, async (err, result) => {           
-      try {
-        if (err) { 
-          throw new Error(err);
-        } else {  
-          let newBornJob = await module.exports.getJob(result.rows[0].id);        
-          resolve(newBornJob);
+    try {
+      if(typeof job !== 'object')
+        throw new TypeError('job should be an object');   
+      if(typeof createdBy !== 'string')
+        throw new TypeError('createdBy should be a string');         
+      const query = {
+        "text": 'SELECT public."fnJob_Insert"($1, $2) as id',
+        "values": [job, createdBy]
+      };
+      dbclient.query(query, async (err, result) => {           
+        try {
+          if (err) { 
+            throw new Error(err);
+          } else {  
+            let newBornJob = await module.exports.getJob(result.rows[0].id);        
+            resolve(newBornJob);
+          }
+        }            
+        catch(e) {        
+          log.error(`Failed to create job with content ${job}. Stack: ${e}`);        
+          reject(e);
         }
-      }            
-      catch(e) {        
-        log.error(`Failed to create job with content ${job}. Stack: ${e}`);        
-        reject(e);
-      }
-    });
+      });
+    } 
+    catch(err) {
+      log.error(`Parameters type mismatch. Stack: ${err}`);              
+      reject(err);   
+    }      
   });
 }
 module.exports.createJob = createJob;
@@ -152,6 +182,12 @@ module.exports.createJob = createJob;
 function updateJob(jobId, job, updatedBy) {
   return new Promise((resolve, reject) => {
     try {
+      if(typeof jobId !== 'number')
+        throw new TypeError('jobId should be a number');     
+      if(typeof job !== 'object')
+        throw new TypeError('job should be an object');    
+      if(typeof updatedBy !== 'string')
+        throw new TypeError('updatedBy should be a string');                    
       const query = {
         "text": 'SELECT public."fnJob_Update"($1, $2, $3) as count',
         "values": [jobId, job, updatedBy]
@@ -170,10 +206,10 @@ function updateJob(jobId, job, updatedBy) {
         }
       });
     }
-    catch(ee) {
-      log.error(`Failed to create query for job update with job ${job} and jobId ${job}. Stack: ${ee}`);        
-      reject(ee);
-    }    
+    catch(err) {
+      log.error(`Parameters type mismatch. Stack: ${err}`);              
+      reject(err);   
+    }  
   });
 }
 module.exports.updateJob = updateJob;
@@ -186,23 +222,33 @@ module.exports.updateJob = updateJob;
  */
 function deleteJob(jobId, deletedBy) {
   return new Promise((resolve, reject) => {
-    const query = {
-      "text": 'SELECT public."fnJob_Delete"($1, $2) as count',
-      "values": [jobId, deletedBy]
-    };
-    dbclient.query(query, async (err, result) => {           
-      try {
-        if (err) {
-          throw new Error(err);
-        } else {    
-          resolve(result.rows[0].count);
+    try {
+      if(typeof jobId !== 'number')
+        throw new TypeError('jobId should be a number');   
+      if(typeof deletedBy !== 'string')
+        throw new TypeError('deletedBy should be a string');           
+      const query = {
+        "text": 'SELECT public."fnJob_Delete"($1, $2) as count',
+        "values": [jobId, deletedBy]
+      };
+      dbclient.query(query, async (err, result) => {           
+        try {
+          if (err) {
+            throw new Error(err);
+          } else {    
+            resolve(result.rows[0].count);
+          }
+        }            
+        catch(e) {        
+          log.error(`Failed to delete job with query ${query}. Stack: ${e}`);        
+          reject(e);
         }
-      }            
-      catch(e) {        
-        log.error(`Failed to delete job with query ${query}. Stack: ${e}`);        
-        reject(e);
-      }
-    });
+      });
+    }
+    catch(err) {
+      log.error(`Parameters type mismatch. Stack: ${err}`);              
+      reject(err);   
+    }  
   });
 }
 module.exports.deleteJob = deleteJob;
@@ -220,6 +266,8 @@ module.exports.deleteJob = deleteJob;
  */
 function calculateNextRun(job) {
   try {
+    if(typeof jobId !== 'number')
+      throw new TypeError('jobId should be a number');      
     let validationSequence = ["job", "steps", "notifications", "schedules"];
     let jobValidationResult;
     for (let i = 0; i < validationSequence.length; i++) {
@@ -275,26 +323,36 @@ module.exports.calculateNextRun = calculateNextRun;
  * @returns {Promise} Promise which returns `true` in case of success and `false` in case of failure 
  */
 function updateJobNextRun(jobId, nextRun, executedBy) {
-  //TODO
-  //check input parameters
   return new Promise((resolve, reject) => {
-    const query = {
-      "text": 'SELECT public."fnJob_UpdateNextRun"($1, $2, $3) as count',
-      "values": [jobId, nextRun, executedBy]
-    };
-    dbclient.query(query, (err, result) => {     
-      try {
-        if (err) {
-          throw new Error(err);
-        } else {
-          resolve(true);
-        } 
-      }            
-      catch(e) {        
-        log.error(`Failed to update job next run with query ${query}. Stack: ${e}`);        
-        reject(e);
-      }    
-    });
+    try {
+      if(typeof jobId !== 'number')
+        throw new TypeError('jobId should be a number');  
+      if(nextRun instanceof Date)
+        throw new TypeError('nextRun should be a date');
+      if(typeof executedBy !== 'string')
+        throw new TypeError('executedBy should be a string');                     
+      const query = {
+        "text": 'SELECT public."fnJob_UpdateNextRun"($1, $2, $3) as count',
+        "values": [jobId, nextRun, executedBy]
+      };
+      dbclient.query(query, (err, result) => {     
+        try {
+          if (err) {
+            throw new Error(err);
+          } else {
+            resolve(true);
+          } 
+        }            
+        catch(e) {        
+          log.error(`Failed to update job next run with query ${query}. Stack: ${e}`);        
+          reject(e);
+        }    
+      });
+    }
+    catch(err) {
+      log.error(`Parameters type mismatch. Stack: ${err}`);              
+      reject(err);   
+    }     
   });
 }
 module.exports.updateJobNextRun = updateJobNextRun;
@@ -308,25 +366,37 @@ module.exports.updateJobNextRun = updateJobNextRun;
  */
 function updateJobLastRun(jobId, runResult, executedBy) {
   return new Promise((resolve, reject) => {
-    const query = {
-      "text": 'SELECT public."fnJob_UpdateLastRun"($1, $2, $3) as updated',
-      "values": [jobId, runResult, executedBy]
-    };                  
+    try {
+      if(typeof jobId !== 'number')
+        throw new TypeError('jobId should be a number');  
+      if(typeof runResult !== 'boolean')
+        throw new TypeError('runResult should be boolean');   
+      if(typeof executedBy !== 'string')
+        throw new TypeError('executedBy should be a string');                 
+      const query = {
+        "text": 'SELECT public."fnJob_UpdateLastRun"($1, $2, $3) as updated',
+        "values": [jobId, runResult, executedBy]
+      };                  
 
-    // eslint-disable-next-line no-unused-vars
-    dbclient.query(query, (err, result) => {  
-      try { 
-        if (err) {
-          throw new Error(err);
-        }
-        else
-          resolve(true);
-      }            
-      catch(e) {        
-        log.error(`Failed to update job last run with query ${query}. Stack: ${e}`);        
-        reject(e);
-      }  
-    }); 
+      // eslint-disable-next-line no-unused-vars
+      dbclient.query(query, (err, result) => {  
+        try { 
+          if (err) {
+            throw new Error(err);
+          }
+          else
+            resolve(true);
+        }            
+        catch(e) {        
+          log.error(`Failed to update job last run with query ${query}. Stack: ${e}`);        
+          reject(e);
+        }  
+      }); 
+    }
+    catch(err) {
+      log.error(`Parameters type mismatch. Stack: ${err}`);              
+      reject(err);   
+    }        
   });
 }
 module.exports.updateJobLastRun = updateJobLastRun;
@@ -340,25 +410,37 @@ module.exports.updateJobLastRun = updateJobLastRun;
  */
 function updateJobStatus(jobId, status, executedBy) {
   return new Promise((resolve, reject) => {
-    const query = {
-      "text": 'SELECT public."fnJob_UpdateStatus"($1, $2, $3) as updated',
-      "values": [jobId, status, executedBy]
-    };                  
+    try {
+      if(typeof jobId !== 'number')
+        throw new TypeError('jobId should be a number');  
+      if(status !== 1 && status !== 2)
+        throw new TypeError('status should be 1 or 2'); 
+      if(typeof executedBy !== 'string')
+        throw new TypeError('executedBy should be a string');                        
+      const query = {
+        "text": 'SELECT public."fnJob_UpdateStatus"($1, $2, $3) as updated',
+        "values": [jobId, status, executedBy]
+      };                  
 
-    // eslint-disable-next-line no-unused-vars
-    dbclient.query(query, (err, result) => {
-      try {
-        if (err) {
-          throw new Error(err);
+      // eslint-disable-next-line no-unused-vars
+      dbclient.query(query, (err, result) => {
+        try {
+          if (err) {
+            throw new Error(err);
+          }
+          else
+            resolve(true);
         }
-        else
-          resolve(true);
-      }
-      catch(e) {        
-        log.error(`Failed to update job status with query ${query}. Stack: ${e}`);        
-        reject(e);
-      }      
-    }); 
+        catch(e) {        
+          log.error(`Failed to update job status with query ${query}. Stack: ${e}`);        
+          reject(e);
+        }      
+      }); 
+    }
+    catch(err) {
+      log.error(`Parameters type mismatch. Stack: ${err}`);              
+      reject(err);   
+    }       
   });
 }
 module.exports.updateJobStatus = updateJobStatus;
@@ -373,25 +455,35 @@ module.exports.updateJobStatus = updateJobStatus;
  */
 function logJobHistory(message, jobId, createdBy, uid) {
   return new Promise((resolve, reject) => {
-    const query = {
-      "text": 'SELECT public."fnJobHistory_Insert"($1, $2, $3, $4) as updated',
-      "values": [message, uid, jobId, createdBy]
-    };                  
+    try {
+      if(typeof jobId !== 'number')
+        throw new TypeError('jobId should be a number');
+      if(typeof createdBy !== 'string')
+        throw new TypeError('createdBy should be a string');          
+      const query = {
+        "text": 'SELECT public."fnJobHistory_Insert"($1, $2, $3, $4) as updated',
+        "values": [message, uid, jobId, createdBy]
+      };                  
 
-    // eslint-disable-next-line no-unused-vars
-    dbclient.query(query, (err, result) => {
-      try {
-        if (err) {
-          throw new Error(err);
+      // eslint-disable-next-line no-unused-vars
+      dbclient.query(query, (err, result) => {
+        try {
+          if (err) {
+            throw new Error(err);
+          }
+          else
+            resolve(true); 
         }
-        else
-          resolve(true); 
-      }
-      catch(e) {        
-        log.error(`Failed to add record to log job history with query ${query}. Stack: ${e}`);        
-        reject(e);
-      }      
-    }); 
+        catch(e) {        
+          log.error(`Failed to add record to log job history with query ${query}. Stack: ${e}`);        
+          reject(e);
+        }      
+      }); 
+    }
+    catch(err) {
+      log.error(`Parameters type mismatch. Stack: ${err}`);              
+      reject(err);   
+    }         
   });
 }
 module.exports.logJobHistory = logJobHistory;
@@ -406,7 +498,8 @@ async function executeJob(jobRecord, executedBy, uid) {
   try {
     if(jobRecord === null || jobRecord === undefined)
       throw new Error(`Failed to get job (jobRecord=${jobRecord}) for execution`);
-
+    if(typeof executedBy !== 'string')
+      throw new TypeError('executedBy should be a string');  
     await logJobHistory({ message: labels.execution.jobStarted(jobRecord.id), level: 2 }, jobRecord.id, executedBy, uid);
     let job = jobRecord.job;
     let jobExecutionResult = true;

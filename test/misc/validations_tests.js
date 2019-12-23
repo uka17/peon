@@ -39,5 +39,5 @@ describe('validation', function() {
       assert.equal(validation.validateStepList(nJob.steps).isValid, false);        
       done();
     });  
-  });     
+  });
 });    

@@ -11,18 +11,18 @@ var Ajv = require('ajv');
  * @returns {{isValid: boolean, errorList: string}|{isValid: boolean}} Result of validation and (in case of failure) error list
  */
 function validateObject(object, schema, extraSchemaList) {
-    var ajv = new Ajv();
-    /* not used, but in case will be needed for multylevel json schema validations
+  var ajv = new Ajv();
+  /* not used, but in case will be needed for multylevel json schema validations
     if(extraSchemaList)
         extraSchemaList.forEach(function(e) { ajv.addSchema(e) }); 
     */
-    var validate = ajv.compile(schema);
-    var valid = validate(object);
-    if (!valid) {
-        return {isValid: false, errorList: ajv.errorsText(validate.errors)};
-    }
-    else
-        return {isValid: true};
+  var validate = ajv.compile(schema);
+  var valid = validate(object);
+  if (!valid) {
+    return {isValid: false, errorList: ajv.errorsText(validate.errors)};
+  }
+  else
+    return {isValid: true};
 }
 module.exports.validateObject = validateObject;
 /**
@@ -31,9 +31,9 @@ module.exports.validateObject = validateObject;
  * @returns {{isValid: boolean, errorList: string}|{isValid: boolean}} Result of validation and (in case of failure) error list
  */
 module.exports.validateJob = (job) => {
-    models.jobSchema['required'] = models.jobSchemaRequired; 
-    return validateObject(job, models.jobSchema);
-}
+  models.jobSchema['required'] = models.jobSchemaRequired; 
+  return validateObject(job, models.jobSchema);
+};
 
 /**
  * Validation of connection. Returns validation result anyway and validation error list in case of error 
@@ -41,9 +41,9 @@ module.exports.validateJob = (job) => {
  * @returns {{isValid: boolean, errorList: string}|{isValid: boolean}} Result of validation and (in case of failure) error list
  */
 module.exports.validateConnection = (connection) => {
-    models.connectionSchema['required'] = models.connectionSchemaRequired; 
-    return validateObject(connection, models.connectionSchema);
-}
+  models.connectionSchema['required'] = models.connectionSchemaRequired; 
+  return validateObject(connection, models.connectionSchema);
+};
 /**
  * Validation of step list. Returns validation result anyway and validation error list in case of error. 
  * Checks all items. Result is valid only in case is all list is valid 
@@ -51,14 +51,14 @@ module.exports.validateConnection = (connection) => {
  * @returns {{isValid: boolean, errorList: string}|{isValid: boolean}} Result of validation and (in case of failure) error list
  */
 module.exports.validateStepList = (stepList) => {
-    if(stepList) {
-        models.stepSchema['required'] = models.stepSchemaRequired; 
-        for(let i = 0; i < stepList.length; i++) {
-            let validationResult = validateObject(stepList[i], models.stepSchema);
-            if(!validationResult.isValid) 
-                return validationResult;
-        }
+  if(stepList) {
+    models.stepSchema['required'] = models.stepSchemaRequired; 
+    for(let i = 0; i < stepList.length; i++) {
+      let validationResult = validateObject(stepList[i], models.stepSchema);
+      if(!validationResult.isValid) 
+        return validationResult;
     }
-    return {isValid: true};
-}
+  }
+  return {isValid: true};
+};
 
