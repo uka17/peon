@@ -66,6 +66,7 @@ function getConnectionList(filter, sortColumn, sortOrder, perPage, page) {
       };
       dbclient.query(query, (err, result) => {  
         try {
+          /* istanbul ignore if */
           if (err) {
             throw new Error(err);
           } else {
@@ -77,7 +78,7 @@ function getConnectionList(filter, sortColumn, sortOrder, perPage, page) {
               resolve(result.rows[0].connections);
           } 
         }
-        catch(e) {        
+        catch(e) /*istanbul ignore next*/ {        
           log.error(`Failed to get conneciton list with query ${query}. Stack: ${e}`);        
           reject(e);
         }       
@@ -107,6 +108,7 @@ function getConnection(connectionId) {
       };
       dbclient.query(query, (err, result) => {  
         try {
+          /* istanbul ignore if */
           if (err) {
             throw new Error(err);
           } else {
@@ -118,7 +120,7 @@ function getConnection(connectionId) {
               resolve(result.rows[0].connection);
           } 
         }
-        catch(e) {        
+        catch(e) /*istanbul ignore next*/ {        
           log.error(`Failed to get conneciton with query ${query}. Stack: ${e}`);        
           reject(e);
         }        
@@ -151,6 +153,7 @@ function createConnection(connection, createdBy) {
       };
       dbclient.query(query, async (err, result) => {           
         try { 
+          /* istanbul ignore if */
           if (err) { 
             throw new Error(err);
           } else {
@@ -158,7 +161,7 @@ function createConnection(connection, createdBy) {
             resolve(newBornConnection);
           }
         }
-        catch(e) {        
+        catch(e) /*istanbul ignore next*/ {        
           log.error(`Failed to insert conneciton with query ${query}. Stack: ${e}`);        
           reject(e);
         }   
@@ -194,13 +197,14 @@ function updateConnection(connectionId, connection, updatedBy) {
       };
       dbclient.query(query, async (err, result) => {           
         try { 
+          /* istanbul ignore if */
           if (err) { 
             throw new Error(err);
           } else {    
             resolve(result.rows[0].count);
           }
         }
-        catch(e) {        
+        catch(e) /*istanbul ignore next*/ {        
           log.error(`Failed to update conneciton with query ${query}. Stack: ${e}`);        
           reject(e);
         }  
@@ -224,7 +228,7 @@ function deleteConnection(connectionId, deletedBy) {
   return new Promise((resolve, reject) => {
     try {
       if(typeof parseInt(connectionId) !== 'number' || isNaN(parseInt(connectionId)))
-        throw new TypeError('jobId should be a number');   
+        throw new TypeError('connectionId should be a number');   
       if(typeof deletedBy !== 'string')
         throw new TypeError('deletedBy should be a string');     
       const query = {
@@ -233,13 +237,14 @@ function deleteConnection(connectionId, deletedBy) {
       };
       dbclient.query(query, async (err, result) => {           
         try { 
+          /* istanbul ignore if */
           if (err) { 
             throw new Error(err);
           } else {    
             resolve(result.rows[0].count);
           }
         }
-        catch(e) {        
+        catch(e) /*istanbul ignore next*/ {        
           log.error(`Failed to delete conneciton with query ${query}. Stack: ${e}`);        
           reject(e);
         }  

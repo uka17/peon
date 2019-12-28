@@ -58,97 +58,223 @@ describe('1 job engine', function() {
     done();
   });   
   
-  it('1.2 getJobList. DB failure', async () => {
+  it('1.2.1 getJobList. Type mismatch `sortOrder`', async () => {
     try {
-      await jobEngine.getJobList('', '', '', 'a', 'a');
+      await jobEngine.getJobList('a', 'a', 'a');
     }
     catch(e) {
-      assert.include(e.stack, 'Error');
+      assert.include(e.stack, 'asc');
     }
   });       
+  it('1.2.2 getJobList. Type mismatch `perPage`', async () => {
+    try {
+      await jobEngine.getJobList('a', 'a', 'asc', 'a');
+    }
+    catch(e) {
+      assert.include(e.stack, 'perPage should be a number');
+    }
+  });    
+  it('1.2.3 getJobList. Type mismatch `page`', async () => {
+    try {
+      await jobEngine.getJobList('a', 'a', 'asc', 1, 'a');
+    }
+    catch(e) {
+      assert.include(e.stack, 'page should be a number');
+    }
+  });   
 
-  it('1.3 getJob. DB failure', async () => {
+  it('1.3.1 getJob. Type mismatch `jobId`', async () => {
     try {
       await jobEngine.getJob('a');
     }
     catch(e) {
-      assert.include(e.stack, 'Error');
+      assert.include(e.stack, 'jobId should be a number');
     }
   });     
 
-  it('1.4 createJob. DB failure', async () => {
+  it('1.4.1 createJob. Type mismatch `job`', async () => {
     try {
-      await jobEngine.createJob();
+      await jobEngine.createJob('a');
     }
     catch(e) {
-      assert.include(e.stack, 'Error');
+      assert.include(e.stack, 'job should be an object');
+    }
+  });      
+  it('1.4.2 createJob. Type mismatch `createdBy`', async () => {
+    try {
+      await jobEngine.createJob({}, 1);
+    }
+    catch(e) {
+      assert.include(e.stack, 'createdBy should be a string');
+    }
+  });      
+
+  it('1.5.1 updateJob. Type mismatch `jobId`', async () => {
+    try {
+      await jobEngine.updateJob('a');
+    }
+    catch(e) {
+      assert.include(e.stack, 'jobId should be a number');
     }
   });     
-
-  it('1.5.1 updateJob. toUTCString() failure', async () => {
+  it('1.5.2 updateJob. Type mismatch `job`', async () => {
     try {
-      await jobEngine.updateJob();      
+      await jobEngine.updateJob(1, 'a');
     }
     catch(e) {
-      assert.include(e.stack, 'Error');
+      assert.include(e.stack, 'job should be an object');
     }
-  });   
-
-  it('1.5.2 updateJob. DB failure', async () => {
+  });      
+  it('1.5.3 updateJob. Type mismatch `updatedBy`', async () => {
     try {
-      await jobEngine.updateJob('a');      
+      await jobEngine.updateJob(1, {}, 1);
     }
     catch(e) {
-      assert.include(e.stack, 'Error');
+      assert.include(e.stack, 'updatedBy should be a string');
+    }
+  });  
+
+  it('1.6.1 deleteJob. Type mismatch `jobId`', async () => {
+    try {
+      await jobEngine.deleteJob('a');
+    }
+    catch(e) {
+      assert.include(e.stack, 'jobId should be a number');
+    }
+  });       
+  it('1.6.2 deleteJob. Type mismatch `deletedBy`', async () => {
+    try {
+      await jobEngine.deleteJob(1, 1);
+    }
+    catch(e) {
+      assert.include(e.stack, 'deletedBy should be a string');
     }
   }); 
 
-  it('1.6 deleteJob. DB failure', async () => {
+  it('1.7 calculateNextRun. Type mismatch `job`', async () => {
     try {
-      await jobEngine.deleteJob('s');
+      await jobEngine.calculateNextRun('a');
     }
     catch(e) {
-      assert.include(e.stack, 'Error');
+      assert.include(e.stack, 'job should be an object');
     }
   });   
 
-  it('1.7 updateJobNextRun. DB failure', async () => {
+  it('1.8.1 updateJobNextRun. Type mismatch `jobId`', async () => {
     try {
       await jobEngine.updateJobNextRun('a');
     }
     catch(e) {
-      assert.include(e.stack, 'Error');
+      assert.include(e.stack, 'jobId should be a number');
     }
-  });   
+  });     
+  it('1.8.2 updateJobNextRun. Type mismatch `nextRun`', async () => {
+    try {
+      await jobEngine.updateJobNextRun(1, 'a');
+    }
+    catch(e) {
+      assert.include(e.stack, 'nextRun should be a date');
+    }
+  });      
+  it('1.8.3 updateJobNextRun. Type mismatch `updatedBy`', async () => {
+    try {
+      await jobEngine.updateJobNextRun(1, new Date(), 1);
+    }
+    catch(e) {
+      assert.include(e.stack, 'updatedBy should be a string');
+    }
+  });  
 
-  it('1.8 updateJobLastRun. DB failure', async () => {
+  it('1.9.1 updateJobLastRun. Type mismatch `jobId`', async () => {
     try {
       await jobEngine.updateJobLastRun('a');
     }
     catch(e) {
-      assert.include(e.stack, 'Error');
+      assert.include(e.stack, 'jobId should be a number');
     }
-  });    
+  });     
+  it('1.9.2 updateJobLastRun. Type mismatch `runResult`', async () => {
+    try {
+      await jobEngine.updateJobLastRun(1, 'a');
+    }
+    catch(e) {
+      assert.include(e.stack, 'runResult should be boolean');
+    }
+  });      
+  it('1.9.3 updateJobLastRun. Type mismatch `updatedBy`', async () => {
+    try {
+      await jobEngine.updateJobLastRun(1, true, 1);
+    }
+    catch(e) {
+      assert.include(e.stack, 'updatedBy should be a string');
+    }
+  });   
 
-  it('1.9 updateJobStatus. DB failure', async () => {
+  it('1.10.1 updateJobStatus. Type mismatch `jobId`', async () => {
     try {
       await jobEngine.updateJobStatus('a');
     }
     catch(e) {
-      assert.include(e.stack, 'Error');
+      assert.include(e.stack, 'jobId should be a number');
     }
-  });    
+  });     
+  it('1.10.2 updateJobStatus. Type mismatch `status`', async () => {
+    try {
+      await jobEngine.updateJobStatus(1, 'a');
+    }
+    catch(e) {
+      assert.include(e.stack, 'status should be 1 or 2');
+    }
+  });      
+  it('1.10.3 updateJobStatus. Type mismatch `updatedBy`', async () => {
+    try {
+      await jobEngine.updateJobStatus(1, 1, 1);
+    }
+    catch(e) {
+      assert.include(e.stack, 'updatedBy should be a string');
+    }
+  });   
 
-  it('1.10 logJobHistory. DB failure', async () => {
+  it('1.11.1 logJobHistory. Type mismatch `jobId`', async () => {
     try {
       await jobEngine.logJobHistory('a', 'a');
     }
     catch(e) {
-      assert.include(e.stack, 'Error');
+      assert.include(e.stack, 'jobId should be a number');
     }
-  });  
+  });          
+  it('1.11.1 logJobHistory. Type mismatch `createdBy`', async () => {
+    try {
+      await jobEngine.logJobHistory('a', 1, 1);
+    }
+    catch(e) {
+      assert.include(e.stack, 'createdBy should be a string');
+    }
+  });   
 
-  it('1.11.1 execute. Step 1 success, quitWithSuccess', async () => {
+  it('1.12.1 executeJob. Type mismatch `jobRecord`', async () => {
+    try {
+      await jobEngine.executeJob(undefined);
+    }
+    catch(e) {
+      assert.include(e.stack, 'Failed to get job');
+    }
+  });          
+  it('1.12.2 executeJob. Type mismatch `executedBy`', async () => {
+    let stub = sinon.stub(jobEngine, 'updateJobStatus').returns(true);
+    
+    try {
+      await jobEngine.executeJob('a', 1);
+    }
+    catch(e) {
+      assert.include(e.stack, 'executedBy should be a string');
+    }
+    finally {
+      stub.restore();
+    }
+  });   
+
+  it('1.13.1 execute. Step 1 success, quitWithSuccess', async () => {
     let stub = sinon.stub(stepEngine, 'execute').resolves({ result: true, rowsAffected: 1 });
     try {
       let quitWithSuccessJob = JSON.parse(JSON.stringify(job));
@@ -162,7 +288,7 @@ describe('1 job engine', function() {
     }
   });  
 
-  it('1.11.2 execute. Step 1 success, quitWithFailure', async () => {
+  it('1.13.2 execute. Step 1 success, quitWithFailure', async () => {
     let stub = sinon.stub(stepEngine, 'execute').resolves({ result: true, rowsAffected: 1 });
     try {
       let quitWithFailureJob = JSON.parse(JSON.stringify(job));
@@ -176,7 +302,7 @@ describe('1 job engine', function() {
     }
   });  
 
-  it('1.11.3 execute. Step 1 success, gotoNextStep, failed to repeat step 2, quitWithFailure finally', async () => {
+  it('1.13.3 execute. Step 1 success, gotoNextStep, failed to repeat step 2, quitWithFailure finally', async () => {
     let stub1 = sinon.stub(stepEngine, 'execute').resolves({ result: false, error: 'execute_error' });
     stub1.onFirstCall().resolves({ result: true, rowsAffected: 1 });
     let stub2 = sinon.stub(stepEngine, 'delayedExecute').resolves({ result: false, error: 'attemp_error' });
@@ -191,7 +317,7 @@ describe('1 job engine', function() {
     }
   });
 
-  it('1.11.4 execute. Step 1 success, gotoNextStep, failed to repeat step 2, quitWithSuccess finally', async () => {
+  it('1.13.4 execute. Step 1 success, gotoNextStep, failed to repeat step 2, quitWithSuccess finally', async () => {
     let stub1 = sinon.stub(stepEngine, 'execute').resolves({ result: false, error: 'execute_error' });
     stub1.onFirstCall().resolves({ result: true, rowsAffected: 1 });
     let stub2 = sinon.stub(stepEngine, 'delayedExecute').resolves({ result: false, error: 'attemp_error' });
@@ -208,7 +334,7 @@ describe('1 job engine', function() {
     }
   });   
 
-  it('1.11.5 execute. Step 1 success, gotoNextStep, failed to repeat step 2, gotoNextStep finally', async () => {
+  it('1.13.5 execute. Step 1 success, gotoNextStep, failed to repeat step 2, gotoNextStep finally', async () => {
     let stub1 = sinon.stub(stepEngine, 'execute').resolves({ result: false, error: 'execute_error' });
     stub1.onFirstCall().resolves({ result: true, rowsAffected: 1 });
     let stub2 = sinon.stub(stepEngine, 'delayedExecute').resolves({ result: false, error: 'attemp_error'});
@@ -226,7 +352,7 @@ describe('1 job engine', function() {
     }
   });   
 
-  it('1.11.6 execute. Step 1 success, gotoNextStep, success on repeating, gotoNextStep finally', async () => {
+  it('1.13.6 execute. Step 1 success, gotoNextStep, success on repeating, gotoNextStep finally', async () => {
     let stub1 = sinon.stub(stepEngine, 'execute').resolves({ result: false, error: 'execute_error' });
     stub1.onFirstCall().resolves({ result: true, rowsAffected: 1 });     
     let stub2 = sinon.stub(stepEngine, 'delayedExecute').resolves({ result: true, rowsAffected: 1 });
@@ -244,7 +370,7 @@ describe('1 job engine', function() {
     }
   });   
 
-  it('1.11.7 execute. Step 1 success, gotoNextStep, success on repeating, quitWithSuccess finally', async () => {
+  it('1.13.7 execute. Step 1 success, gotoNextStep, success on repeating, quitWithSuccess finally', async () => {
     let stub1 = sinon.stub(stepEngine, 'execute').resolves({ result: false, error: 'execute_error' });
     stub1.onFirstCall().resolves({ result: true, rowsAffected: 1 });     
     let stub2 = sinon.stub(stepEngine, 'delayedExecute').resolves({ result: true, rowsAffected: 1 });
@@ -261,7 +387,7 @@ describe('1 job engine', function() {
     }
   });
 
-  it('1.11.8 execute. Step 1 success, gotoNextStep, success on repeating, quitWithFailure finally', async () => {
+  it('1.13.8 execute. Step 1 success, gotoNextStep, success on repeating, quitWithFailure finally', async () => {
     let stub1 = sinon.stub(stepEngine, 'execute').resolves({ result: false, error: 'execute_error' });
     stub1.onFirstCall().resolves({ result: true, rowsAffected: 1 });   
     let stub2 = sinon.stub(stepEngine, 'delayedExecute').resolves({ result: true, rowsAffected: 1 });
@@ -278,7 +404,7 @@ describe('1 job engine', function() {
     }
   });
 
-  it('1.11.9 execute. Step list is empty', async () => {
+  it('1.13.9 execute. Step list is empty', async () => {
     let spy = sinon.spy(log, 'warn');
     try {   
       let noStepJob = JSON.parse(JSON.stringify(job));
@@ -290,7 +416,7 @@ describe('1 job engine', function() {
     }
   });
 
-  it('1.11.10 execute. Failed to get job', async () => {
+  it('1.13.10 execute. Failed to get job', async () => {
     let spy = sinon.spy(log, 'error');
     try {
       await jobEngine.executeJob();
@@ -301,7 +427,7 @@ describe('1 job engine', function() {
     }
   });
 
-  it('1.11.11 execute. Failed to calculate next run', async () => {
+  it('1.13.11 execute. Failed to calculate next run', async () => {
     let stub1 = sinon.stub(stepEngine, 'execute').resolves({ result: false, error: 'execute_error' });
     stub1.onFirstCall().resolves({ result: true, rowsAffected: 1 });       
     let stub2 = sinon.stub(stepEngine, 'delayedExecute').resolves({ result: true, rowsAffected: 1 });
@@ -319,7 +445,7 @@ describe('1 job engine', function() {
     }
   });
 
-  it('1.12.1 calculateNextRun. Failed to validate schedule', (done) => {
+  it('1.14.1 calculateNextRun. Failed to validate schedule', (done) => {
     let job = JSON.parse(JSON.stringify(testData.jobOK));
     job.schedules[0].fail = true;
     let result = jobEngine.calculateNextRun(job);
@@ -327,7 +453,7 @@ describe('1 job engine', function() {
     done();
   });       
 
-  it('1.12.2 calculateNextRun. Failed to calculate next run', (done) => {
+  it('1.14.2 calculateNextRun. Failed to calculate next run', (done) => {
     let job = JSON.parse(JSON.stringify(testData.jobOK));
     let stub = sinon.stub(schedulator, 'nextOccurrence').returns({ result: null, error: 'dummy'});
 

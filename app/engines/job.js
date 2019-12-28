@@ -31,10 +31,8 @@ function getJobCount(filter) {
           resolve(result.rows[0].count);
         } 
       }            
-      catch(e) {        
-        /* istanbul ignore next */
+      catch(e) /*istanbul ignore next*/ {        
         log.error(`Failed to get job count with query ${query}. Stack: ${e}`);        
-        /* istanbul ignore next */
         reject(e);
       }      
     });
@@ -66,6 +64,7 @@ function getJobList(filter, sortColumn, sortOrder, perPage, page) {
       };
       dbclient.query(query, (err, result) => {  
         try {
+          /*istanbul ignore if*/ 
           if (err) {
             throw new Error(err);
           } else {
@@ -77,7 +76,7 @@ function getJobList(filter, sortColumn, sortOrder, perPage, page) {
               resolve(result.rows[0].jobs);
           } 
         }            
-        catch(e) {        
+        catch(e) /*istanbul ignore next*/ {        
           log.error(`Failed to get job list with query ${query}. Stack: ${e}`);              
           reject(e);
         }         
@@ -107,6 +106,7 @@ function getJob(jobId) {
       };
       dbclient.query(query, (err, result) => {  
         try {
+          /*istanbul ignore if*/ 
           if (err) {
             throw new Error(err);
           } else {
@@ -118,7 +118,7 @@ function getJob(jobId) {
               resolve(result.rows[0].job);
           } 
         }            
-        catch(e) {        
+        catch(e) /*istanbul ignore next*/ {        
           log.error(`Failed to get job with query ${query}. Stack: ${e}`);              
           reject(e);
         }       
@@ -151,6 +151,7 @@ function createJob(job, createdBy) {
       };
       dbclient.query(query, async (err, result) => {           
         try {
+          /*istanbul ignore if*/ 
           if (err) { 
             throw new Error(err);
           } else {  
@@ -158,7 +159,7 @@ function createJob(job, createdBy) {
             resolve(newBornJob);
           }
         }            
-        catch(e) {        
+        catch(e) /*istanbul ignore next*/ {        
           log.error(`Failed to create job with content ${job}. Stack: ${e}`);        
           reject(e);
         }
@@ -194,13 +195,14 @@ function updateJob(jobId, job, updatedBy) {
       };
       dbclient.query(query, async (err, result) => {           
         try {
+          /*istanbul ignore if*/ 
           if (err) { 
             throw new Error(err);
           } else {    
             resolve(result.rows[0].count);
           }
         }            
-        catch(e) {        
+        catch(e) /*istanbul ignore next*/ {        
           log.error(`Failed to update job with query ${query}. Stack: ${e}`);        
           reject(e);
         }
@@ -233,13 +235,14 @@ function deleteJob(jobId, deletedBy) {
       };
       dbclient.query(query, async (err, result) => {           
         try {
+          /*istanbul ignore next*/ 
           if (err) {
             throw new Error(err);
           } else {    
             resolve(result.rows[0].count);
           }
         }            
-        catch(e) {        
+        catch(e) /*istanbul ignore next*/ {        
           log.error(`Failed to delete job with query ${query}. Stack: ${e}`);        
           reject(e);
         }
@@ -320,31 +323,32 @@ module.exports.calculateNextRun = calculateNextRun;
  * Calculates and save Job next run
  * @param {number} jobId Job id
  * @param {string} nextRun `date-time` of job next run 
- * @param {string} executedBy Author of change
+ * @param {string} updatedBy Author of change
  * @returns {Promise} Promise which returns `true` in case of success and `false` in case of failure 
  */
-function updateJobNextRun(jobId, nextRun, executedBy) {
+function updateJobNextRun(jobId, nextRun, updatedBy) {
   return new Promise((resolve, reject) => {
     try {
       if(typeof parseInt(jobId) !== 'number' || isNaN(parseInt(jobId)))
         throw new TypeError('jobId should be a number');  
       if(!(util.parseDateTime(nextRun) instanceof Date))
         throw new TypeError('nextRun should be a date');
-      if(typeof executedBy !== 'string')
-        throw new TypeError('executedBy should be a string');                     
+      if(typeof updatedBy !== 'string')
+        throw new TypeError('updatedBy should be a string');                     
       const query = {
         "text": 'SELECT public."fnJob_UpdateNextRun"($1, $2, $3) as count',
-        "values": [parseInt(jobId), nextRun, executedBy]
+        "values": [parseInt(jobId), nextRun, updatedBy]
       };
       dbclient.query(query, (err, result) => {     
         try {
+          /*istanbul ignore if*/ 
           if (err) {
             throw new Error(err);
           } else {
             resolve(true);
           } 
         }            
-        catch(e) {        
+        catch(e) /*istanbul ignore next*/ {        
           log.error(`Failed to update job next run with query ${query}. Stack: ${e}`);        
           reject(e);
         }    
@@ -362,33 +366,34 @@ module.exports.updateJobNextRun = updateJobNextRun;
  * Changes Job last run result. Last run date-time will be updated with current timestamp.
  * @param {number} jobId Job id
  * @param {number} runResult Job run result. `true` - success, `false` - failure
- * @param {string} executedBy Author of change 
+ * @param {string} updatedBy Author of change 
  * @returns {Promise} Promise which returns `true` in case of success and `false` in case of failure
  */
-function updateJobLastRun(jobId, runResult, executedBy) {
+function updateJobLastRun(jobId, runResult, updatedBy) {
   return new Promise((resolve, reject) => {
     try {
       if(typeof jobId !== 'number' || isNaN(parseInt(jobId)))
         throw new TypeError('jobId should be a number');  
       if(typeof runResult !== 'boolean')
         throw new TypeError('runResult should be boolean');   
-      if(typeof executedBy !== 'string')
-        throw new TypeError('executedBy should be a string');                 
+      if(typeof updatedBy !== 'string')
+        throw new TypeError('updatedBy should be a string');                 
       const query = {
         "text": 'SELECT public."fnJob_UpdateLastRun"($1, $2, $3) as updated',
-        "values": [jobId, runResult, executedBy]
+        "values": [jobId, runResult, updatedBy]
       };                  
 
       // eslint-disable-next-line no-unused-vars
       dbclient.query(query, (err, result) => {  
         try { 
+          /*istanbul ignore if*/ 
           if (err) {
             throw new Error(err);
           }
           else
             resolve(true);
         }            
-        catch(e) {        
+        catch(e) /*istanbul ignore next*/ {        
           log.error(`Failed to update job last run with query ${query}. Stack: ${e}`);        
           reject(e);
         }  
@@ -406,33 +411,34 @@ module.exports.updateJobLastRun = updateJobLastRun;
  * Changes Job status
  * @param {number} jobId Job id
  * @param {number} status Status id. `1` - idle, `2` - execution
- * @param {string} executedBy Author of change 
+ * @param {string} updatedBy Author of change 
  * @returns {Promise} Promise which returns `true` in case of success and `false` in case of failure
  */
-function updateJobStatus(jobId, status, executedBy) {
+function updateJobStatus(jobId, status, updatedBy) {
   return new Promise((resolve, reject) => {
     try {
       if(typeof jobId !== 'number' || isNaN(parseInt(jobId)))
         throw new TypeError('jobId should be a number');  
       if(status !== 1 && status !== 2)
         throw new TypeError('status should be 1 or 2'); 
-      if(typeof executedBy !== 'string')
-        throw new TypeError('executedBy should be a string');                        
+      if(typeof updatedBy !== 'string')
+        throw new TypeError('updatedBy should be a string');                        
       const query = {
         "text": 'SELECT public."fnJob_UpdateStatus"($1, $2, $3) as updated',
-        "values": [jobId, status, executedBy]
+        "values": [jobId, status, updatedBy]
       };                  
 
       // eslint-disable-next-line no-unused-vars
       dbclient.query(query, (err, result) => {
         try {
+          /*istanbul ignore if*/ 
           if (err) {
             throw new Error(err);
           }
           else
             resolve(true);
         }
-        catch(e) {        
+        catch(e) /*istanbul ignore next*/ {        
           log.error(`Failed to update job status with query ${query}. Stack: ${e}`);        
           reject(e);
         }      
@@ -469,13 +475,14 @@ function logJobHistory(message, jobId, createdBy, uid) {
       // eslint-disable-next-line no-unused-vars
       dbclient.query(query, (err, result) => {
         try {
+          /*istanbul ignore if*/ 
           if (err) {
             throw new Error(err);
           }
           else
             resolve(true); 
         }
-        catch(e) {        
+        catch(e) /*istanbul ignore next*/ {        
           log.error(`Failed to add record to log job history with query ${query}. Stack: ${e}`);        
           reject(e);
         }      
@@ -620,7 +627,8 @@ async function executeJob(jobRecord, executedBy, uid) {
   }
   finally {
     if(jobRecord !== null && jobRecord !== undefined)
-      await updateJobStatus(jobRecord.id, 1, executedBy);
+      //module.exports is added for sake of unit testing
+      await module.exports.updateJobStatus(jobRecord.id, 1, executedBy);
   }  
 }
 module.exports.executeJob = executeJob;
