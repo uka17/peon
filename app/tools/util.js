@@ -1,3 +1,4 @@
+//pride robot title bid capital tell month eagle symptom typical bread silver
 const dbclient = require('./db');
 const logDispatcher = require('../../log/dispatcher');
 const messageBox = require('../../config/message_labels')('en');
@@ -7,7 +8,7 @@ const express = require('express');
 var toJSON = require( 'utils-error-to-json' );
 //#region Error handling
 /**
- * Server error handler. Shows error in console, returns error in response in case if global debug flag is TRUE else
+ * Server error handler. Shows error in console and returns error in response in case if global debug flag is TRUE else
  * puts log in DB and returns Id of log to user 
  * @param {Object} e Exception to be handled     
  * @param {string} createdBy Under whose credentials app thrown this exception
@@ -15,6 +16,7 @@ var toJSON = require( 'utils-error-to-json' );
  * @param {Object} res Response handler
  */
 /* istanbul ignore next */
+//TODO: delete as it is not being used in any functionality except dummies
 module.exports.handleServerException = function(e, createdBy, dbclient, res) {    
   /* istanbul ignore next */
   if(process.env.NODE_ENV !== "PROD") {
@@ -47,7 +49,13 @@ module.exports.handleServerException = function(e, createdBy, dbclient, res) {
     );    
   }
 };
-module.exports.logServerError = function(e, createdBy) {    
+/**
+ * Puts log record into DB and returns `id` of this record
+ * @param {object} e Error object
+ * @param {string} createdBy Who triggered error
+ * @returns {Promise} Resolves Promis with `logId` or 0 in case of failure. Shows error in console in case of DEV environment or log save failed
+ */
+function logServerError(e, createdBy) {    
   /* istanbul ignore next */
   if(process.env.NODE_ENV !== "PROD") {
     logDispatcher.error(e.stack);
@@ -77,6 +85,7 @@ module.exports.logServerError = function(e, createdBy) {
     });              
   });
 };
+module.exports.logServerError = logServerError;
 /**
  * Shows user error with proper HTTP response code
  * @param {string} message Error message

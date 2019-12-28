@@ -19,6 +19,7 @@ describe('1 job engine', function() {
     config.enableDebugOutput = false;    
     job = await jobEngine.createJob(testData.jobOK, config.testUser);    
   }); 
+  
 
   after(() => {
     //restore initial debug output
@@ -307,6 +308,7 @@ describe('1 job engine', function() {
     try {
       let failedJob = JSON.parse(JSON.stringify(job));
       failedJob.job.schedules = [];
+      failedJob = await jobEngine.createJob(failedJob.job, config.testUser);  
       await jobEngine.executeJob(failedJob, config.testUser);
       let jobRecord = (await jobEngine.getJob(failedJob.id));
       assert.isNull(jobRecord.nextRun);

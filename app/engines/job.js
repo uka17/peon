@@ -12,9 +12,9 @@ const stepEngine = require('./step');
 const labels = require('../../config/message_labels')('en');
 
 /**
- * Returns job count accordingly to filtering
+ * Returns Job count accordingly to filtering
  * @param {string} filter Filter will be applied to `name` and `description` columns
- * @returns {Promise} Promise which resolves with numeber of `job` objects in case of success and rejects with error in case of failure
+ * @returns {Promise} Promise which resolves with numeber of Job objects in case of success and rejects with error in case of failure
  */
 function getJobCount(filter) {
   return new Promise((resolve, reject) => {
@@ -43,26 +43,26 @@ function getJobCount(filter) {
 module.exports.getJobCount = getJobCount;
 
 /**
- * Returns job list accordingly to filtering, sorting and page order and number
+ * Returns Job list accordingly to filtering, sorting, page order and page number
  * @param {string} filter Filter will be applied to `name` and `description` columns
  * @param {string} sortColumn Name of sorting column
  * @param {string} sortOrder Sorting order (`asc` or `desc`)
  * @param {number} perPage Number of record per page
  * @param {number} page Page number
- * @returns {Promise} Promise which resolves with list of `job` objects in case of success, `null` if job list is empty and rejects with error in case of failure 
+ * @returns {Promise} Promise which resolves with list of `Job` objects in case of success, `null` in case if Job list is empty and rejects with error in case of failure 
  */
 function getJobList(filter, sortColumn, sortOrder, perPage, page) {
   return new Promise((resolve, reject) => {
     try {
       if(sortOrder !== 'asc' && sortOrder !== 'desc')
         throw new TypeError('sortOrder should have value `asc` or `desc`');
-      if(typeof perPage !== 'number')
+      if(typeof parseInt(perPage) !== 'number' || isNaN(parseInt(perPage)))
         throw new TypeError('perPage should be a number');        
-      if(typeof page !== 'number')
+      if(typeof parseInt(page) !== 'number' || isNaN(parseInt(page)))
         throw new TypeError('page should be a number');                
       const query = {
         "text": 'SELECT public."fnJob_SelectAll"($1, $2, $3, $4, $5) as jobs',
-        "values": [filter, sortColumn, sortOrder, perPage, page]
+        "values": [filter, sortColumn, sortOrder, parseInt(perPage), parseInt(page)]
       };
       dbclient.query(query, (err, result) => {  
         try {
@@ -92,18 +92,18 @@ function getJobList(filter, sortColumn, sortOrder, perPage, page) {
 module.exports.getJobList = getJobList;
 
 /**
- * Returns job by id
- * @param {number} jobId Id of job
- * @returns {Promise} Promise which resolves with `job` in case of success, `null` if job is not found by `id` and rejects with error in case of failure
+ * Returns Job by id
+ * @param {number} jobId Id of Job
+ * @returns {Promise} Promise which resolves with `Job` in case of success, `null` if Job is not found by `id` and rejects with error in case of failure
  */
 function getJob(jobId) {
   return new Promise((resolve, reject) => {
     try {
-      if(typeof jobId !== 'number')
+      if(typeof parseInt(jobId) !== 'number' || isNaN(parseInt(jobId)))
         throw new TypeError('jobId should be a number');        
       const query = {
         "text": 'SELECT public."fnJob_Select"($1) as job',
-        "values": [jobId]
+        "values": [parseInt(jobId)]
       };
       dbclient.query(query, (err, result) => {  
         try {
@@ -133,8 +133,8 @@ function getJob(jobId) {
 module.exports.getJob = getJob;
 
 /**
- * Creates new job in DB
- * @param {Object} job Job object to be created in DB
+ * Creates new job
+ * @param {Object} job Job object to be created
  * @param {string?} createdBy User who creates job
  * @returns {Promise} Promise which resolves with just created job with `id` in case of success and rejects with error in case of failure
  */
@@ -173,16 +173,16 @@ function createJob(job, createdBy) {
 module.exports.createJob = createJob;
 
 /**
- * Updates job in DB by id
+ * Updates job by id
  * @param {number} jobId Id of job to be updated
- * @param {Object} job Job object to be updated with
+ * @param {Object} job Content for Job update
  * @param {string} updatedBy User who updates job
  * @returns {Promise} Promise which resolves with number of updated rows in case of success and rejects with error in case of failure 
  */
 function updateJob(jobId, job, updatedBy) {
   return new Promise((resolve, reject) => {
     try {
-      if(typeof jobId !== 'number')
+      if(typeof parseInt(jobId) !== 'number' || isNaN(parseInt(jobId)))
         throw new TypeError('jobId should be a number');     
       if(typeof job !== 'object')
         throw new TypeError('job should be an object');    
@@ -190,7 +190,7 @@ function updateJob(jobId, job, updatedBy) {
         throw new TypeError('updatedBy should be a string');                    
       const query = {
         "text": 'SELECT public."fnJob_Update"($1, $2, $3) as count',
-        "values": [jobId, job, updatedBy]
+        "values": [parseInt(jobId), job, updatedBy]
       };
       dbclient.query(query, async (err, result) => {           
         try {
@@ -223,13 +223,13 @@ module.exports.updateJob = updateJob;
 function deleteJob(jobId, deletedBy) {
   return new Promise((resolve, reject) => {
     try {
-      if(typeof jobId !== 'number')
+      if(typeof parseInt(jobId) !== 'number' || isNaN(parseInt(jobId)))
         throw new TypeError('jobId should be a number');   
       if(typeof deletedBy !== 'string')
         throw new TypeError('deletedBy should be a string');           
       const query = {
         "text": 'SELECT public."fnJob_Delete"($1, $2) as count',
-        "values": [jobId, deletedBy]
+        "values": [parseInt(jobId), deletedBy]
       };
       dbclient.query(query, async (err, result) => {           
         try {
@@ -266,8 +266,9 @@ module.exports.deleteJob = deleteJob;
  */
 function calculateNextRun(job) {
   try {
-    if(typeof jobId !== 'number')
-      throw new TypeError('jobId should be a number');      
+    if(typeof job !== 'object')
+      throw new TypeError('job should be an object');      
+
     let validationSequence = ["job", "steps", "notifications", "schedules"];
     let jobValidationResult;
     for (let i = 0; i < validationSequence.length; i++) {
@@ -316,7 +317,7 @@ function calculateNextRun(job) {
 }
 module.exports.calculateNextRun = calculateNextRun;
 /**
- * Calculates and save job next run
+ * Calculates and save Job next run
  * @param {number} jobId Job id
  * @param {string} nextRun `date-time` of job next run 
  * @param {string} executedBy Author of change
@@ -325,15 +326,15 @@ module.exports.calculateNextRun = calculateNextRun;
 function updateJobNextRun(jobId, nextRun, executedBy) {
   return new Promise((resolve, reject) => {
     try {
-      if(typeof jobId !== 'number')
+      if(typeof parseInt(jobId) !== 'number' || isNaN(parseInt(jobId)))
         throw new TypeError('jobId should be a number');  
-      if(nextRun instanceof Date)
+      if(!(util.parseDateTime(nextRun) instanceof Date))
         throw new TypeError('nextRun should be a date');
       if(typeof executedBy !== 'string')
         throw new TypeError('executedBy should be a string');                     
       const query = {
         "text": 'SELECT public."fnJob_UpdateNextRun"($1, $2, $3) as count',
-        "values": [jobId, nextRun, executedBy]
+        "values": [parseInt(jobId), nextRun, executedBy]
       };
       dbclient.query(query, (err, result) => {     
         try {
@@ -358,7 +359,7 @@ function updateJobNextRun(jobId, nextRun, executedBy) {
 module.exports.updateJobNextRun = updateJobNextRun;
 
 /**
- * Changes job last run result. Last run date-time will be updated with current timestamp.
+ * Changes Job last run result. Last run date-time will be updated with current timestamp.
  * @param {number} jobId Job id
  * @param {number} runResult Job run result. `true` - success, `false` - failure
  * @param {string} executedBy Author of change 
@@ -367,7 +368,7 @@ module.exports.updateJobNextRun = updateJobNextRun;
 function updateJobLastRun(jobId, runResult, executedBy) {
   return new Promise((resolve, reject) => {
     try {
-      if(typeof jobId !== 'number')
+      if(typeof jobId !== 'number' || isNaN(parseInt(jobId)))
         throw new TypeError('jobId should be a number');  
       if(typeof runResult !== 'boolean')
         throw new TypeError('runResult should be boolean');   
@@ -402,7 +403,7 @@ function updateJobLastRun(jobId, runResult, executedBy) {
 module.exports.updateJobLastRun = updateJobLastRun;
 
 /**
- * Changes job status
+ * Changes Job status
  * @param {number} jobId Job id
  * @param {number} status Status id. `1` - idle, `2` - execution
  * @param {string} executedBy Author of change 
@@ -411,7 +412,7 @@ module.exports.updateJobLastRun = updateJobLastRun;
 function updateJobStatus(jobId, status, executedBy) {
   return new Promise((resolve, reject) => {
     try {
-      if(typeof jobId !== 'number')
+      if(typeof jobId !== 'number' || isNaN(parseInt(jobId)))
         throw new TypeError('jobId should be a number');  
       if(status !== 1 && status !== 2)
         throw new TypeError('status should be 1 or 2'); 
@@ -456,7 +457,7 @@ module.exports.updateJobStatus = updateJobStatus;
 function logJobHistory(message, jobId, createdBy, uid) {
   return new Promise((resolve, reject) => {
     try {
-      if(typeof jobId !== 'number')
+      if(typeof jobId !== 'number' || isNaN(parseInt(jobId)))
         throw new TypeError('jobId should be a number');
       if(typeof createdBy !== 'string')
         throw new TypeError('createdBy should be a string');          
@@ -489,7 +490,7 @@ function logJobHistory(message, jobId, createdBy, uid) {
 module.exports.logJobHistory = logJobHistory;
 
 /**
- * Executes job
+ * Executes Job (including logging steps results, changing Job last run result and `date-time`, calculates next run `date-time`).
  * @param {Object} jobRecord Job record for execution
  * @param {string} executedBy User who is executing job
  * @param {?string} uid Session id. Default is `null`  
@@ -625,7 +626,7 @@ async function executeJob(jobRecord, executedBy, uid) {
 module.exports.executeJob = executeJob;
 
 /**
- * Sorting step list in a correct order and eliminates gaps in sorting order (e.g. 1,2,2,9 will be changed to 1,2,3,4)
+ * Sorting Step list in a correct order and eliminates gaps in sorting order (e.g. 1,7,2,2,9 will be changed to 1,2,3,4,5)
  * @param {Array} stepList Array of step objects
  */
 function normalizeStepList(stepList) {

@@ -8,29 +8,38 @@ const jobEngine = require('./job');
 var executionLock;
 
 /**
- * Returns jobs list which should be executed
+ * Returns Jobs list which should be executed
  * @param {number} tolerance Allowance of job next run searching criteria in minutes (BETWEEN now-tolerance AND now+tolerance)
- * @returns {Promis} Promsit which returns list of job records to be executed or error object in case of error
+ * @returns {Promis} Promis which returns list of Job records to be executed or rejects with error in case of error
  */
 function getJobListToRun(tolerance) {
   return new Promise((resolve, reject) => {
-    const query = {
-      "text": 'SELECT public."fnJob_ToRun"($1) as jobs',
-      "values": [tolerance]
-    };
-    dbclient.query(query, (err, result) => {
-      /* istanbul ignore if */
-      if (err) {
-        reject(new Error(err));
-      } else {
-        resolve(result.rows[0].jobs);
-      }
-    });
+    try
+    {
+      if(typeof tolerance !== 'number' || isNaN(parseInt(tolerance)))
+        throw new TypeError('tolerance should be a number'); 
+      const query = {
+        "text": 'SELECT public."fnJob_ToRun"($1) as jobs',
+        "values": [tolerance]
+      };
+      dbclient.query(query, (err, result) => {
+        /* istanbul ignore if */
+        if (err) {
+          reject(new Error(err));
+        } else {
+          resolve(result.rows[0].jobs);
+        }
+      });
+    }
+    catch(err) {
+      log.error(`Parameters type mismatch. Stack: ${err}`);              
+      reject(err);   
+    }        
   });
 }
 
 /**
- * Creates new entry for run history table
+ * Creates new entry for Job processor run history
  * @param {string} message Message to log
  * @param {string} createdBy Author of message 
  * @param {?string} uid Session id. Default is `null`
@@ -50,12 +59,14 @@ function logRunHistory(message, createdBy, uid = null) {
 }
 
 /**
- * Searches for a jobs which should be executed and runs them
+ * Main function of Job processor. Searches for a Jobs which should be executed and runs them
  * @param {number} tolerance Allowance of job next run searching criteria in minutes 
  */
 async function run(tolerance) {  
   let currentExecutableJobId = null;
   try {
+    if(typeof tolerance !== 'number' || isNaN(parseInt(tolerance)))
+      throw new TypeError('tolerance should be a number');     
     if(executionLock)
       return;
     executionLock = true;    
