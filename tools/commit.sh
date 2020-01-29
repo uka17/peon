@@ -4,7 +4,7 @@ if [ -z "$1" ]; then
 else
     if [ "$2" = "-db" ]; then	
         echo "Backuping DB..."
-    	./tools/backup_restore.sh
+    	./backup_restore.sh
     fi
     echo "Pushing to git..."
     git status
