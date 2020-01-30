@@ -20,7 +20,7 @@ module.exports = function(app) {
       let result = await jobEngine.getJobCount(filter);
       /* istanbul ignore if */
       if(result == null)
-        res.status(404).send();
+        res.status(204).send();
       else {
         let resObject = {};
         resObject[labels.common.count] = result;
@@ -58,7 +58,7 @@ module.exports = function(app) {
       let result = await jobEngine.getJobList(filter, sortingExpression[0], sortingExpression[1], perPage, page);
       /* istanbul ignore if */
       if(result == null)
-        res.status(404).send();
+        res.status(204).send();
       else {
         let wrappedResult = JSON.parse(JSON.stringify(restConfig.templates.selectAll));
         let jobCount = await jobEngine.getJobCount(filter);
