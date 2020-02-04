@@ -26,7 +26,7 @@
     "express": "^4.17.1",
     "pg": "^7.16.1",
     "request": "^2.88.0",
-    "schedulator": "^2.0.6",
+    "schedulator": "^2.0.9",
     "utils-error-to-json": "^1.0.0",
     "uuid": "^3.3.3",
     "winston": "^3.2.1"

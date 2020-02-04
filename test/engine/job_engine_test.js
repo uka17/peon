@@ -9,6 +9,7 @@ const stepEngine = require('../../app/engines/step');
 const schedulator = require('schedulator');
 const testData = require('../test_data');
 const config = require('../../config/config');
+const labels = require('../../config/message_labels')('en');
 
 describe('1 job engine', function() {
   this.timeout(100000);
@@ -158,6 +159,22 @@ describe('1 job engine', function() {
     catch(e) {
       assert.include(e.stack, 'job should be an object');
     }
+  });   
+
+  it('1.7.1 calculateNextRun. No `name` for schedule', async () => {
+    let testJob  = JSON.parse(JSON.stringify(testData.jobOK));    
+    testJob.schedules =
+    [
+      {
+        enabled: true,
+        startDateTime: '2018-01-31T20:54:23.071Z',
+        eachNWeek: '1',
+        dayOfWeek: ['mon', 'wed', 'fri'],
+        dailyFrequency: { occursOnceAt: '11:11:11'}
+      }
+    ];
+    let result = await jobEngine.calculateNextRun(testJob);
+    assert.include(result.errorList, labels.schedule.scheduleNoName);
   });   
 
   it('1.8.1 updateJobNextRun. Type mismatch `jobId`', async () => {

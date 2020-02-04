@@ -5,7 +5,6 @@
 const validation = require("../tools/validation");
 const schedulator = require("schedulator");
 const util = require('../tools/util');
-const config = require('../../config/config');
 const dbclient = require("../tools/db");
 const log = require('../../log/dispatcher');
 const stepEngine = require('./step');
@@ -291,6 +290,8 @@ function calculateNextRun(job) {
         if (job.schedules) {
           for (let i = 0; i < job.schedules.length; i++) {
             if (job.schedules[i].enabled) {
+              if(!job.schedules[i].hasOwnProperty('name'))
+                throw new Error(labels.schedule.scheduleNoName);
               let nextRun = schedulator.nextOccurrence(job.schedules[i]);
               if (nextRun.result != null) 
                 nextRunList.push(nextRun.result);

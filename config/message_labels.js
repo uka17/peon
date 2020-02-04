@@ -10,6 +10,7 @@ module.exports = (language = 'en') => {
     },
     schedule: { 
       noScheduleForJob: 'no schedule found for this job',
+      scheduleNoName: 'schedule should have <name> field',
       noScheduleForJobIdAndScheduleId: 'no schedule found for mentioned jobId and scheduleId',
       nextRunCanNotBeCalculated: 'job next run can not be calculated'
     },
