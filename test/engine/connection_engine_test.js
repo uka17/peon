@@ -6,7 +6,7 @@ const connectionEngine = require('../../app/engines/connection');
 const config = require('../../config/config');
 
 describe('1 connection engine', function() {
-  this.timeout(100000);
+  this.timeout(500000);
 
   before(async () => {
     //temporary disable debug output due to have clear test output
