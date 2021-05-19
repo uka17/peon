@@ -59,7 +59,7 @@ module.exports = function(app, dbclient) {
       let result = await connectionEngine.getConnectionList(filter, sortingExpression[0], sortingExpression[1], perPage, page);
       /* istanbul ignore if */
       if(result == null)
-        res.status(404).send();
+        res.status(204).send();
       else {
         let wrappedResult = JSON.parse(JSON.stringify(restConfig.templates.selectAll));
         let connectionCount = await connectionEngine.getConnectionCount(filter);
