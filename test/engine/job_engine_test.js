@@ -422,12 +422,12 @@ describe('1 job engine', function() {
   });
 
   it('1.13.9 execute. Step list is empty', async () => {
-    let spy = sinon.spy(log, 'warn');
+    let spy = sinon.spy(log, 'info');
     try {   
       let noStepJob = JSON.parse(JSON.stringify(job));
       noStepJob.job.steps = [];    
       await jobEngine.executeJob(noStepJob, config.testUser);
-      assert.include(spy.args[0][0], 'No step list found');
+      assert.include(spy.args[1][0], 'No any steps were found');
     } finally {
       spy.restore();
     }

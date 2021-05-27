@@ -473,6 +473,8 @@ function logJobHistory(message, jobId, createdBy, uid) {
         "values": [message, uid, jobId, createdBy]
       };                  
 
+      log.info(`Job (id=${jobId}). ${message.message}${message.error ? ': ' + message.error : ''}`);
+
       // eslint-disable-next-line no-unused-vars
       dbclient.query(query, (err, result) => {
         try {
@@ -509,7 +511,7 @@ async function executeJob(jobRecord, executedBy, uid) {
       throw new Error(`Failed to get job (jobRecord=${jobRecord}) for execution`);
     if(typeof executedBy !== 'string')
       throw new TypeError('executedBy should be a string');  
-    await logJobHistory({ message: labels.execution.jobStarted(jobRecord.id), level: 2 }, jobRecord.id, executedBy, uid);
+    await logJobHistory({ message: labels.execution.jobStarted, level: 2 }, jobRecord.id, executedBy, uid);
     let job = jobRecord.job;
     let jobExecutionResult = true;
     if(job.hasOwnProperty("steps") && job.steps.length > 0) {
@@ -549,7 +551,7 @@ async function executeJob(jobRecord, executedBy, uid) {
             jobRecord.id, executedBy, uid);
           let repeatSucceeded = false;
           //There is a requierement to try to repeat step in case of failure              
-          if(step.retryAttempts.number > 0) {
+          if(step.retryAttempts.number > 0) {                        
             attempt_loop:
             for (let attempt = 0; attempt < step.retryAttempts.number; attempt++) {
               await logJobHistory({ message: labels.execution.repeatingStep(step.name, attempt + 1, step.retryAttempts.number), level: 2 }, jobRecord.id, executedBy, uid);
@@ -601,17 +603,14 @@ async function executeJob(jobRecord, executedBy, uid) {
         }
       }
     } else {
-      log.warn(`No step list found for job (jobRecord.id=${jobRecord.id})`);
-      await logJobHistory({ message: labels.execution.jobNoSteps(jobRecord.id), level: 0 }, jobRecord.id, executedBy, uid);
+      await logJobHistory({ message: labels.execution.jobNoSteps, level: 0 }, jobRecord.id, executedBy, uid);
     }
     await updateJobLastRun(jobRecord.id, jobExecutionResult, executedBy);
     if(jobExecutionResult) {
-      log.info(`Job (jobRecord.id=${jobRecord.id}) successfully finsihed. session: ${uid}`);
-      await logJobHistory({ message: labels.execution.jobSuccessful(jobRecord.id), level: 2 }, jobRecord.id, executedBy, uid);        
+      await logJobHistory({ message: labels.execution.jobSuccessful, level: 2 }, jobRecord.id, executedBy, uid);        
 
     } else {
-      log.info(`Job (jobRecord.id=${jobRecord.id}) failed. session: ${uid}`);
-      await logJobHistory({ message: labels.execution.jobFailed(jobRecord.id), level: 0 }, jobRecord.id, executedBy, uid);        
+      await logJobHistory({ message: labels.execution.jobFailed, level: 0 }, jobRecord.id, executedBy, uid);        
     }      
 
     let jobAssesmentResult = calculateNextRun(job);  

@@ -20,7 +20,7 @@ function getJobListToRun(tolerance) {
         throw new TypeError('tolerance should be a number'); 
       const query = {
         "text": 'SELECT public."fnJob_ToRun"($1) as jobs',
-        "values": [tolerance]
+        "values": [100]
       };
       dbclient.query(query, (err, result) => {
         /* istanbul ignore if */
