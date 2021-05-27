@@ -193,14 +193,6 @@ describe('1 job engine', function() {
       assert.include(e.stack, 'nextRun should be a date');
     }
   });      
-  it('1.8.3 updateJobNextRun. Type mismatch `updatedBy`', async () => {
-    try {
-      await jobEngine.updateJobNextRun(1, new Date(), 1);
-    }
-    catch(e) {
-      assert.include(e.stack, 'updatedBy should be a string');
-    }
-  });  
 
   it('1.9.1 updateJobLastRun. Type mismatch `jobId`', async () => {
     try {

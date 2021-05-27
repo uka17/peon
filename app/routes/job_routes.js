@@ -106,7 +106,7 @@ module.exports = function(app) {
         res.status(400).send({"requestValidationErrors": jobAssesmentResult.errorList});
       else {
         let result = await jobEngine.createJob(job, config.user);
-        await jobEngine.updateJobNextRun(result.id, jobAssesmentResult.nextRun.toUTCString(), config.user);
+        await jobEngine.updateJobNextRun(result.id, jobAssesmentResult.nextRun.toUTCString());
         res.status(201).send(result);
       }
     }    
@@ -135,7 +135,7 @@ module.exports = function(app) {
         res.status(400).send({"requestValidationErrors": jobAssesmentResult.errorList});
       else {        
         let result = await jobEngine.updateJob(req.params.id, job, config.user);
-        jobEngine.updateJobNextRun(req.params.id, jobAssesmentResult.nextRun.toUTCString(), config.user);
+        jobEngine.updateJobNextRun(req.params.id, jobAssesmentResult.nextRun.toUTCString());
         let resObject = {};
         resObject[labels.common.updated] = result;
         res.status(200).send(resObject);

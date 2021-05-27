@@ -16,6 +16,10 @@ app.listen(config.port, () => {
   log.info(`We are live on ${config.port}.`);
 });
 
+//Main loop
 setInterval(main.run, 1000, config.runTolerance);
-   
+
+//Startup actions
+main.updateOverdueJobs();
+main.resetAllJobsStatuses();
 

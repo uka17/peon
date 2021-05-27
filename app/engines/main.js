@@ -4,6 +4,7 @@ const dbclient = require("../tools/db");
 const log = require('../../log/dispatcher');
 const uuidv4 = require('uuid/v4');
 const jobEngine = require('./job');
+const labels = require('../../config/message_labels')('en');
 
 var executionLock;
 
@@ -101,3 +102,88 @@ async function run(tolerance) {
 }
 
 module.exports.run = run;
+
+
+/**
+ * Reset all jobs statuses
+ */
+ function resetAllJobsStatuses() {
+  return new Promise((resolve, reject) => {
+    try {              
+      const query = {
+        "text": 'SELECT public."fnJob_ResetAll"() as count'
+      };
+      dbclient.query(query, async (err, result) => {           
+        try {
+          /*istanbul ignore if*/ 
+          if (err) { 
+            throw new Error(err);
+          } else {    
+            resolve(result.rows[0].count);
+          }
+        }            
+        catch(e) /*istanbul ignore next*/ {        
+          log.error(`Failed to reset jobs statuses with query ${query}. Stack: ${e}`);        
+          reject(e);
+        }
+      });
+    }
+    catch(err) {
+      log.error(`Reset job list statuses failed. Stack: ${err}`);              
+      reject(err);   
+    }  
+  });
+ }
+ module.exports.resetAllJobsStatuses = resetAllJobsStatuses;
+ 
+/**
+ * Finds all active jobs (not in 'Executing' state, enabled and not deleted) and calculates next run date-time for them
+ */
+ function updateOverdueJobs() {
+  return new Promise((resolve, reject) => {
+    try {     
+      const query = {
+        "text": 'SELECT public."fnJob_SelectAllOverdue"() as jobs'
+      };
+      dbclient.query(query, async (err, result) => {  
+        try {
+          /*istanbul ignore if*/ 
+          if (err) {
+            throw new Error(err);
+          } else {
+          /* istanbul ignore if */
+            if(result.rows[0].jobs == null) {
+              resolve(null);
+            }
+            else {
+              let updatedCounter = 0;
+              for (let index = 0; index < result.rows[0].jobs.length; index++) {
+                const element = result.rows[0].jobs[index];
+                let jobAssesmentResult = jobEngine.calculateNextRun(element.job);
+                /* istanbul ignore if */
+                if(!jobAssesmentResult.isValid)
+                  throw new Error(jobAssesmentResult.errorList);
+                else {
+                  await jobEngine.updateJobNextRun(element.id, jobAssesmentResult.nextRun.toUTCString());
+                  await jobEngine.logJobHistory({ message: labels.job.jobNextRunUpdated, level: 2 }, element.id, config.systemUser, null); 
+                  updatedCounter++;                  
+                }
+              }              
+              resolve(updatedCounter);
+            }
+          } 
+        }            
+        catch(e) /*istanbul ignore next*/ {        
+          log.error(`Failed to get job list with query ${query}. Stack: ${e}`);              
+          reject(e);
+        }         
+      });
+    }
+    catch(err) {
+      log.error(`Failed to recalculate next run for outdated jobs. Stack: ${err}`);              
+      reject(err);   
+    }
+  });
+}
+
+module.exports.updateOverdueJobs = updateOverdueJobs;

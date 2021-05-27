@@ -324,21 +324,18 @@ module.exports.calculateNextRun = calculateNextRun;
  * Calculates and save Job next run
  * @param {number} jobId Job id
  * @param {string} nextRun `date-time` of job next run 
- * @param {string} updatedBy Author of change
  * @returns {Promise} Promise which returns `true` in case of success and `false` in case of failure 
  */
-function updateJobNextRun(jobId, nextRun, updatedBy) {
+function updateJobNextRun(jobId, nextRun) {
   return new Promise((resolve, reject) => {
     try {
       if(typeof parseInt(jobId) !== 'number' || isNaN(parseInt(jobId)))
         throw new TypeError('jobId should be a number');  
       if(!(util.parseDateTime(nextRun) instanceof Date))
-        throw new TypeError('nextRun should be a date');
-      if(typeof updatedBy !== 'string')
-        throw new TypeError('updatedBy should be a string');                     
+        throw new TypeError('nextRun should be a date');                 
       const query = {
-        "text": 'SELECT public."fnJob_UpdateNextRun"($1, $2, $3) as count',
-        "values": [parseInt(jobId), nextRun, updatedBy]
+        "text": 'SELECT public."fnJob_UpdateNextRun"($1, $2) as count',
+        "values": [parseInt(jobId), nextRun]
       };
       dbclient.query(query, (err, result) => {     
         try {
@@ -615,10 +612,10 @@ async function executeJob(jobRecord, executedBy, uid) {
 
     let jobAssesmentResult = calculateNextRun(job);  
     if(!jobAssesmentResult.isValid) {
-      await updateJobNextRun(jobRecord.id, null, executedBy);
+      await updateJobNextRun(jobRecord.id, null);
     }        
     else {
-      await updateJobNextRun(jobRecord.id, jobAssesmentResult.nextRun.toUTCString(), executedBy);
+      await updateJobNextRun(jobRecord.id, jobAssesmentResult.nextRun.toUTCString());
     }                
  
   }
