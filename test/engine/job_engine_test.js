@@ -5,11 +5,16 @@ let sinon = require('sinon');
 let enableDebugOutput;
 let log = require('../../log/dispatcher');
 const jobEngine = require('../../app/engines/job');
+const { nanoid } = require("nanoid");
+const testHelper = require('../test_helper')
+const connectionEngine = require('../../app/engines/connection');
 const stepEngine = require('../../app/engines/step');
 const schedulator = require('schedulator');
 const testData = require('../test_data');
 const config = require('../../config/config');
 const labels = require('../../config/message_labels')('en');
+const main = require('../../app/engines/main');
+const dbclient = require("../../app/tools/db");
 
 describe('1 job engine', function() {
   this.timeout(100000);
@@ -471,4 +476,45 @@ describe('1 job engine', function() {
     stub.restore();
     done();
   });        
+
+  it.only('1.15.1 5-minutes execution test. Create connection, create 21 jobs, wait 5 minutes, check if records were created in DB', async () => {    
+
+    let connection = await connectionEngine.createConnection(testData.execution.connection, config.testUser);
+
+    let uid = nanoid();
+    
+    for (let index = 0; index < 20; index++) {
+      let job = JSON.parse(JSON.stringify(testData.execution.job));
+      job.name = `Execution test job ${index}`;      
+      job.steps[0].command = job.steps[0].command.replace('insert_value', `Potatoe${index}-${uid}`);
+      job.steps[0].connection = connection.id;
+      await jobEngine.createJob(job, config.testUser);   
+    }
+    //Run execution loop for 5 minutes
+    //Main loop
+    console.log(`🚀 Starting execution loop at ${Date()}`)
+    let t = setInterval(main.run, 1000, config.runTolerance);    
+    //Startup actions
+    main.updateOverdueJobs();
+    main.resetAllJobsStatuses();    
+    //Run loop for 5 minutes
+    await new Promise(resolve => setTimeout(resolve, 60000*5));    
+    console.log(`🚀 Finishing execution loop at ${Date()}`)
+    clearInterval(t);
+    let rowCount = await new Promise((resolve, reject) => {
+      const query = {
+        "text": `SELECT count(id) FROM public."sysAbyss" where "text" like '%${uid}%'`
+      };
+      dbclient.query(query, (err, result) => {  
+        if(result.rows)
+          resolve(result.rows[0].count);
+        else
+          reject(0);
+      });
+    });
+
+    assert.equal(rowCount, 20*5)
+
+  }).timeout(305000);;        
+  
 });

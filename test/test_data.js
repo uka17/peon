@@ -290,3 +290,52 @@ module.exports.testHelperCorrectObject = {
   object: {},
   enum: 'enum'
 };
+
+module.exports.execution = {
+  connection:   {
+    "name": "Psg-conn",
+    "host": "172.17.0.2",
+    "port": 5432,
+    "enabled": true,
+    "login": "postgres",
+    "password": "255320",
+    "type": "postgresql",
+    "database": "peon"
+  },
+  job: {
+    "name": "Test job",
+    "description": "Job created for testing massive execution",
+    "enabled": true,
+    "steps": [
+      {
+        "name": "Inserting text into abyss",
+        "enabled": true,
+        "order": 1,
+        "connection": 203,
+        "command": "INSERT INTO public.\"sysAbyss\"(\"text\", \"number\", \"json\") VALUES('insert_value', 1, null);",
+        "retryAttempts": {
+          "number": 1,
+          "interval": 1
+        },
+        "onSucceed": "gotoNextStep",
+        "onFailure": "quitWithFailure"
+      }
+    ],
+    "schedules": [
+      {
+        "eachNDay": 1,
+        "name": "1 per minute",
+        "enabled": true,
+        "startDateTime": "2021-05-31T21:00:00.000Z",
+        "dailyFrequency": {
+          "start": "00:00:00",
+          "end": "23:00:00",
+          "occursEvery": {
+            "intervalValue": 1,
+            "intervalType": "minute"
+          }
+        }
+      }
+    ]
+  }
+}
