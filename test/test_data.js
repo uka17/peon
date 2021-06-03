@@ -311,7 +311,7 @@ module.exports.execution = {
         "name": "Inserting text into abyss",
         "enabled": true,
         "order": 1,
-        "connection": 203,
+        "connection": null,
         "command": "INSERT INTO public.\"sysAbyss\"(\"text\", \"number\", \"json\") VALUES('insert_value', 1, null);",
         "retryAttempts": {
           "number": 1,

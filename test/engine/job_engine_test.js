@@ -215,14 +215,6 @@ describe('1 job engine', function() {
       assert.include(e.stack, 'runResult should be boolean');
     }
   });      
-  it('1.9.3 updateJobLastRun. Type mismatch `updatedBy`', async () => {
-    try {
-      await jobEngine.updateJobLastRun(1, true, 1);
-    }
-    catch(e) {
-      assert.include(e.stack, 'updatedBy should be a string');
-    }
-  });   
 
   it('1.10.1 updateJobStatus. Type mismatch `jobId`', async () => {
     try {
@@ -239,15 +231,7 @@ describe('1 job engine', function() {
     catch(e) {
       assert.include(e.stack, 'status should be 1 or 2');
     }
-  });      
-  it('1.10.3 updateJobStatus. Type mismatch `updatedBy`', async () => {
-    try {
-      await jobEngine.updateJobStatus(1, 1, 1);
-    }
-    catch(e) {
-      assert.include(e.stack, 'updatedBy should be a string');
-    }
-  });   
+  });       
 
   it('1.11.1 logJobHistory. Type mismatch `jobId`', async () => {
     try {
@@ -477,20 +461,23 @@ describe('1 job engine', function() {
     done();
   });        
 
-  it.only('1.15.1 5-minutes execution test. Create connection, create 21 jobs, wait 5 minutes, check if records were created in DB', async () => {    
+  it('1.15.1 3-minutes execution test. Create connection, create 21 jobs, wait 5 minutes, check if records were created in DB', async () => {    
+
+    let numberOfJobs = 20;
+    let minutes = 3;
 
     let connection = await connectionEngine.createConnection(testData.execution.connection, config.testUser);
 
     let uid = nanoid();
     
-    for (let index = 0; index < 20; index++) {
+    for (let index = 0; index < numberOfJobs; index++) {
       let job = JSON.parse(JSON.stringify(testData.execution.job));
       job.name = `Execution test job ${index}`;      
       job.steps[0].command = job.steps[0].command.replace('insert_value', `Potatoe${index}-${uid}`);
       job.steps[0].connection = connection.id;
       await jobEngine.createJob(job, config.testUser);   
     }
-    //Run execution loop for 5 minutes
+    //Run execution loop for {minutes} minutes
     //Main loop
     console.log(`🚀 Starting execution loop at ${Date()}`)
     let t = setInterval(main.run, 1000, config.runTolerance);    
@@ -498,7 +485,7 @@ describe('1 job engine', function() {
     main.updateOverdueJobs();
     main.resetAllJobsStatuses();    
     //Run loop for 5 minutes
-    await new Promise(resolve => setTimeout(resolve, 60000*5));    
+    await new Promise(resolve => setTimeout(resolve, 60000*minutes));    
     console.log(`🚀 Finishing execution loop at ${Date()}`)
     clearInterval(t);
     let rowCount = await new Promise((resolve, reject) => {
@@ -513,7 +500,7 @@ describe('1 job engine', function() {
       });
     });
 
-    assert.equal(rowCount, 20*5)
+    assert.equal(rowCount, numberOfJobs*3)
 
   }).timeout(305000);;        
   

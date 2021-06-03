@@ -364,21 +364,18 @@ module.exports.updateJobNextRun = updateJobNextRun;
  * Changes Job last run result. Last run date-time will be updated with current timestamp.
  * @param {number} jobId Job id
  * @param {number} runResult Job run result. `true` - success, `false` - failure
- * @param {string} updatedBy Author of change 
  * @returns {Promise} Promise which returns `true` in case of success and `false` in case of failure
  */
-function updateJobLastRun(jobId, runResult, updatedBy) {
+function updateJobLastRun(jobId, runResult) {
   return new Promise((resolve, reject) => {
     try {
       if(typeof jobId !== 'number' || isNaN(parseInt(jobId)))
         throw new TypeError('jobId should be a number');  
       if(typeof runResult !== 'boolean')
-        throw new TypeError('runResult should be boolean');   
-      if(typeof updatedBy !== 'string')
-        throw new TypeError('updatedBy should be a string');                 
+        throw new TypeError('runResult should be boolean');                
       const query = {
-        "text": 'SELECT public."fnJob_UpdateLastRun"($1, $2, $3) as updated',
-        "values": [jobId, runResult, updatedBy]
+        "text": 'SELECT public."fnJob_UpdateLastRun"($1, $2) as updated',
+        "values": [jobId, runResult]
       };                  
 
       // eslint-disable-next-line no-unused-vars
@@ -409,21 +406,18 @@ module.exports.updateJobLastRun = updateJobLastRun;
  * Changes Job status
  * @param {number} jobId Job id
  * @param {number} status Status id. `1` - idle, `2` - execution
- * @param {string} updatedBy Author of change 
  * @returns {Promise} Promise which returns `true` in case of success and `false` in case of failure
  */
-function updateJobStatus(jobId, status, updatedBy) {
+function updateJobStatus(jobId, status) {
   return new Promise((resolve, reject) => {
     try {
       if(typeof jobId !== 'number' || isNaN(parseInt(jobId)))
         throw new TypeError('jobId should be a number');  
       if(status !== 1 && status !== 2)
-        throw new TypeError('status should be 1 or 2'); 
-      if(typeof updatedBy !== 'string')
-        throw new TypeError('updatedBy should be a string');                        
+        throw new TypeError('status should be 1 or 2');                     
       const query = {
-        "text": 'SELECT public."fnJob_UpdateStatus"($1, $2, $3) as updated',
-        "values": [jobId, status, updatedBy]
+        "text": 'SELECT public."fnJob_UpdateStatus"($1, $2) as updated',
+        "values": [jobId, status]
       };                  
 
       // eslint-disable-next-line no-unused-vars
@@ -602,7 +596,7 @@ async function executeJob(jobRecord, executedBy, uid) {
     } else {
       await logJobHistory({ message: labels.execution.jobNoSteps, level: 0 }, jobRecord.id, executedBy, uid);
     }
-    await updateJobLastRun(jobRecord.id, jobExecutionResult, executedBy);
+    await updateJobLastRun(jobRecord.id, jobExecutionResult);
     if(jobExecutionResult) {
       await logJobHistory({ message: labels.execution.jobSuccessful, level: 2 }, jobRecord.id, executedBy, uid);        
 
@@ -625,7 +619,7 @@ async function executeJob(jobRecord, executedBy, uid) {
   finally {
     if(jobRecord !== null && jobRecord !== undefined)
       //module.exports is added for sake of unit testing
-      await module.exports.updateJobStatus(jobRecord.id, 1, executedBy);
+      await module.exports.updateJobStatus(jobRecord.id, 1);
   }  
 }
 module.exports.executeJob = executeJob;

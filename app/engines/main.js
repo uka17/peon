@@ -83,7 +83,7 @@ async function run(tolerance) {
           logRunHistory(`Starting execution of job (id=${jobRecord.id})`, config.systemUser, uid);
           currentExecutableJobId = jobRecord.id;    
           //lock job to avoid second thread
-          if(!(await jobEngine.updateJobStatus(jobRecord.id, 2, config.systemUser)))
+          if(!(await jobEngine.updateJobStatus(jobRecord.id, 2)))
             break;                          
           jobEngine.executeJob(jobRecord, config.systemUser, uid);
         }
@@ -96,7 +96,7 @@ async function run(tolerance) {
     log.error(e.stack);
     //unlock job
     if(currentExecutableJobId !== null)
-      jobEngine.updateJobStatus(currentExecutableJobId, 1, config.emergencyUser);
+      jobEngine.updateJobStatus(currentExecutableJobId, 1);
     executionLock = false;
   }
 }
