@@ -1,5 +1,6 @@
 #!/bin/bash
 
+#Backup db into peon.sql file and replace heroku db with new backup
 #backup db
 pg_dump -h 172.17.0.2 -p 5432 -U postgres -O -F p -b -v -f "./peon.sql" peon
 if [ $? -eq 0 ]; then

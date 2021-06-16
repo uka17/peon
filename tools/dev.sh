@@ -1,4 +1,6 @@
 #!/bin/bash
+
+#Launch all needed things for development
 tmux new -s dev -d
 tmux split-window -v -t dev:0.0
 tmux send-keys -t dev:0.0 'docker start postgres' Enter
