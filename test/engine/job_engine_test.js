@@ -461,7 +461,7 @@ describe('1 job engine', function() {
     done();
   });        
 
-  it('1.15.1 3-minutes execution test. Create connection, create 21 jobs, wait 5 minutes, check if records were created in DB', async () => {    
+  it('1.15.1 3-minutes execution test. Create connection, create 21 jobs, wait 3 minutes, check if records were created in DB', async () => {    
 
     let numberOfJobs = 20;
     let minutes = 3;
@@ -479,11 +479,11 @@ describe('1 job engine', function() {
     }
     //Run execution loop for {minutes} minutes
     //Main loop
-    console.log(`🚀 Starting execution loop at ${Date()}`)
+    console.log(`🚀 Starting execution loop at ${Date()}, test sleep for ${minutes} minutes...`)
     let t = setInterval(main.run, 1000, config.runTolerance);    
     //Startup actions
-    main.updateOverdueJobs();
-    main.resetAllJobsStatuses();    
+    await main.updateOverdueJobs();
+    await main.resetAllJobsStatuses();   
     //Run loop for 5 minutes
     await new Promise(resolve => setTimeout(resolve, 60000*minutes));    
     console.log(`🚀 Finishing execution loop at ${Date()}`)

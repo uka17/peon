@@ -10,7 +10,7 @@ types.setTypeParser(20, function(val) {
 });
 
 const sysPool = new Pool({
-  "connectionString": config.connectionString, 
+  "connectionString": config.postgresConnectionString, 
   "idleTimeoutMillis": 1000, 
   "ssl": config.useDBSSL 
 });
