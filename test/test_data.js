@@ -294,7 +294,7 @@ module.exports.testHelperCorrectObject = {
 module.exports.execution = {
   connection:   {
     "name": "Psg-conn",
-    "host": "172.17.0.2",
+    "host": "172.18.0.2",
     "port": 5432,
     "enabled": true,
     "login": "postgres",
