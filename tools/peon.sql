@@ -5,7 +5,7 @@
 -- Dumped from database version 13.2 (Debian 13.2-1.pgdg100+1)
 -- Dumped by pg_dump version 13.3 (Ubuntu 13.3-1.pgdg20.04+1)
 
--- Started on 2021-06-16 00:44:17 MSK
+-- Started on 2021-06-16 21:50:20 MSK
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -639,7 +639,7 @@ CREATE SEQUENCE public."refJobStatus_id_seq"
 
 
 --
--- TOC entry 3054 (class 0 OID 0)
+-- TOC entry 3040 (class 0 OID 0)
 -- Dependencies: 201
 -- Name: refJobStatus_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -678,7 +678,7 @@ CREATE SEQUENCE public."tblConnection_id_seq"
 
 
 --
--- TOC entry 3055 (class 0 OID 0)
+-- TOC entry 3041 (class 0 OID 0)
 -- Dependencies: 203
 -- Name: tblConnection_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -736,7 +736,7 @@ CREATE SEQUENCE public."tblJobHistory_id_seq"
 
 
 --
--- TOC entry 3056 (class 0 OID 0)
+-- TOC entry 3042 (class 0 OID 0)
 -- Dependencies: 206
 -- Name: tblJobHistory_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -759,7 +759,7 @@ CREATE SEQUENCE public."tblJob_Id_seq"
 
 
 --
--- TOC entry 3057 (class 0 OID 0)
+-- TOC entry 3043 (class 0 OID 0)
 -- Dependencies: 207
 -- Name: tblJob_Id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -796,7 +796,7 @@ CREATE SEQUENCE public."tblLog_Id_seq"
 
 
 --
--- TOC entry 3058 (class 0 OID 0)
+-- TOC entry 3044 (class 0 OID 0)
 -- Dependencies: 209
 -- Name: tblLog_Id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -833,7 +833,7 @@ CREATE SEQUENCE public."tblRunHistory_id_seq"
 
 
 --
--- TOC entry 3059 (class 0 OID 0)
+-- TOC entry 3045 (class 0 OID 0)
 -- Dependencies: 211
 -- Name: tblRunHistory_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -887,141 +887,6 @@ ALTER TABLE ONLY public."tblLog" ALTER COLUMN id SET DEFAULT nextval('public."tb
 --
 
 ALTER TABLE ONLY public."tblRunHistory" ALTER COLUMN id SET DEFAULT nextval('public."tblRunHistory_id_seq"'::regclass);
-
-
---
--- TOC entry 3035 (class 0 OID 16406)
--- Dependencies: 200
--- Data for Name: refJobStatus; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public."refJobStatus" (id, status, "modifiedOn", "modifiedBy", "createdOn", "createdBy", "isDeleted") FROM stdin;
-1	Idle	2019-05-18 00:36:30.585459	system	2019-05-18 00:36:30.585459	system	\N
-2	Execution	2019-05-18 00:36:30.585459	system	2019-05-18 00:36:30.585459	system	\N
-\.
-
-
---
--- TOC entry 3048 (class 0 OID 17189)
--- Dependencies: 213
--- Data for Name: sysAbyss; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public."sysAbyss" (id, text, number, json, modified) FROM stdin;
-\.
-
-
---
--- TOC entry 3037 (class 0 OID 16416)
--- Dependencies: 202
--- Data for Name: tblConnection; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public."tblConnection" (id, connection, "modifiedOn", "modifiedBy", "createdOn", "createdBy", "isDeleted") FROM stdin;
-\.
-
-
---
--- TOC entry 3039 (class 0 OID 16426)
--- Dependencies: 204
--- Data for Name: tblJob; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public."tblJob" (id, job, "modifiedOn", "modifiedBy", "createdOn", "createdBy", "isDeleted", "statusId", "nextRun", "lastRunOn", "lastRunResult") FROM stdin;
-\.
-
-
---
--- TOC entry 3040 (class 0 OID 16435)
--- Dependencies: 205
--- Data for Name: tblJobHistory; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public."tblJobHistory" (id, message, "createdOn", "createdBy", "jobId", session) FROM stdin;
-\.
-
-
---
--- TOC entry 3043 (class 0 OID 16446)
--- Dependencies: 208
--- Data for Name: tblLog; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public."tblLog" (id, type, message, "createdOn", "createdBy") FROM stdin;
-\.
-
-
---
--- TOC entry 3045 (class 0 OID 16455)
--- Dependencies: 210
--- Data for Name: tblRunHistory; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public."tblRunHistory" (id, message, "createdOn", "createdBy", session) FROM stdin;
-\.
-
-
---
--- TOC entry 3060 (class 0 OID 0)
--- Dependencies: 212
--- Name: abyss_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('public.abyss_id_seq', 4360, true);
-
-
---
--- TOC entry 3061 (class 0 OID 0)
--- Dependencies: 201
--- Name: refJobStatus_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('public."refJobStatus_id_seq"', 4, true);
-
-
---
--- TOC entry 3062 (class 0 OID 0)
--- Dependencies: 203
--- Name: tblConnection_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('public."tblConnection_id_seq"', 1055, true);
-
-
---
--- TOC entry 3063 (class 0 OID 0)
--- Dependencies: 206
--- Name: tblJobHistory_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('public."tblJobHistory_id_seq"', 70038, true);
-
-
---
--- TOC entry 3064 (class 0 OID 0)
--- Dependencies: 207
--- Name: tblJob_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('public."tblJob_Id_seq"', 2506, true);
-
-
---
--- TOC entry 3065 (class 0 OID 0)
--- Dependencies: 209
--- Name: tblLog_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('public."tblLog_Id_seq"', 4841, true);
-
-
---
--- TOC entry 3066 (class 0 OID 0)
--- Dependencies: 211
--- Name: tblRunHistory_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('public."tblRunHistory_id_seq"', 18047, true);
 
 
 --
@@ -1105,7 +970,7 @@ ALTER TABLE ONLY public."tblJobHistory"
     ADD CONSTRAINT tbljobhistory_fk FOREIGN KEY ("jobId") REFERENCES public."tblJob"(id) ON UPDATE RESTRICT ON DELETE RESTRICT;
 
 
--- Completed on 2021-06-16 00:44:21 MSK
+-- Completed on 2021-06-16 21:50:23 MSK
 
 --
 -- PostgreSQL database dump complete

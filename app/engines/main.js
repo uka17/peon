@@ -161,8 +161,8 @@ module.exports.run = run;
                 const element = result.rows[0].jobs[index];
                 let jobAssesmentResult = jobEngine.calculateNextRun(element.job);
                 /* istanbul ignore if */
-                if(!jobAssesmentResult.isValid)
-                  throw new Error(jobAssesmentResult.errorList);
+                if(!jobAssesmentResult.isValid) 
+                  log.warn(`job (id=${element.job.id}): ${jobAssesmentResult.errorList}`);    
                 else {
                   await jobEngine.updateJobNextRun(element.id, jobAssesmentResult.nextRun.toUTCString());
                   await jobEngine.logJobHistory({ message: labels.job.jobNextRunUpdated, level: 2 }, element.id, config.systemUser, null); 
