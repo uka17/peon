@@ -16,7 +16,7 @@ app.use(cors({
   origin: 'http://localhost:9000'
 }));
 app.use(session({ secret: 'biteme', cookie: { maxAge: 60000 }, resave: false, saveUninitialized: false }));
-mongoose.connect('mongodb://admin:255320@172.17.0.3:27017/?authSource=admin', { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(config.mongoConnectionString, { useNewUrlParser: true, useUnifiedTopology: true });
 mongoose.set('debug', true)
 require('./app/models/user');
 
