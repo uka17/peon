@@ -83,6 +83,7 @@ async function run(tolerance) {
           logRunHistory(`Starting execution of job (id=${jobRecord.id})`, config.systemUser, uid);
           currentExecutableJobId = jobRecord.id;    
           //lock job to avoid second thread
+          //TODO status shgould be defined based on text, but not hardcoded id
           if(!(await jobEngine.updateJobStatus(jobRecord.id, 2)))
             break;                          
           jobEngine.executeJob(jobRecord, config.systemUser, uid);

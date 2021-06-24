@@ -10,13 +10,17 @@ const connection = require('./connection');
 async function execute(step) {      
   try {
     if(typeof step !== 'object')
-      throw new TypeError('step should be an object');      
-    let con = (await connection.getConnection(step.connection)).connection;  
+      throw new TypeError('step should be an object'); 
+    let connectionObject = await connection.getConnection(step.connection);
+    if(!connectionObject)     
+      throw new TypeError(`connection (id=${step.connection}) can not be found`);
+    let con = connectionObject.connection;    
     if(con) {
-      //'postgresql://postgres:255320@172.17.0.2:5432/peon'  
       let result = await dbclient.userQuery(step.command, `${con.type}://${con.login}:${con.password}@${con.host}:${con.port}/${con.database}`);
       return { result: true, affected: result.rowCount };
-    }
+    } 
+    else 
+      throw new TypeError(`connection (id=${step.connection}) can be found, but record format is invalid`);  
   }
   catch(e) {
     return { result: false, error: e.message };
