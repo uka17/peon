@@ -295,6 +295,7 @@ module.exports.execution = {
   connection:   {
     "name": "Psg-conn",
     "host": "172.18.0.2",
+    //"host": "127.0.0.1", //stupid Win docker can not provide access to postgres without port exposing to localhost
     "port": 5432,
     "enabled": true,
     "login": "postgres",

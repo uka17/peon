@@ -461,10 +461,10 @@ describe('1 job engine', function() {
     done();
   });        
 
-  it('1.15.1 3-minutes execution test. Create connection, create 21 jobs, wait 3 minutes, check if records were created in DB', async () => {    
+  it('1.15.1 1-minute execution test. Create connection, create 21 jobs, wait 1 minutes, check if records were created in DB', async () => {    
 
     let numberOfJobs = 20;
-    let minutes = 3;
+    let minutes = 1;
 
     let connection = await connectionEngine.createConnection(testData.execution.connection, config.testUser);
 
@@ -500,7 +500,7 @@ describe('1 job engine', function() {
       });
     });
 
-    assert.equal(rowCount, numberOfJobs*3)
+    assert.equal(rowCount, numberOfJobs*minutes)
 
   }).timeout(305000);;        
   

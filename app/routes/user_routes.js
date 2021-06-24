@@ -2,14 +2,8 @@
 const mongoose = require('mongoose');
 const passport = require('passport');
 const auth = require('./auth');
-require('../models/user');
+require('../schemas/user');
 const Users = mongoose.model('Users');
-
-let util = require('../tools/util');
-let jobEngine = require('../engines/job');
-const config = require('../../config/config');
-const restConfig = require('../../config/rest_config');
-const labels = require('../../config/message_labels')('en');
 let ver = '/v1.0';
 
 module.exports = function(app) {

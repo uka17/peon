@@ -18,7 +18,7 @@ app.use(cors({
 app.use(session({ secret: 'biteme', cookie: { maxAge: 60000 }, resave: false, saveUninitialized: false }));
 mongoose.connect(config.mongoConnectionString, { useNewUrlParser: true, useUnifiedTopology: true });
 mongoose.set('debug', true)
-require('./app/models/user');
+require('./app/schemas/user');
 
 index(app, dbclient);
 
