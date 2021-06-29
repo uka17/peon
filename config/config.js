@@ -22,5 +22,9 @@ module.exports = {
   emergencyUser: "er",
   logLevel: "info",
   enableDebugOutput: true,
-  runTolerance: 1
+  runTolerance: 1,
+  //Auth config
+  secret: 'biteme',
+  cookieMaxAge: 60000, //milliseconds,
+  jwtMaxAge: 60 //days
 };

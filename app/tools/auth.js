@@ -1,4 +1,5 @@
 const jwt = require('express-jwt');
+const config = require('../../config/config');
 
 const getTokenFromHeaders = (req) => {
   const { headers: { authorization } } = req;
@@ -11,14 +12,14 @@ const getTokenFromHeaders = (req) => {
 
 const auth = {
   required: jwt({
-    secret: 'secret',
-    algorithms: ['RS256'],
+    secret: config.secret,
+    algorithms: ['HS256'],
     userProperty: 'payload',
     getToken: getTokenFromHeaders,
   }),
   optional: jwt({
-    secret: 'secret',
-    algorithms: ['RS256'],
+    secret: config.secret,
+    algorithms: ['HS256'],
     userProperty: 'payload',
     getToken: getTokenFromHeaders,
     credentialsRequired: false,

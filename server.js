@@ -8,20 +8,25 @@ const main = require('./app/engines/main');
 const log = require('./log/dispatcher');
 const cors = require('cors');
 const mongoose = require('mongoose');
-require('./config/passport');
 
 //TODO separate PROD and DEBUG runs with "const isProduction = process.env.NODE_ENV === 'production'";
 
 app.use(cors({
   origin: 'http://localhost:9000'
 }));
-app.use(session({ secret: 'biteme', cookie: { maxAge: 60000 }, resave: false, saveUninitialized: false }));
-mongoose.connect(config.mongoConnectionString, { useNewUrlParser: true, useUnifiedTopology: true });
-mongoose.set('debug', true)
-require('./app/schemas/user');
 
+//Auth DB momgoose configuration
+app.use(session({ secret: config.secret, cookie: { maxAge: config.cookieMaxAge }, resave: false, saveUninitialized: false }));
+mongoose.connect(config.mongoConnectionString, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.set('debug', config.enableDebugOutput)
+
+//Configure local strategy for passport.js before any routing configuration
+require('./config/passport');
+
+//Setup all routes in this function
 index(app, dbclient);
 
+//Startup
 app.listen(config.port, () => {
   log.info(`We are live on ${config.port}.`);
 });

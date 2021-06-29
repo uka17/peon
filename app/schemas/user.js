@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
-
+const config = require('../../config/config');
 const { Schema } = mongoose;
 
 const UserSchema = new Schema({
@@ -21,15 +21,14 @@ UserSchema.methods.validatePassword = function(password) {
 };
 
 UserSchema.methods.generateJWT = function() {
-  const today = new Date();
-  const expirationDate = new Date(today);
-  expirationDate.setDate(today.getDate() + 60);
+  const expirationDate = new Date();
+  expirationDate.setDate(expirationDate.getDate() + config.jwtMaxAge);
 
   return jwt.sign({
     email: this.email,
     id: this._id,
     exp: parseInt(expirationDate.getTime() / 1000, 10),
-  }, 'secret');
+  }, config.secret);
 }
 
 UserSchema.methods.toAuthJSON = function() {
@@ -40,4 +39,4 @@ UserSchema.methods.toAuthJSON = function() {
   };
 };
 
-mongoose.model('Users', UserSchema);
+module.exports = mongoose.model('Users', UserSchema);

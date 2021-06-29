@@ -1,9 +1,7 @@
 // routes/user_routes.js
-const mongoose = require('mongoose');
+const Users = require('../schemas/user');
 const passport = require('passport');
-const auth = require('./auth');
-require('../schemas/user');
-const Users = mongoose.model('Users');
+const auth = require('../tools/auth');
 let ver = '/v1.0';
 
 module.exports = function(app) {
