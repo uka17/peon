@@ -11,17 +11,13 @@ module.exports = function(app) {
 
     if(!user.email) {
       return res.status(422).json({
-        errors: {
-          email: 'is required',
-        },
+        'error': 'email is required'
       });
     }
 
     if(!user.password) {
       return res.status(422).json({
-        errors: {
-          password: 'is required',
-        },
+        'error': 'password is required'
       });
     }
 
@@ -39,17 +35,13 @@ module.exports = function(app) {
 
     if(!user.email) {
       return res.status(422).json({
-        errors: {
-          email: 'is required',
-        },
+        'error': 'email is required'
       });
     }
 
     if(!user.password) {
       return res.status(422).json({
-        errors: {
-          password: 'is required',
-        },
+        'error': 'password is required'
       });
     }
 
@@ -65,7 +57,9 @@ module.exports = function(app) {
         return res.json({ user: user.toAuthJSON() });
       }
 
-      return status(400).info;
+      return res.status(400).json({
+        'error': 'password or email is incorrect'
+      });
     })(req, res, next);
   });
 
