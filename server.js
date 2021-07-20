@@ -10,14 +10,23 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 require('./config/passport');
 
+async function mongoConnet() {
+  try {
+    mongoose.set('debug', config.enableDebugOutput);
+    await mongoose.connect(config.mongoConnectionString, { useNewUrlParser: true, connectTimeoutMS: 1000 });
+  } catch (error) {
+    log.error(error);
+    process.exit(1);
+  }  
+}
+
 //TODO separate PROD and DEBUG runs with "const isProduction = process.env.NODE_ENV === 'production'";
 
 app.use(cors({
   origin: 'http://localhost:9000'
 }));
-app.use(session({ secret: 'biteme', cookie: { maxAge: 60000 }, resave: false, saveUninitialized: false }));
-mongoose.connect(config.mongoConnectionString, { useNewUrlParser: true, useUnifiedTopology: true });
-mongoose.set('debug', true)
+app.use(session(config.session));
+mongoConnet();
 require('./app/schemas/user');
 
 index(app, dbclient);
@@ -27,9 +36,8 @@ app.listen(config.port, () => {
 });
 
 //Main loop
-setInterval(main.run, 1000, config.runTolerance);
+setInterval(main.run, config.runInterval, config.runTolerance);
 
 //Startup actions
 main.updateOverdueJobs();
 main.resetAllJobsStatuses();
-
