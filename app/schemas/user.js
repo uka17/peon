@@ -22,13 +22,13 @@ UserSchema.methods.validatePassword = function(password) {
 
 UserSchema.methods.generateJWT = function() {
   const expirationDate = new Date();
-  expirationDate.setDate(expirationDate.getDate() + config.jwtMaxAge);
+  expirationDate.setDate(expirationDate.getDate() + config.JWT.maxAge);
 
   return jwt.sign({
     email: this.email,
     id: this._id,
     exp: parseInt(expirationDate.getTime() / 1000, 10),
-  }, config.secret);
+  }, config.JWT.secret);
 }
 
 UserSchema.methods.toAuthJSON = function() {

@@ -2,8 +2,6 @@
 const Users = require('../schemas/user');
 const passport = require('passport');
 const auth = require('../tools/auth');
-require('../schemas/user');
-const Users = mongoose.model('Users');
 const labels = require('../../config/message_labels')('en');
 let ver = '/v1.0';
 
