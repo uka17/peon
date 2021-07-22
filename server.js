@@ -9,32 +9,34 @@ const log = require('./log/dispatcher');
 const cors = require('cors');
 const mongoose = require('mongoose');
 
+async function mongoConnet() {
+  try {
+    mongoose.set('debug', config.enableDebugOutput);
+    await mongoose.connect(config.mongoConnectionString, { useNewUrlParser: true, connectTimeoutMS: 1000 });
+  } catch (error) {
+    log.error(error);
+    process.exit(1);
+  }  
+}
+
 //TODO separate PROD and DEBUG runs with "const isProduction = process.env.NODE_ENV === 'production'";
 
-app.use(cors({
-  origin: 'http://localhost:9000'
-}));
-
-//Auth DB momgoose configuration
-app.use(session({ secret: config.secret, cookie: { maxAge: config.cookieMaxAge }, resave: false, saveUninitialized: false }));
-mongoose.connect(config.mongoConnectionString, { useNewUrlParser: true, useUnifiedTopology: true });
-mongoose.set('debug', config.enableDebugOutput)
-
-//Configure local strategy for passport.js before any routing configuration
-require('./config/passport');
+app.use(cors(config.cors));
+app.use(session(config.session));
+mongoConnet();
+require('./app/schemas/user');
 
 //Setup all routes in this function
 index(app, dbclient);
 
 //Startup
 app.listen(config.port, () => {
-  log.info(`We are live on ${config.port}.`);
+  log.info(`Service is live on ${config.port}.`);
 });
 
 //Main loop
-setInterval(main.run, 1000, config.runTolerance);
+setInterval(main.run, config.runInterval, config.runTolerance);
 
 //Startup actions
 main.updateOverdueJobs();
 main.resetAllJobsStatuses();
-
