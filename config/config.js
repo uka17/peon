@@ -5,7 +5,7 @@ module.exports = {
   //=Local Linux setting
   useDBSSL: process.env.DBSSL || false,
   postgresConnectionString: process.env.DATABASE_URL || 'postgresql://postgres:255320@172.18.0.2:5432/peon',
-  mongoConnectionString: process.env.MONGO_URL || 'mongodb://admin:255320@172.13.0.3:27017/?authSource=admin',
+  mongoConnectionString: process.env.MONGO_URL || 'mongodb://admin:255320@172.18.0.3:27017/?authSource=admin',
   //=Local Windows setting
   //useDBSSL: process.env.DBSSL || false,
   //postgresConnectionString: process.env.DATABASE_URL || 'postgresql://postgres:255320@localhost:5432/peon',
@@ -17,6 +17,7 @@ module.exports = {
   port: process.env.PORT || 8080,
   test_host: "http://localhost:8080/v1.0",
   runTolerance: 1,
+  cors: { origin: 'http://localhost:9000' },
   //ms
   runInterval: 1000,
   //===Service users

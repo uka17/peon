@@ -315,7 +315,7 @@ function calculateNextRun(job) {
     return jobValidationResult;
   }
   catch(e) {
-    log.error(`Failed to calculate next run for job (jobId=${job.id}). Stack: ${e}`);
+    log.warn(`Failed to calculate next run for job (jobId=${job.id}). Stack: ${e}`);
     return {"isValid": false, "errorList": e.message};
   }
 }

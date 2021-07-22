@@ -1,9 +1,10 @@
 // routes/user_routes.js
 const mongoose = require('mongoose');
 const passport = require('passport');
-const auth = require('./auth');
+const auth = require('../tools/auth');
 require('../schemas/user');
 const Users = mongoose.model('Users');
+const labels = require('../../config/message_labels')('en');
 let ver = '/v1.0';
 
 module.exports = function(app) {
@@ -12,19 +13,11 @@ module.exports = function(app) {
     const { body: { user } } = req;
 
     if(!user.email) {
-      return res.status(422).json({
-        errors: {
-          email: 'is required',
-        },
-      });
+      return res.status(422).json({error: labels.user.emailRequired});
     }
 
     if(!user.password) {
-      return res.status(422).json({
-        errors: {
-          password: 'is required',
-        },
-      });
+      return res.status(422).json({error: labels.user.passwordRequired});
     }
 
     const finalUser = new Users(user);
@@ -32,7 +25,7 @@ module.exports = function(app) {
     finalUser.setPassword(user.password);
 
     return finalUser.save()
-      .then(() => res.json({ user: finalUser.toAuthJSON() }));
+      .then(() => res.status(201).json({ user: finalUser.toAuthJSON() }));
   });
 
   //POST login route (optional, everyone has access)
@@ -40,19 +33,11 @@ module.exports = function(app) {
     const { body: { user } } = req;
 
     if(!user.email) {
-      return res.status(422).json({
-        errors: {
-          email: 'is required',
-        },
-      });
+      return res.status(422).json({error: labels.user.emailRequired});
     }
 
     if(!user.password) {
-      return res.status(422).json({
-        errors: {
-          password: 'is required',
-        },
-      });
+      return res.status(422).json({error: labels.user.passwordRequired});
     }
 
     return passport.authenticate('local', { session: false }, (err, passportUser, info) => {
@@ -69,6 +54,7 @@ module.exports = function(app) {
 
       return status(400).info;
     })(req, res, next);
+    
   });
 
   //GET current route (required, only authenticated users have access)

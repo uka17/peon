@@ -15,6 +15,10 @@ module.exports = (language = 'en') => {
       noScheduleForJobIdAndScheduleId: 'No schedule found for mentioned jobId and scheduleId',
       nextRunCanNotBeCalculated: 'Job next run can not be calculated'
     },
+    user: {
+      emailRequired: 'Email is required',
+      passwordRequired: 'Password is required'
+    },
     common: {
       debugMessage: 'The Lord of Darkness cursed something on our server. We have already called out the Holy Reinforcements and they are trying to fix everything. You can help us to win by sending logId. Amen!',
       updated: 'updated',

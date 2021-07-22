@@ -22,9 +22,7 @@ async function mongoConnet() {
 
 //TODO separate PROD and DEBUG runs with "const isProduction = process.env.NODE_ENV === 'production'";
 
-app.use(cors({
-  origin: 'http://localhost:9000'
-}));
+app.use(cors(config.cors));
 app.use(session(config.session));
 mongoConnet();
 require('./app/schemas/user');
@@ -32,7 +30,7 @@ require('./app/schemas/user');
 index(app, dbclient);
 
 app.listen(config.port, () => {
-  log.info(`We are live on ${config.port}.`);
+  log.info(`Service is live on ${config.port}.`);
 });
 
 //Main loop
