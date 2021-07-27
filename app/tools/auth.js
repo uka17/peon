@@ -12,7 +12,6 @@ const getTokenFromHeaders = (req) => {
 
 const auth = {
   required: jwt({
-    //TODO change secret to config one
     secret: config.JWT.secret,
     algorithms: ['HS256'],
     userProperty: 'payload',

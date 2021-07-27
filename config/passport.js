@@ -1,6 +1,7 @@
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
 const Users = require('../app/schemas/user')
+const labels = require('../config/message_labels')('en');
 
 passport.use(new LocalStrategy({
   usernameField: 'user[email]',
@@ -9,7 +10,7 @@ passport.use(new LocalStrategy({
   Users.findOne({ email })
     .then((user) => {
       if(!user || !user.validatePassword(password)) {
-        return done(null, false, { errors: { 'email or password': 'is invalid' } });
+        return done(null, false, { error: labels.user.incorrectPasswordOrEmail });
       }
       return done(null, user);
     }).catch(done);

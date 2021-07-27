@@ -25,6 +25,7 @@ app.use(cors(config.cors));
 app.use(session(config.session));
 mongoConnet();
 require('./app/schemas/user');
+require('./config/passport');
 
 //Setup all routes in this function
 index(app, dbclient);

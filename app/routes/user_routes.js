@@ -50,9 +50,7 @@ module.exports = function(app) {
         return res.json({ user: user.toAuthJSON() });
       }
 
-      return res.status(400).json({
-        'error': 'password or email is incorrect'
-      });
+      return res.status(400).json({error: labels.user.incorrectPasswordOrEmail});
     })(req, res, next);
     
   });
@@ -60,14 +58,32 @@ module.exports = function(app) {
   //GET current route (required, only authenticated users have access)
   app.get(ver + '/users/current', auth.required, (req, res, next) => {
     const { payload: { id } } = req;
-
+    
     return Users.findById(id)
       .then((user) => {
         if(!user) {
-          return res.sendStatus(400);
+          return res.status(404).json({error: 'User not found'});
         }
 
         return res.json({ user: user.toAuthJSON() });
+      });
+  });
+
+  //GET current route (required, only authenticated users have access to their own account)
+  app.get(ver + '/users/:id', auth.required, (req, res, next) => {
+    const id = req.params.id;
+    const jwtId = req.payload.id;
+    
+    return Users.findById(id)
+      .then((user) => {
+        if(id != jwtId) {
+          return res.status(401).json({error: 'User not authorized to view this info'}); 
+        } else {
+          if(!user) {
+            return res.status(404).json({error: 'User not found'});
+          }
+          return res.json({ user: user.toAuthJSON() });
+        }
       });
   });
 }

@@ -17,7 +17,9 @@ module.exports = (language = 'en') => {
     },
     user: {
       emailRequired: 'Email is required',
-      passwordRequired: 'Password is required'
+      passwordRequired: 'Password is required',
+      incorrectPasswordOrEmail: 'Password or email is incorrect',
+      incorrectToken: 'Token is incorrect',
     },
     common: {
       debugMessage: 'The Lord of Darkness cursed something on our server. We have already called out the Holy Reinforcements and they are trying to fix everything. You can help us to win by sending logId. Amen!',
