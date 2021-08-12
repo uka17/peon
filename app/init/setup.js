@@ -1,3 +1,4 @@
+
 const config = require('../../config/config');
 const index = require('../../app/routes/index');    
 const app = require('../../app/tools/util').expressInstance();
@@ -34,3 +35,4 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 index(app, dbclient);
 
 module.exports.app = app;
+module.exports.mongoose = mongoose;

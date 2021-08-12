@@ -3,11 +3,11 @@
 const request = require("supertest");
 var assert  = require('chai').assert;
 var messageBox = require('../../config/message_labels')('en');    
-var util = require('../../app/tools/util');   
 let config = require('../../config/config');
 config.user = 'testRobot';
 const user = require('../test_data')
-const app = require('../../app/init/setup').app;
+var app = require('../../app/init/setup').app;
+var mongo = require('../../app/init/setup').mongoose;
 const url = '/v1.0/users';
 
 describe('auth unit tests ', function() {
@@ -25,7 +25,11 @@ describe('auth unit tests ', function() {
         done();
       })
   });
-});   
- 
 
+  after(function() {
+    mongo.connection.close();
+  });
+
+
+});   
 
