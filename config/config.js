@@ -16,10 +16,10 @@ module.exports = {
   //===Application
   port: process.env.PORT || 8080,
   test_host: "http://localhost:8080/v1.0",
-  runTolerance: 1,
+  runTolerance: 1, //minutes
   cors: { origin: 'http://localhost:9000' },
   //ms
-  runInterval: 1000,
+  runInterval: 1000, //milliseconds
   //===Service users
   user: "dummy",
   systemUser: "system",
@@ -31,8 +31,13 @@ module.exports = {
   //===Cookie and session
   session: { 
     secret: 'biteme', 
-    cookie: { maxAge: 60000 }, 
+    cookie: { maxAge: 60000 }, //milliseconds
     resave: false, 
     saveUninitialized: false 
+  },
+  //===JWT
+  JWT: {
+    secret: 'rick',
+    maxAge:  60 //days
   }
 };

@@ -150,10 +150,12 @@ module.exports.getMinDateTime = getMinDateTime;
 function expressInstance() {
   const app = express();
   app.use(bodyParser.json());
-  app.use(function (req, res, next) {
-    res.header("Content-Type",'application/json');
-    next();
-  });    
+
+  //Commented it in order to launch Swagger (swagger can not ne launched if json constent type is set as default)
+  //app.use(function (req, res, next) {
+  //  res.header("Content-Type",'application/json');    
+  //  next();
+  //});    
   return app;
 }
 module.exports.expressInstance = expressInstance;

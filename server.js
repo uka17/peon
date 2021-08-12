@@ -8,7 +8,6 @@ const main = require('./app/engines/main');
 const log = require('./log/dispatcher');
 const cors = require('cors');
 const mongoose = require('mongoose');
-require('./config/passport');
 
 async function mongoConnet() {
   try {
@@ -26,9 +25,17 @@ app.use(cors(config.cors));
 app.use(session(config.session));
 mongoConnet();
 require('./app/schemas/user');
+require('./config/passport');
 
+//Swagger
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./swagger.json');
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+//Setup all routes in this function
 index(app, dbclient);
 
+//Startup
 app.listen(config.port, () => {
   log.info(`Service is live on ${config.port}.`);
 });
