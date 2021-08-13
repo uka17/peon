@@ -21,7 +21,7 @@ testUser = newUser();
 
 describe('auth unit tests ', function() {
 
-  it.only(`1.1 register new user OK`, (done) => {                        
+  it(`1.1 register new user OK`, (done) => {                        
     request(app)
       .post(url)            
       .send({ user: testUser })
@@ -34,7 +34,7 @@ describe('auth unit tests ', function() {
       })
   });
 
-  it.only(`1.2 register new user, email already taken`, (done) => {                        
+  it(`1.2 register new user, email already taken`, (done) => {                        
     request(app)
       .post(url)            
       .send({ user: testUser })
@@ -47,7 +47,7 @@ describe('auth unit tests ', function() {
       })
   });  
 
-  it.only(`1.3 register new user, no email`, (done) => {                        
+  it(`1.3 register new user, no email`, (done) => {                        
     let userIncorrectPasswordFormat = newUser();
     delete userIncorrectPasswordFormat.email;
     request(app)
@@ -62,7 +62,7 @@ describe('auth unit tests ', function() {
       })
   });    
 
-  it.only(`1.4 register new user, email format is incorrect`, (done) => {                        
+  it(`1.4 register new user, email format is incorrect`, (done) => {                        
     let userIncorrectPasswordFormat = newUser();
     userIncorrectPasswordFormat.email = 'myemail'
     request(app)
@@ -77,7 +77,7 @@ describe('auth unit tests ', function() {
       })
   });    
 
-  it.only(`1.5 register new user, password format is incorrect`, (done) => {                        
+  it(`1.5 register new user, password format is incorrect`, (done) => {                        
     let userIncorrectPasswordFormat = newUser();
     userIncorrectPasswordFormat.password = 'password'
     request(app)
@@ -92,7 +92,7 @@ describe('auth unit tests ', function() {
       })
   });    
 
-  it.only(`1.6 register new user, no password`, (done) => {                        
+  it(`1.6 register new user, no password`, (done) => {                        
     let userIncorrectPasswordFormat = newUser();
     delete userIncorrectPasswordFormat.password;
     request(app)
