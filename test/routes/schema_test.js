@@ -2,7 +2,7 @@
 var assert  = require('chai').assert;
 var Ajv = require('ajv');
 var schema = require('../../app/schemas/app_models.json');
-var testData = require('../test_data');
+var testData = require('../data/application');
 
 //test data preparation
 var testJob = testData.jobOK;

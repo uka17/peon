@@ -8,7 +8,7 @@ const labels = require('../../config/message_labels')('en');
 let ver = '/v1.0';
 
 module.exports = function(app) {
-  //POST new user route (optional, everyone has access)
+  //Register user
   app.post(ver + '/users', auth.optional, async (req, res, next) => {
     try {
       const { body: { user } } = req;
@@ -47,7 +47,7 @@ module.exports = function(app) {
     }
   });
 
-  //POST login route (optional, everyone has access)
+  //Login user
   app.post(ver + '/users/login', auth.optional, async (req, res, next) => {
     try {
       const { body: { user } } = req;
@@ -88,35 +88,17 @@ module.exports = function(app) {
     }       
   });
 
-  //GET current route (required, only authenticated users have access)
+  //Get current user
   app.get(ver + '/users/current', auth.required, (req, res, next) => {
     const { payload: { id } } = req;
     
     return Users.findById(id)
       .then((user) => {
         if(!user) {
-          return res.status(404).json({error: 'User not found'});
+          return res.status(404).json({error: labels.user.notFound});
         }
 
-        return res.json({ user: user.toAuthJSON() });
-      });
-  });
-
-  //GET current route (required, only authenticated users have access to their own account)
-  app.get(ver + '/users/:id', auth.required, (req, res, next) => {
-    const id = req.params.id;
-    const jwtId = req.payload.id;
-    
-    return Users.findById(id)
-      .then((user) => {
-        if(id != jwtId) {
-          return res.status(401).json({error: 'User not authorized to view this info'}); 
-        } else {
-          if(!user) {
-            return res.status(404).json({error: 'User not found'});
-          }
-          return res.json({ user: user.toAuthJSON() });
-        }
+        return res.status(200).json({ user: user.toAuthJSON() });
       });
   });
 }

@@ -21,6 +21,7 @@ module.exports = (language = 'en') => {
       incorrectPasswordOrEmail: 'Password or email is incorrect',
       emailFormatIncorrect: 'Incorrect email format',
       incorrectToken: 'Token is incorrect',
+      notFound: 'User not found',
       alreadyExists: 'Email is invalid or already taken',
       passwordFormatIncorrect: 'Password should have minimum eight characters, at least one letter and one number'
     },

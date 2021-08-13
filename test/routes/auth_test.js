@@ -5,11 +5,13 @@ var assert  = require('chai').assert;
 var labels = require('../../config/message_labels')('en');    
 let config = require('../../config/config');
 config.user = 'testRobot';
-const user = require('../test_data')
+const user = require('../data/users')
 var app = require('../../app/init/setup').app;
 var mongo = require('../../app/init/setup').mongoose;
+const Users = require('../../app/schemas/user');
 const registerUrl = '/v1.0/users';
 const loginUrl = '/v1.0/users/login';
+const currentUrl = '/v1.0/users/current';
 const { nanoid } = require('nanoid');
 
 function newUser() {
@@ -223,6 +225,76 @@ describe('1 auth unit tests', function() {
     });    
     //TODO Incorrect token format test  
   });
+  describe('3 current', function() {
+    it(`3.1 get current user OK`, (done) => {      
+      let currentUserOk = newUser();
+      //Register
+      request(app)
+        .post(registerUrl)            
+        .send({ user: currentUserOk })
+        .set('Accept', 'application/json')
+        .end(function(err, res) { 
+          assert.equal(res.status, 201);
+          assert.equal(res.body.user.email, currentUserOk.email);
+          assert.hasAllKeys(res.body.user, ['email', '_id', 'token']);
+          let token = res.body.user.token;
+          //Current
+          request(app)
+            .get(currentUrl)            
+            .set('Accept', 'application/json')
+            .set('Authorization', `Bearer ${token}`)
+            .end(function(err, res) { 
+              console.log(res.body)
+              assert.equal(res.status, 200);
+              assert.equal(res.body.user.email, currentUserOk.email);
+              assert.hasAllKeys(res.body.user, ['email', '_id', 'token']);
+              done();
+            })          
+        })
+    });
+    it(`3.2 get current user, token is incorrect`, (done) => {      
+      let currentUserOk = newUser();
+      //Register
+      request(app)
+        .post(registerUrl)            
+        .send({ user: currentUserOk })
+        .set('Accept', 'application/json')
+        .end(function(err, res) { 
+          assert.equal(res.status, 201);
+          assert.equal(res.body.user.email, currentUserOk.email);
+          assert.hasAllKeys(res.body.user, ['email', '_id', 'token']);
+          let token = 'FBI';
+          //Current
+          request(app)
+            .get(currentUrl)            
+            .set('Accept', 'application/json')
+            .set('Authorization', `Bearer ${token}`)
+            .end(function(err, res) { 
+              console.log(res.body)
+              assert.equal(res.status, 401);
+              assert.equal(res.body.error, labels.user.incorrectToken);
+              assert.hasAllKeys(res.body, ['error']);
+              done();
+            })          
+        })
+    });    
+    it(`3.3 get current user, user no found`, (done) => {      
+      const shadowUser = new Users({email: 'shadow', password: 'shadow' });
+      const token = shadowUser.generateJWT();
+      //Current
+      request(app)
+        .get(currentUrl)            
+        .set('Accept', 'application/json')
+        .set('Authorization', `Bearer ${token}`)
+        .end(function(err, res) { 
+          console.log(res.body)
+          assert.equal(res.status, 404);
+          assert.equal(res.body.error, labels.user.notFound);
+          assert.hasAllKeys(res.body, ['error']);
+          done();
+        })          
+    });        
+  });  
   after(function() {
     mongo.connection.close();
   });  
