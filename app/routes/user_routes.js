@@ -12,7 +12,6 @@ module.exports = function(app) {
   app.post(ver + '/users', auth.optional, async (req, res, next) => {
     try {
       const { body: { user } } = req;
-
       if(!user.email) {
         return res.status(422).json({error: labels.user.emailRequired});
       }
@@ -49,32 +48,44 @@ module.exports = function(app) {
   });
 
   //POST login route (optional, everyone has access)
-  app.post(ver + '/users/login', auth.optional, (req, res, next) => {
-    const { body: { user } } = req;
+  app.post(ver + '/users/login', auth.optional, async (req, res, next) => {
+    try {
+      const { body: { user } } = req;
 
-    if(!user.email) {
-      return res.status(422).json({error: labels.user.emailRequired});
-    }
-
-    if(!user.password) {
-      return res.status(422).json({error: labels.user.passwordRequired});
-    }
-
-    return passport.authenticate('local', { session: false }, (err, passportUser, info) => {
-      if(err) {
-        return next(err);
+      if(!user.email) {
+        return res.status(422).json({error: labels.user.emailRequired});
       }
-
-      if(passportUser) {
-        const user = passportUser;
-        user.token = passportUser.generateJWT();
-
-        return res.json({ user: user.toAuthJSON() });
+  
+      if(!user.email.match(config.emailRegExp)) {
+        return res.status(422).json({error: labels.user.emailFormatIncorrect});
       }
-
-      return res.status(400).json({error: labels.user.incorrectPasswordOrEmail});
-    })(req, res, next);
-    
+  
+      if(!user.password) {
+        return res.status(422).json({error: labels.user.passwordRequired});
+      }
+  
+      return passport.authenticate('local', { session: false }, (err, passportUser, info) => {
+        if(err) {
+          return next(err);
+        }
+  
+        if(passportUser) {
+          const user = passportUser;
+          user.token = passportUser.generateJWT();
+  
+          return res.status(200).json({ user: user.toAuthJSON() });
+        }
+  
+        return res.status(400).json({error: labels.user.incorrectPasswordOrEmail});
+      })(req, res, next);
+    }    
+    /* istanbul ignore next */
+    catch(e) {      
+      /* istanbul ignore next */
+      let logId = await util.logServerError(e, config.user);
+      /* istanbul ignore next */
+      res.status(500).send({error: labels.common.debugMessage, logId: logId});
+    }       
   });
 
   //GET current route (required, only authenticated users have access)
