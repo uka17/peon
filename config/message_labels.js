@@ -19,7 +19,10 @@ module.exports = (language = 'en') => {
       emailRequired: 'Email is required',
       passwordRequired: 'Password is required',
       incorrectPasswordOrEmail: 'Password or email is incorrect',
+      emailFormatIncorrect: 'Incorrect email format',
       incorrectToken: 'Token is incorrect',
+      alreadyExists: 'Email is invalid or already taken',
+      passwordFormatIncorrect: 'Password should have minimum eight characters, at least one letter and one number'
     },
     common: {
       debugMessage: 'The Lord of Darkness cursed something on our server. We have already called out the Holy Reinforcements and they are trying to fix everything. You can help us to win by sending logId. Amen!',

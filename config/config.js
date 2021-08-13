@@ -28,6 +28,8 @@ module.exports = {
   //===System settings
   logLevel: "info",
   enableDebugOutput: true,
+  passwordRegExp: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/gm,
+  emailRegExp: /.+@.+\..+/i,
   //===Cookie and session
   session: { 
     secret: 'biteme', 
