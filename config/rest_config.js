@@ -10,9 +10,9 @@ module.exports = {
         "next_page_url": null,
         "prev_page_url": null,
         "from": -1,
-        "to": -10
+        "to": -10,
       },
-      "data": []
-    }
-  }
+      "data": [],
+    },
+  },
 };

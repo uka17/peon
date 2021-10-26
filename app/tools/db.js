@@ -1,20 +1,20 @@
 // tools/db.js
-const config = require('../../config/config');
-const { Pool, Client } = require('pg');
-const log = require('../../log/dispatcher');
+const config = require("../../config/config");
+const { Pool, Client } = require("pg");
+const log = require("../../log/dispatcher");
 
 //configure data type mapping postgres-node due to convert postgres data type to correct one at node side
-var types = require('pg').types;
-types.setTypeParser(20, function(val) {
+var types = require("pg").types;
+types.setTypeParser(20, function (val) {
   return parseInt(val);
 });
 
 const sysPool = new Pool({
-  "connectionString": config.postgresConnectionString, 
-  "idleTimeoutMillis": 1000, 
-  "ssl": config.useDBSSL 
+  "connectionString": config.postgresConnectionString,
+  "idleTimeoutMillis": 1000,
+  "ssl": config.useDBSSL,
 });
-  
+
 /*
 pool.on('connect', (client) => {
   log.info("New connection established. Total: " + pool.totalCount);
@@ -33,11 +33,9 @@ pool.on('remove', (client) => {
  * @returns {Object} Query object or `Promise` in case if callback is not defined
  */
 function executeSysQuery(query, callback) {
-  if(callback === undefined)
-    return sysPool.query(query);
-  else
-    return sysPool.query(query, callback);
-}  
+  if (callback === undefined) return sysPool.query(query);
+  else return sysPool.query(query, callback);
+}
 module.exports.query = executeSysQuery;
 
 /**
@@ -50,23 +48,21 @@ module.exports.query = executeSysQuery;
  * @returns {Object} Query object or `Promise` in case if callback is not defined or `null` in case of error
  */
 function executeUserQuery(query, connectionString, callback) {
-  if(connectionString === undefined) {
+  if (connectionString === undefined) {
     log.error(`Connection string was not provided for query '${query.text}'`);
     return null;
   }
-  
+
   /* istanbul ignore next */
   let userPool = new Pool({
-    "connectionString": connectionString, 
-    "idleTimeoutMillis": 1000, 
-    "ssl": config.useDBSSL 
+    "connectionString": connectionString,
+    "idleTimeoutMillis": 1000,
+    "ssl": config.useDBSSL,
   });
-  
+
   //tested in executeSysQuery
   /* istanbul ignore next */
-  if(callback === undefined)
-    return userPool.query(query);
-  else
-    return userPool.query(query, callback);
+  if (callback === undefined) return userPool.query(query);
+  else return userPool.query(query, callback);
 }
 module.exports.userQuery = executeUserQuery;

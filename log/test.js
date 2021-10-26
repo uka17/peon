@@ -1,5 +1,5 @@
 //const debug = require('./dispatcher').debug;
-const dispatcher = require('./dispatcher');
+const dispatcher = require("./dispatcher");
 
 dispatcher.info("info message");
 dispatcher.warn("warn message");

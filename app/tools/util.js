@@ -1,52 +1,51 @@
 //pride robot title bid capital tell month eagle symptom typical bread silver
-const dbclient = require('./db');
-const logDispatcher = require('../../log/dispatcher');
-const messageBox = require('../../config/message_labels')('en');
-const bodyParser = require('body-parser');
-const express = require('express');
+const dbclient = require("./db");
+const logDispatcher = require("../../log/dispatcher");
+const messageBox = require("../../config/message_labels")("en");
+const bodyParser = require("body-parser");
+const express = require("express");
 
-var toJSON = require( 'utils-error-to-json' );
+var toJSON = require("utils-error-to-json");
 //#region Error handling
 /**
  * Server error handler. Shows error in console and returns error in response in case if global debug flag is TRUE else
- * puts log in DB and returns Id of log to user 
- * @param {Object} e Exception to be handled     
+ * puts log in DB and returns Id of log to user
+ * @param {Object} e Exception to be handled
  * @param {string} createdBy Under whose credentials app thrown this exception
  * @param {Object} dbclient DB connections instance
  * @param {Object} res Response handler
  */
 /* istanbul ignore next */
 //TODO: delete as it is not being used in any functionality except dummies
-module.exports.handleServerException = function(e, createdBy, dbclient, res) {    
+module.exports.handleServerException = function (e, createdBy, dbclient, res) {
   /* istanbul ignore next */
-  if(process.env.NODE_ENV !== "PROD") {
+  if (process.env.NODE_ENV !== "PROD") {
     logDispatcher.error(e.stack);
     res.status(500).send(toJSON(e));
-  }    
-  else {
+  } else {
     let pr = new Promise((resolve, reject) => {
       try {
         const query = {
           "text": 'SELECT public."fnLog_Insert"($1, $2, $3) as logId',
-          "values": [1, toJSON(e), createdBy]
-        };                  
+          "values": [1, toJSON(e), createdBy],
+        };
 
         dbclient.query(query, (err, result) => {
-          if (err)
-            reject(new Error(err));
-          else 
-            resolve(result);
-        });  
-      }
-      catch(e2) {
+          if (err) reject(new Error(err));
+          else resolve(result);
+        });
+      } catch (e2) {
         logDispatcher.error(e2);
       }
-                
     });
     pr.then(
-      response => res.status(500).send({error: messageBox.common.debugMessage, logId: response.rows[0].logid}),
-      error => logDispatcher.error(error)
-    );    
+      (response) =>
+        res.status(500).send({
+          error: messageBox.common.debugMessage,
+          logId: response.rows[0].logid,
+        }),
+      (error) => logDispatcher.error(error)
+    );
   }
 };
 /**
@@ -55,45 +54,42 @@ module.exports.handleServerException = function(e, createdBy, dbclient, res) {
  * @param {string} createdBy Who triggered error
  * @returns {Promise} Resolves Promis with `logId` or 0 in case of failure. Shows error in console in case of DEV environment or log save failed
  */
-function logServerError(e, createdBy) {    
+function logServerError(e, createdBy) {
   /* istanbul ignore next */
-  if(process.env.NODE_ENV !== "PROD") {
+  if (process.env.NODE_ENV !== "PROD") {
     logDispatcher.error(e.stack);
-  }    
+  }
   return new Promise((resolve, reject) => {
     const query = {
       "text": 'SELECT public."fnLog_Insert"($1, $2, $3) as logId',
-      "values": [1, toJSON(e), createdBy]
-    };                  
+      "values": [1, toJSON(e), createdBy],
+    };
 
     dbclient.query(query, (err, result) => {
       try {
-        /* istanbul ignore next */        
+        /* istanbul ignore next */
         if (err) {
           logDispatcher.error(err);
           resolve(0);
-        }
-        else 
-          resolve(result.rows[0].logid);
-      }      
-      catch(e2) {
+        } else resolve(result.rows[0].logid);
+      } catch (e2) {
         /* istanbul ignore next */
         logDispatcher.error(e2.stack);
         /* istanbul ignore next */
         resolve(0);
-      }   
-    });              
+      }
+    });
   });
-};
+}
 module.exports.logServerError = logServerError;
 /**
  * Shows user error with proper HTTP response code
  * @param {string} message Error message
  * @param {number} errorCode HTTP response code
- * @param {Object} res Response handler 
+ * @param {Object} res Response handler
  */
-module.exports.handleUserException = function(message, errorCode, res) {
-  res.status(errorCode).send({error: message});
+module.exports.handleUserException = function (message, errorCode, res) {
+  res.status(errorCode).send({ error: message });
 };
 //#endregion
 /**
@@ -107,14 +103,14 @@ module.exports.renameProperty = function (obj, oldName, newName) {
   if (obj.hasOwnProperty(oldName)) {
     obj[newName] = obj[oldName];
     delete obj[oldName];
-  } 
+  }
   return obj;
 };
 /**
  * Return `date-time` in a proper format
  * @returns {Object} `date-time`
  */
-function getDateTime() { 
+function getDateTime() {
   return new Date();
 }
 module.exports.getDateTime = getDateTime;
@@ -126,10 +122,8 @@ module.exports.getDateTime = getDateTime;
  */
 function parseDateTime(stringDateTime) {
   let preDate = Date.parse(stringDateTime);
-  if(!isNaN(preDate)) 
-    return new Date(preDate);            
-  else
-    return null;
+  if (!isNaN(preDate)) return new Date(preDate);
+  else return null;
 }
 module.exports.parseDateTime = parseDateTime;
 
@@ -138,8 +132,10 @@ module.exports.parseDateTime = parseDateTime;
  * @param {string[]} dateTimeList List of string `date-time` values where to search minimal value
  * @returns {Object} `date-time`
  */
-function getMinDateTime(dateTimeList) { 
-  let castedDateTimeList = dateTimeList.map(parseDateTime).filter(val => val != null);    
+function getMinDateTime(dateTimeList) {
+  let castedDateTimeList = dateTimeList
+    .map(parseDateTime)
+    .filter((val) => val != null);
   return new Date(Math.min(...castedDateTimeList));
 }
 module.exports.getMinDateTime = getMinDateTime;
@@ -153,9 +149,9 @@ function expressInstance() {
 
   //Commented it in order to launch Swagger (swagger can not ne launched if json constent type is set as default)
   //app.use(function (req, res, next) {
-  //  res.header("Content-Type",'application/json');    
+  //  res.header("Content-Type",'application/json');
   //  next();
-  //});    
+  //});
   return app;
 }
 module.exports.expressInstance = expressInstance;
@@ -165,10 +161,10 @@ module.exports.expressInstance = expressInstance;
  * @param {Object} router Object with api routes description
  * @returns {Object} Object with app and dbclient
  */
-module.exports.expressPostgreInstance = function(router) {
+module.exports.expressPostgreInstance = function (router) {
   let app = expressInstance();
   router(app, dbclient);
-  return {"app": app, "dbclient": dbclient};   
+  return { "app": app, "dbclient": dbclient };
 };
 
 /**
@@ -178,10 +174,8 @@ module.exports.expressPostgreInstance = function(router) {
  */
 function isNumber(value, defaultNumber) {
   let intVal = parseInt(value);
-  if(isNaN(intVal))
-    return defaultNumber;
-  else
-    return intVal;
+  if (isNaN(intVal)) return defaultNumber;
+  else return intVal;
 }
 module.exports.isNumber = isNumber;
 /**
@@ -196,21 +190,25 @@ module.exports.isNumber = isNumber;
 function pagination(baseUrl, perPage, page, count, filter, sort) {
   let result = {};
   let lastPage = Math.ceil(count / perPage);
-  let nextPage = (page == lastPage) ? null : page + 1;
-  let prevPage = (page == 1) ? null : page - 1;
-  let filterExpression = (filter === undefined) ? '' : `&filter=${filter}`;
-  let sortExpression = (sort === undefined) ? '' : `&sort=${sort}`;
+  let nextPage = page == lastPage ? null : page + 1;
+  let prevPage = page == 1 ? null : page - 1;
+  let filterExpression = filter === undefined ? "" : `&filter=${filter}`;
+  let sortExpression = sort === undefined ? "" : `&sort=${sort}`;
   result.total = count;
   result.per_page = perPage;
   result.current_page = page;
   result.last_page = lastPage;
-  result.next_page_url = (nextPage === null) ? null : `${baseUrl}/?page=${nextPage}&per_page=${perPage}${filterExpression}${sortExpression}`;
-  result.prev_page_url = (prevPage === null) ? null : `${baseUrl}/?page=${prevPage}&per_page=${perPage}${filterExpression}${sortExpression}`;
-  result.from = perPage*(page-1) + 1;
-  if(page == lastPage)
-    result.to = count;
-  else
-    result.to = perPage*page;
+  result.next_page_url =
+    nextPage === null
+      ? null
+      : `${baseUrl}/?page=${nextPage}&per_page=${perPage}${filterExpression}${sortExpression}`;
+  result.prev_page_url =
+    prevPage === null
+      ? null
+      : `${baseUrl}/?page=${prevPage}&per_page=${perPage}${filterExpression}${sortExpression}`;
+  result.from = perPage * (page - 1) + 1;
+  if (page == lastPage) result.to = count;
+  else result.to = perPage * page;
   return result;
 }
 module.exports.pagination = pagination;
