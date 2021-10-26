@@ -2,7 +2,7 @@
 const config = require("../../config/config");
 const dbclient = require("../tools/db");
 const log = require("../../log/dispatcher");
-const uuidv4 = require("uuid/v4");
+const { v4: uuidv4 } = require("uuid");
 const jobEngine = require("./job");
 const labels = require("../../config/message_labels")("en");
 
