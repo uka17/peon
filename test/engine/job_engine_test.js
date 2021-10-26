@@ -10,7 +10,7 @@ const testHelper = require('../test_helper')
 const connectionEngine = require('../../app/engines/connection');
 const stepEngine = require('../../app/engines/step');
 const schedulator = require('schedulator');
-const testData = require('../test_data');
+const testData = require('../data/application');
 const config = require('../../config/config');
 const labels = require('../../config/message_labels')('en');
 const main = require('../../app/engines/main');
@@ -461,46 +461,51 @@ describe('1 job engine', function() {
     done();
   });        
 
-  it('1.15.1 1-minute execution test. Create connection, create 21 jobs, wait 1 minutes, check if records were created in DB', async () => {    
+  it('1.15.1 1-minute execution test. Create connection, create 21 jobs, wait 1 minutes, check if records were created in DB', async function() {    
 
-    let numberOfJobs = 20;
-    let minutes = 1;
+    if(config.skipLongTests) {
+      this.skip();
+    } else {
 
-    let connection = await connectionEngine.createConnection(testData.execution.connection, config.testUser);
+      let numberOfJobs = 20;
+      let minutes = 1;
 
-    let uid = nanoid();
-    
-    for (let index = 0; index < numberOfJobs; index++) {
-      let job = JSON.parse(JSON.stringify(testData.execution.job));
-      job.name = `Execution test job ${index}`;      
-      job.steps[0].command = job.steps[0].command.replace('insert_value', `Potatoe${index}-${uid}`);
-      job.steps[0].connection = connection.id;
-      await jobEngine.createJob(job, config.testUser);   
-    }
-    //Run execution loop for {minutes} minutes
-    //Main loop
-    console.log(`🚀 Starting execution loop at ${Date()}, test sleep for ${minutes} minutes...`)
-    let t = setInterval(main.run, 1000, config.runTolerance);    
-    //Startup actions
-    await main.updateOverdueJobs();
-    await main.resetAllJobsStatuses();   
-    //Run loop for 5 minutes
-    await new Promise(resolve => setTimeout(resolve, 60000*minutes));    
-    console.log(`🚀 Finishing execution loop at ${Date()}`)
-    clearInterval(t);
-    let rowCount = await new Promise((resolve, reject) => {
-      const query = {
-        "text": `SELECT count(id) FROM public."sysAbyss" where "text" like '%${uid}%'`
-      };
-      dbclient.query(query, (err, result) => {  
-        if(result.rows)
-          resolve(result.rows[0].count);
-        else
-          reject(0);
+      let connection = await connectionEngine.createConnection(testData.execution.connection, config.testUser);
+
+      let uid = nanoid();
+      
+      for (let index = 0; index < numberOfJobs; index++) {
+        let job = JSON.parse(JSON.stringify(testData.execution.job));
+        job.name = `Execution test job ${index}`;      
+        job.steps[0].command = job.steps[0].command.replace('insert_value', `Potatoe${index}-${uid}`);
+        job.steps[0].connection = connection.id;
+        await jobEngine.createJob(job, config.testUser);   
+      }
+      //Run execution loop for {minutes} minutes
+      //Main loop
+      console.log(`🚀 Starting execution loop at ${Date()}, test sleep for ${minutes} minutes...`)
+      let t = setInterval(main.run, 1000, config.runTolerance);    
+      //Startup actions
+      await main.updateOverdueJobs();
+      await main.resetAllJobsStatuses();   
+      //Run loop for 5 minutes
+      await new Promise(resolve => setTimeout(resolve, 60000*minutes));    
+      console.log(`🚀 Finishing execution loop at ${Date()}`)
+      clearInterval(t);
+      let rowCount = await new Promise((resolve, reject) => {
+        const query = {
+          "text": `SELECT count(id) FROM public."sysAbyss" where "text" like '%${uid}%'`
+        };
+        dbclient.query(query, (err, result) => {  
+          if(result.rows)
+            resolve(result.rows[0].count);
+          else
+            reject(0);
+        });
       });
-    });
 
-    assert.equal(rowCount, numberOfJobs*minutes)
+      assert.equal(rowCount, numberOfJobs*minutes)
+    }
 
   }).timeout(305000);;        
   

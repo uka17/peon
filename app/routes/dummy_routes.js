@@ -1,3 +1,4 @@
+/* istanbul ignore file */ 
 // routes/dummy_routes.js
 let util = require('../tools/util');
 const config = require('../../config/config');

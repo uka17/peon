@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-let testData = require('../test_data');
+let testData = require('../data/application');
 let assert  = require('chai').assert;
 let enableDebugOutput;
 const connectionEngine = require('../../app/engines/connection');
