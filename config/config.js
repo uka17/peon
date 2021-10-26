@@ -4,8 +4,12 @@ module.exports = {
   //===Databases
   //=Local Linux setting
   useDBSSL: process.env.DBSSL || false,
-  postgresConnectionString: process.env.DATABASE_URL || 'postgresql://postgres:255320@172.18.0.2:5432/peon',
-  mongoConnectionString: process.env.MONGO_URL || 'mongodb://admin:255320@172.18.0.3:27017/?authSource=admin',
+  postgresConnectionString:
+    process.env.DATABASE_URL ||
+    "postgresql://postgres:255320@172.18.0.2:5432/peon",
+  mongoConnectionString:
+    process.env.MONGO_URL ||
+    "mongodb://admin:255320@172.18.0.3:27017/?authSource=admin",
   //=Local Windows setting
   //useDBSSL: process.env.DBSSL || false,
   //postgresConnectionString: process.env.DATABASE_URL || 'postgresql://postgres:255320@localhost:5432/peon',
@@ -17,7 +21,7 @@ module.exports = {
   port: process.env.PORT || 8080,
   test_host: "http://localhost:8080/v1.0",
   runTolerance: 1, //minutes
-  cors: { origin: 'http://localhost:9000' },
+  cors: { origin: "http://localhost:9000" },
   //ms
   runInterval: 1000, //milliseconds
   //===Service users
@@ -32,15 +36,15 @@ module.exports = {
   passwordRegExp: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/gm,
   emailRegExp: /.+@.+\..+/i,
   //===Cookie and session
-  session: { 
-    secret: 'biteme', 
+  session: {
+    secret: "biteme",
     cookie: { maxAge: 60000 }, //milliseconds
-    resave: false, 
-    saveUninitialized: false 
+    resave: false,
+    saveUninitialized: false,
   },
   //===JWT
   JWT: {
-    secret: 'rick',
-    maxAge:  60 //days
-  }
+    secret: "rick",
+    maxAge: 60, //days
+  },
 };

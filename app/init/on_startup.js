@@ -1,4 +1,4 @@
-const main = require('../engines/main')
+const main = require("../engines/main");
 
 main.updateOverdueJobs();
 main.resetAllJobsStatuses();
