@@ -10,14 +10,14 @@ module.exports = {
     "SharedArrayBuffer": "readonly",
   },
   "parserOptions": {
-    "ecmaVersion": 12, // версия стандарта JavaScript. Последний 12 (2021).
-    "sourceType": "module", // Позволяет использовать import/export
+    "ecmaVersion": 12,
+    "sourceType": "module",
   },
   "plugins": ["prettier"],
   "rules": {
     "prettier/prettier": "error",
     "indent": ["warn", 2],
-    "linebreak-style": ["error", "unix"],
+    "linebreak-style": ["error", "unix", "windows"],
     "semi": ["warn", "always"],
   },
 };
