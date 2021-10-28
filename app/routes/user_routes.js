@@ -46,7 +46,6 @@ module.exports = function (app) {
         .then(() => res.status(201).json({ user: finalUser.toAuthJSON() }));
     } catch (e) {
       /* istanbul ignore next */
-      /* istanbul ignore next */
       let logId = await util.logServerError(e, config.user);
       /* istanbul ignore next */
       res.status(500).send({ error: labels.common.debugMessage, logId: logId });
@@ -56,6 +55,7 @@ module.exports = function (app) {
   //Login user
   app.post(ver + "/users/login", auth.optional, async (req, res, next) => {
     try {
+      // Just not to forget: const user = req.body.user;
       const {
         body: { user },
       } = req;
@@ -73,7 +73,7 @@ module.exports = function (app) {
       if (!user.password) {
         return res.status(422).json({ error: labels.user.passwordRequired });
       }
-
+      // In fact route returns result of callback
       return passport.authenticate(
         "local",
         { session: false },
@@ -95,7 +95,6 @@ module.exports = function (app) {
         }
       )(req, res, next);
     } catch (e) {
-      /* istanbul ignore next */
       /* istanbul ignore next */
       let logId = await util.logServerError(e, config.user);
       /* istanbul ignore next */
