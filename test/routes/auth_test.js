@@ -7,7 +7,6 @@ let config = require("../../config/config");
 config.user = "testRobot";
 const user = require("../data/users");
 var app = require("../../app/init/setup").app;
-var mongo = require("../../app/init/setup").mongoose;
 const Users = require("../../app/schemas/user");
 const registerUrl = "/v1.0/users";
 const loginUrl = "/v1.0/users/login";
@@ -32,7 +31,7 @@ describe("1 auth unit tests", function () {
         .end(function (err, res) {
           assert.equal(res.status, 201);
           assert.equal(res.body.user.email, testUser.email);
-          assert.hasAllKeys(res.body.user, ["email", "_id", "token"]);
+          assert.hasAllKeys(res.body.user, ["email", "id", "token"]);
           done();
         });
     });
@@ -47,7 +46,7 @@ describe("1 auth unit tests", function () {
         .end(function (err, res) {
           assert.equal(res.status, 201);
           assert.equal(res.body.user.email, duplicatedUser.email);
-          assert.hasAllKeys(res.body.user, ["email", "_id", "token"]);
+          assert.hasAllKeys(res.body.user, ["email", "id", "token"]);
           //Register once again
           request(app)
             .post(registerUrl)
@@ -134,17 +133,16 @@ describe("1 auth unit tests", function () {
         .end(function (err, res) {
           assert.equal(res.status, 201);
           assert.equal(res.body.user.email, userLoginOk.email);
-          assert.hasAllKeys(res.body.user, ["email", "_id", "token"]);
+          assert.hasAllKeys(res.body.user, ["email", "id", "token"]);
           //Login
           request(app)
             .post(loginUrl)
             .send({ user: userLoginOk })
             .set("Accept", "application/json")
             .end(function (err, res) {
-              console.log(userLoginOk);
               assert.equal(res.status, 200);
               assert.equal(res.body.user.email, userLoginOk.email);
-              assert.hasAllKeys(res.body.user, ["email", "_id", "token"]);
+              assert.hasAllKeys(res.body.user, ["email", "id", "token"]);
               done();
             });
         });
@@ -205,7 +203,7 @@ describe("1 auth unit tests", function () {
         .end(function (err, res) {
           assert.equal(res.status, 201);
           assert.equal(res.body.user.email, userLoginFailed.email);
-          assert.hasAllKeys(res.body.user, ["email", "_id", "token"]);
+          assert.hasAllKeys(res.body.user, ["email", "id", "token"]);
 
           userLoginFailed.password = "corruptedPassword7*";
 
@@ -215,7 +213,6 @@ describe("1 auth unit tests", function () {
             .send({ user: userLoginFailed })
             .set("Accept", "application/json")
             .end(function (err, res) {
-              console.log(res.body);
               assert.equal(res.status, 400);
               assert.equal(
                 res.body.error,
@@ -239,7 +236,7 @@ describe("1 auth unit tests", function () {
         .end(function (err, res) {
           assert.equal(res.status, 201);
           assert.equal(res.body.user.email, currentUserOk.email);
-          assert.hasAllKeys(res.body.user, ["email", "_id", "token"]);
+          assert.hasAllKeys(res.body.user, ["email", "id", "token"]);
           let token = res.body.user.token;
           //Current
           request(app)
@@ -247,10 +244,9 @@ describe("1 auth unit tests", function () {
             .set("Accept", "application/json")
             .set("Authorization", `Bearer ${token}`)
             .end(function (err, res) {
-              console.log(res.body);
               assert.equal(res.status, 200);
               assert.equal(res.body.user.email, currentUserOk.email);
-              assert.hasAllKeys(res.body.user, ["email", "_id", "token"]);
+              assert.hasAllKeys(res.body.user, ["email", "id", "token"]);
               done();
             });
         });
@@ -265,7 +261,7 @@ describe("1 auth unit tests", function () {
         .end(function (err, res) {
           assert.equal(res.status, 201);
           assert.equal(res.body.user.email, currentUserOk.email);
-          assert.hasAllKeys(res.body.user, ["email", "_id", "token"]);
+          assert.hasAllKeys(res.body.user, ["email", "id", "token"]);
           let token = "FBI";
           //Current
           request(app)
@@ -273,7 +269,6 @@ describe("1 auth unit tests", function () {
             .set("Accept", "application/json")
             .set("Authorization", `Bearer ${token}`)
             .end(function (err, res) {
-              console.log(res.body);
               assert.equal(res.status, 401);
               assert.equal(res.body.error, labels.user.incorrectToken);
               assert.hasAllKeys(res.body, ["error"]);
@@ -290,15 +285,11 @@ describe("1 auth unit tests", function () {
         .set("Accept", "application/json")
         .set("Authorization", `Bearer ${token}`)
         .end(function (err, res) {
-          console.log(res.body);
           assert.equal(res.status, 404);
           assert.equal(res.body.error, labels.user.notFound);
           assert.hasAllKeys(res.body, ["error"]);
           done();
         });
     });
-  });
-  after(function () {
-    mongo.connection.close();
   });
 });

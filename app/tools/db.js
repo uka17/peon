@@ -1,6 +1,6 @@
 // tools/db.js
 const config = require("../../config/config");
-const { Pool, Client } = require("pg");
+const { Pool } = require("pg");
 const log = require("../../log/dispatcher");
 
 //configure data type mapping postgres-node due to convert postgres data type to correct one at node side
