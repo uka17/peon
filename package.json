@@ -9,7 +9,8 @@
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "dev-srv": "nodemon server.js",
     "dev-api": "nodemon api.js",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
@@ -40,6 +41,8 @@
     "winston": "^3.3.3"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.3.0",
+    "@typescript-eslint/parser": "^5.3.0",
     "babel-eslint": "^10.1.0",
     "chai": "^4.2.0",
     "chai-datetime": "^1.7.0",
@@ -54,6 +57,7 @@
     "prettier": "2.4.1",
     "sinon": "^11.1.2",
     "supertest": "^6.1.6",
-    "swagger-autogen": "^2.12.3"
+    "swagger-autogen": "^2.12.3",
+    "typescript": "^4.4.4"
   }
 }
