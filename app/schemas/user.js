@@ -1,49 +1,45 @@
-const mongoose = require("mongoose");
+//TODO Move to engines?
+
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const config = require("../../config/config");
-const { Schema } = mongoose;
 
-const UserSchema = new Schema({
-  email: String,
-  hash: String,
-  salt: String,
-});
+const User = function (user) {
+  this.email = user;
 
-UserSchema.methods.setPassword = function (password) {
-  this.salt = crypto.randomBytes(16).toString("hex");
-  this.hash = crypto
-    .pbkdf2Sync(password, this.salt, 10000, 512, "sha512")
-    .toString("hex");
-};
+  this.setPassword = function (password) {
+    this.salt = crypto.randomBytes(16).toString("hex");
+    this.hash = crypto
+      .pbkdf2Sync(password, this.salt, 10000, 512, "sha512")
+      .toString("hex");
+  };
 
-UserSchema.methods.validatePassword = function (password) {
-  const hash = crypto
-    .pbkdf2Sync(password, this.salt, 10000, 512, "sha512")
-    .toString("hex");
-  return this.hash === hash;
-};
+  this.validatePassword = function (password) {
+    const hash = crypto
+      .pbkdf2Sync(password, this.salt, 10000, 512, "sha512")
+      .toString("hex");
+    return this.hash === hash;
+  };
 
-UserSchema.methods.generateJWT = function () {
-  const expirationDate = new Date();
-  expirationDate.setDate(expirationDate.getDate() + config.JWT.maxAge);
+  this.generateJWT = function () {
+    const expirationDate = new Date();
+    expirationDate.setDate(expirationDate.getDate() + config.JWT.maxAge);
+    return jwt.sign(
+      {
+        email: this.email,
+        id: this.id,
+        exp: parseInt(expirationDate.getTime() / 1000, 10),
+      },
+      config.JWT.secret
+    );
+  };
 
-  return jwt.sign(
-    {
+  this.toAuthJSON = function () {
+    return {
+      id: this.id,
       email: this.email,
-      id: this._id,
-      exp: parseInt(expirationDate.getTime() / 1000, 10),
-    },
-    config.JWT.secret
-  );
-};
-
-UserSchema.methods.toAuthJSON = function () {
-  return {
-    _id: this._id,
-    email: this.email,
-    token: this.generateJWT(),
+      token: this.generateJWT(),
+    };
   };
 };
-
-module.exports = mongoose.model("Users", UserSchema);
+module.exports = User;

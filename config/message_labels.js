@@ -25,7 +25,7 @@ module.exports = (language = "en") => {
       notFound: "User not found",
       alreadyExists: "Email is invalid or already taken",
       passwordFormatIncorrect:
-        "Password should have minimum eight characters, at least one letter and one number",
+        "Password should have minimum eight characters, at least one capital letter and one number",
     },
     common: {
       debugMessage:
