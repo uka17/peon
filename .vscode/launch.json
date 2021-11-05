@@ -7,14 +7,24 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch Program",
-            "program": "${workspaceFolder}//api.js"
+            "name": "Launch API",
+            "program": "${workspaceFolder}//dist/api.js",
+            "preLaunchTask": "npm: build",            
+            "sourceMaps": true,
+            "smartStep": true,
+            "internalConsoleOptions": "openOnSessionStart",
+            "console": "internalConsole"
         },
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch Current File",
-            "program": "${file}"
-        }        
+            "name": "Launch Server",
+            "program": "${workspaceFolder}//dist/server.js",
+            "preLaunchTask": "npm: build",            
+            "sourceMaps": true,
+            "smartStep": true,
+            "internalConsoleOptions": "openOnSessionStart",
+            "console": "internalConsole"
+        }             
     ]
 }
