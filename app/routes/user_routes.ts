@@ -1,20 +1,20 @@
 // routes/user_routes.js
-import userEngine from "../engines/user";
-import User from "../schemas/user";
+import User from "../engines/user";
 import passport from "passport";
 import auth from "../tools/auth";
 import config from "../../config/config";
 import util from "../tools/util";
+//TODO change to proper TS structure
 const labels = require("../../config/message_labels")("en");
-import { Application, NextFunction, Request, Response } from "express";
+import express from "express";
 const ver = "/v1.0";
 
-module.exports = function (app: Application) {
+module.exports = function (app: express.Application) {
   //Register user
   app.post(
     ver + "/users",
     auth.optional,
-    async (req: Request, res: Response) => {
+    async (req: express.Request, res: express.Response) => {
       try {
         const {
           body: { user },
@@ -27,7 +27,7 @@ module.exports = function (app: Application) {
             .status(422)
             .json({ error: labels.user.emailFormatIncorrect });
         }
-        if (await userEngine.getUserByEmail(user.email)) {
+        if (await User.getByEmail(user.email)) {
           return res.status(422).json({ error: labels.user.alreadyExists });
         }
 
@@ -41,15 +41,10 @@ module.exports = function (app: Application) {
             .json({ error: labels.user.passwordFormatIncorrect });
         }
 
-        const finalUser = new User(user.email);
+        const finalUser: User = new User(user.email);
         finalUser.setPassword(user.password);
-        return userEngine
-          .createUser(
-            finalUser.email,
-            finalUser.hash,
-            finalUser.salt,
-            config.user
-          )
+        return finalUser
+          .save(config.user)
           .then((createdUser: any) => {
             finalUser.id = createdUser.id;
             res.status(201).json({ user: finalUser.toAuthJSON() });
@@ -62,9 +57,9 @@ module.exports = function (app: Application) {
               .status(500)
               .send({ error: labels.common.debugMessage, logId: logId });
           });
-      } catch (e: any) {
+      } catch (e: unknown) {
         /* istanbul ignore next */
-        const logId = await util.logServerError(e, config.user);
+        const logId = await util.logServerError(e as object, config.user);
         /* istanbul ignore next */
         res
           .status(500)
@@ -77,7 +72,11 @@ module.exports = function (app: Application) {
   app.post(
     ver + "/users/login",
     auth.optional,
-    async (req: Request, res: Response, next: NextFunction) => {
+    async (
+      req: express.Request,
+      res: express.Response,
+      next: express.NextFunction
+    ) => {
       try {
         // Just not to forget: const user = req.body.user;
         const {
@@ -101,7 +100,7 @@ module.exports = function (app: Application) {
         return passport.authenticate(
           "local",
           { session: false },
-          async (err: Error, passportUser: any, info: any) => {
+          async (err: Error, passportUser: User) => {
             if (err) {
               /* istanbul ignore next */
               const logId = await util.logServerError(err, config.user);
@@ -112,10 +111,7 @@ module.exports = function (app: Application) {
             }
 
             if (passportUser) {
-              const user = passportUser;
-              user.token = passportUser.generateJWT();
-
-              return res.status(200).json({ user: user.toAuthJSON() });
+              return res.status(200).json({ user: passportUser.toAuthJSON() });
             }
 
             return res
@@ -138,13 +134,13 @@ module.exports = function (app: Application) {
   app.get(
     ver + "/users/current",
     auth.required,
-    (req: any, res: any, next: any) => {
+    (req: any, res: express.Response, next: express.NextFunction) => {
+      //TODO check if payload exists
       const {
         payload: { id },
       } = req;
       if (!id) return res.status(404).json({ error: labels.user.notFound });
-      return userEngine
-        .getUserById(id)
+      return User.getById(id)
         .then((user: any) => {
           if (!user) {
             return res.status(404).json({ error: labels.user.notFound });

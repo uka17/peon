@@ -9,7 +9,6 @@ const cors = require("cors");
 
 app.use(cors(config.cors));
 app.use(session(config.session));
-require("../../app/schemas/user");
 require("../../config/passport");
 
 //Swagger

@@ -100,11 +100,24 @@ module.exports.handleUserException = function (message, errorCode, res) {
  */
 module.exports.renameProperty = function (obj, oldName, newName) {
   /* istanbul ignore else */
+  // eslint-disable-next-line no-prototype-builtins
   if (obj.hasOwnProperty(oldName)) {
     obj[newName] = obj[oldName];
     delete obj[oldName];
   }
   return obj;
+};
+/**
+ *
+ * @param {Object} dest Destination object for content transfer
+ * @param {Object} src Source object for content transfer
+ */
+module.exports.copyProperties = function (dest, src) {
+  Object.keys(src).forEach(function (key) {
+    if (key in dest) {
+      dest[key] = src[key];
+    }
+  });
 };
 /**
  * Return `date-time` in a proper format

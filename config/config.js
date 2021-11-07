@@ -3,7 +3,7 @@ module.exports = {
   //Tavic-CI and local DEV doesn't contain any vars, so both will use localhost:8080 and local PostgreSQL. Heroku will use it's own services via process.env
   //===Databases
   //=Local Linux setting
-  useDBSSL: process.env.DBSSL || false,
+  useDBSSL: Boolean(process.env.DBSSL) || false,
   postgresConnectionString:
     process.env.DATABASE_URL ||
     "postgresql://postgres:255320@172.18.0.2:5432/peon",
