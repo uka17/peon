@@ -505,7 +505,7 @@ describe("1 job engine", function () {
         const query = {
           "text": `SELECT count(id) FROM public."sysAbyss" where "text" like '%${uid}%'`,
         };
-        dbclient.query(query, (err, result) => {
+        dbclient.executeSysQuery(query, (err, result) => {
           if (result.rows) resolve(result.rows[0].count);
           else reject(0);
         });

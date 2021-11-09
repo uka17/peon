@@ -57,11 +57,11 @@ describe("util", function () {
 
   describe("3 DB", function () {
     it("3.1 executeSysQuery. No callback, return Promis ", async function () {
-      let db = dbclient.query({ text: "SELECT now()" });
+      let db = dbclient.executeSysQuery({ text: "SELECT now()" });
       let result = await db;
       assert.equalDate(result.rows[0].now, new Date());
     });
-    it("3.2 executeUserQuery. No connection string, return null ", function (done) {
+    it("3.2 executeSysQuery. No connection string, return null ", function (done) {
       let db = dbclient.userQuery({ text: "SELECT now()" });
       assert.isNull(db);
       done();

@@ -21,7 +21,7 @@ function getJobCount(filter) {
       "text": 'SELECT public."fnJob_Count"($1) as count',
       "values": [filter],
     };
-    dbclient.query(query, (err, result) => {
+    dbclient.executeSysQuery(query, (err, result) => {
       try {
         /* istanbul ignore if */
         if (err) {
@@ -66,7 +66,7 @@ function getJobList(filter, sortColumn, sortOrder, perPage, page) {
           parseInt(page),
         ],
       };
-      dbclient.query(query, (err, result) => {
+      dbclient.executeSysQuery(query, (err, result) => {
         try {
           /*istanbul ignore if*/
           if (err) {
@@ -104,7 +104,7 @@ function getJob(jobId) {
         "text": 'SELECT public."fnJob_Select"($1) as job',
         "values": [parseInt(jobId)],
       };
-      dbclient.query(query, (err, result) => {
+      dbclient.executeSysQuery(query, (err, result) => {
         try {
           /*istanbul ignore if*/
           if (err) {
@@ -145,7 +145,7 @@ function createJob(job, createdBy) {
         "text": 'SELECT public."fnJob_Insert"($1, $2) as id',
         "values": [job, createdBy],
       };
-      dbclient.query(query, async (err, result) => {
+      dbclient.executeSysQuery(query, async (err, result) => {
         try {
           /*istanbul ignore if*/
           if (err) {
@@ -187,7 +187,7 @@ function updateJob(jobId, job, updatedBy) {
         "text": 'SELECT public."fnJob_Update"($1, $2, $3) as count',
         "values": [parseInt(jobId), job, updatedBy],
       };
-      dbclient.query(query, async (err, result) => {
+      dbclient.executeSysQuery(query, async (err, result) => {
         try {
           /*istanbul ignore if*/
           if (err) {
@@ -225,7 +225,7 @@ function deleteJob(jobId, deletedBy) {
         "text": 'SELECT public."fnJob_Delete"($1, $2) as count',
         "values": [parseInt(jobId), deletedBy],
       };
-      dbclient.query(query, async (err, result) => {
+      dbclient.executeSysQuery(query, async (err, result) => {
         try {
           /*istanbul ignore next*/
           if (err) {
@@ -326,7 +326,7 @@ function updateJobNextRun(jobId, nextRun) {
         "text": 'SELECT public."fnJob_UpdateNextRun"($1, $2) as count',
         "values": [parseInt(jobId), nextRun],
       };
-      dbclient.query(query, (err, result) => {
+      dbclient.executeSysQuery(query, (err, result) => {
         try {
           /*istanbul ignore if*/
           if (err) {
@@ -368,7 +368,7 @@ function updateJobLastRun(jobId, runResult) {
       };
 
       // eslint-disable-next-line no-unused-vars
-      dbclient.query(query, (err, result) => {
+      dbclient.executeSysQuery(query, (err, result) => {
         try {
           /*istanbul ignore if*/
           if (err) {
@@ -408,7 +408,7 @@ function updateJobStatus(jobId, status) {
       };
 
       // eslint-disable-next-line no-unused-vars
-      dbclient.query(query, (err, result) => {
+      dbclient.executeSysQuery(query, (err, result) => {
         try {
           /*istanbul ignore if*/
           if (err) {
@@ -457,7 +457,7 @@ function logJobHistory(message, jobId, createdBy, uid) {
       );
 
       // eslint-disable-next-line no-unused-vars
-      dbclient.query(query, (err, result) => {
+      dbclient.executeSysQuery(query, (err, result) => {
         try {
           /*istanbul ignore if*/
           if (err) {

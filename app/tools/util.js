@@ -30,7 +30,7 @@ module.exports.handleServerException = function (e, createdBy, dbclient, res) {
           "values": [1, toJSON(e), createdBy],
         };
 
-        dbclient.query(query, (err, result) => {
+        dbclient.executeSysQuery(query, (err, result) => {
           if (err) reject(new Error(err));
           else resolve(result);
         });
@@ -65,7 +65,7 @@ function logServerError(e, createdBy) {
       "values": [1, toJSON(e), createdBy],
     };
 
-    dbclient.query(query, (err, result) => {
+    dbclient.executeSysQuery(query, (err, result) => {
       try {
         /* istanbul ignore next */
         if (err) {

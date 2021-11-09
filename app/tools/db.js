@@ -47,7 +47,7 @@ module.exports.query = executeSysQuery;
  * @param {?Function} callback Callback to be called after query is finished
  * @returns {Object} Query object or `Promise` in case if callback is not defined or `null` in case of error
  */
-function executeUserQuery(query, connectionString, callback) {
+function executeSysQuery(query, connectionString, callback) {
   if (connectionString === undefined) {
     log.error(`Connection string was not provided for query '${query.text}'`);
     return null;
@@ -65,4 +65,4 @@ function executeUserQuery(query, connectionString, callback) {
   if (callback === undefined) return userPool.query(query);
   else return userPool.query(query, callback);
 }
-module.exports.userQuery = executeUserQuery;
+module.exports.userQuery = executeSysQuery;

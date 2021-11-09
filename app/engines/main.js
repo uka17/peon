@@ -22,7 +22,7 @@ function getJobListToRun(tolerance) {
         "text": 'SELECT public."fnJob_ToRun"($1) as jobs',
         "values": [100],
       };
-      dbclient.query(query, (err, result) => {
+      dbclient.executeSysQuery(query, (err, result) => {
         /* istanbul ignore if */
         if (err) {
           reject(new Error(err));
@@ -51,7 +51,7 @@ function logRunHistory(message, createdBy, uid = null) {
 
   log.info(`${message}. session: ${uid}`);
 
-  dbclient.query(query, (err, result) => {
+  dbclient.executeSysQuery(query, (err, result) => {
     if (err) log.error(err);
   });
 }
@@ -111,7 +111,7 @@ function resetAllJobsStatuses() {
       const query = {
         "text": 'SELECT public."fnJob_ResetAll"() as count',
       };
-      dbclient.query(query, async (err, result) => {
+      dbclient.executeSysQuery(query, async (err, result) => {
         try {
           /*istanbul ignore if*/
           if (err) {
@@ -143,7 +143,7 @@ function updateOverdueJobs() {
       const query = {
         "text": 'SELECT public."fnJob_SelectAllOverdue"() as jobs',
       };
-      dbclient.query(query, async (err, result) => {
+      dbclient.executeSysQuery(query, async (err, result) => {
         try {
           /*istanbul ignore if*/
           if (err) {
