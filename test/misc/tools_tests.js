@@ -5,15 +5,10 @@ chai.use(require("chai-datetime"));
 var assert = chai.assert;
 
 var util = require("../../app/tools/util");
-const request = require("supertest");
-var ver = "/v1.0";
-var ut_routes = require("../../app/routes/ut_routes");
-const app = util.expressInstance();
 let config = require("../../config/config");
 let enableDebugOutput;
 
 const dbclient = require("../../app/tools/db");
-ut_routes(app);
 
 describe("util", function () {
   before(() => {
@@ -28,20 +23,11 @@ describe("util", function () {
   });
 
   describe("1 errors handling", function () {
-    it("1.1 handleUserException", function (done) {
-      request(app)
-        .get(ver + "/handleUserException")
-        .end(function (err, res) {
-          assert.equal(res.status, 400);
-          assert.include(res.body.error, "error_message");
-          done();
-        });
-    });
-    it("1.2 logServerError. No user", async function () {
+    it("1.1 logServerError. No user", async function () {
       let logId = await util.logServerError(new Error("dummy"));
       assert.isNumber(logId);
     });
-    it("1.3 logServerError. User=1", async function () {
+    it("1.2 logServerError. User=1", async function () {
       let logId = await util.logServerError(new Error("dummy"), 1);
       assert.isNumber(logId);
     });
@@ -87,17 +73,6 @@ describe("util", function () {
       assert.equalTime(util.getMinDateTime(dateTimeArray), correctResult);
       done();
     });
-
-    it("4.3 renameProperty", function (done) {
-      let expected = { new_name: "obj_name", val: 1 };
-      let initial = { name: "obj_name", val: 1 };
-      assert.equal(
-        util.renameProperty(initial, "name", "new_name").toString(),
-        expected.toString()
-      );
-      done();
-    });
-
     it("4.4 isNumber", function (done) {
       assert.equal(util.isNumber(4, 5), 4);
       assert.equal(util.isNumber(null, 1), 1);

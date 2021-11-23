@@ -1,15 +1,16 @@
 // routes/user_routes.js
-import User from "../engines/user";
+import User from "../classes/user";
 import passport from "passport";
 import auth from "../tools/auth";
 import config from "../../config/config";
-import util from "../tools/util";
+import * as util from "../tools/util";
 //TODO change to proper TS structure
-const labels = require("../../config/message_labels")("en");
+import message_labels from "../../config/message_labels";
+const labels = message_labels("en");
 import express from "express";
 const ver = "/v1.0";
 
-module.exports = function (app: express.Application) {
+export default function (app: express.Application) {
   //Register user
   app.post(
     ver + "/users",
@@ -134,11 +135,16 @@ module.exports = function (app: express.Application) {
   app.get(
     ver + "/users/current",
     auth.required,
-    (req: any, res: express.Response, next: express.NextFunction) => {
+    (
+      req: express.Request,
+      res: express.Response,
+      next: express.NextFunction
+    ) => {
       //TODO check if payload exists
       const {
         payload: { id },
       } = req;
+
       if (!id) return res.status(404).json({ error: labels.user.notFound });
       return User.getById(id)
         .then((user: any) => {
@@ -162,4 +168,4 @@ module.exports = function (app: express.Application) {
         });
     }
   );
-};
+}

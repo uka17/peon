@@ -3,9 +3,10 @@ import * as crypto from "crypto";
 import * as jwt from "jsonwebtoken";
 import config from "../../config/config";
 import { executeSysQuery } from "../tools/db";
-import log from "../../log/dispatcher";
+import Dispatcher from "../../log/dispatcher";
+const log = Dispatcher.getInstance(config.enableDebugOutput, config.logLevel);
 import pg from "pg";
-import util from "../tools/util";
+import * as util from "../tools/util";
 export default class User {
   public email = "";
   public hash = "";

@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   defaultPerPage: 10,
   templates: {
     selectAll: {

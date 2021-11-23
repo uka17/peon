@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   //Intro
   //Tavic-CI and local DEV doesn't contain any vars, so both will use localhost:8080 and local PostgreSQL. Heroku will use it's own services via process.env
   //===Databases

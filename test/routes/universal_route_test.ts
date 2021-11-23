@@ -1,5 +1,12 @@
 /* eslint-disable no-undef */
-var objectId;
+let objectId;
+import * as util from "../../app/tools/util";
+const request = require("supertest");
+const assert = require("chai").assert;
+import labels from "../../config/message_labels";
+const messageBox = labels("en");
+const config = require("../../config/config");
+import express from "express";
 
 /**
  * Imlements set of unit tests for standart api route, which incudes all basic CRUD actions like: list, count, post, get, patch, delete.
@@ -10,26 +17,21 @@ var objectId;
  * @param {string} referenceFieldType Type of object field which will be used for 'incorrect field type' and 'patch' tests
  * @param {string} entity Name of entity which is being tested
  */
-module.exports.testApiRoute = (
-  apiRoute,
-  routeObject,
-  testReferenceObject,
-  referenceFieldName,
-  referenceFieldType,
-  entity
-) => {
-  const request = require("supertest");
-  var assert = require("chai").assert;
-  var messageBox = require("../../config/message_labels")("en");
-  var util = require("../../app/tools/util");
-  let inst = util.expressPostgreInstance(routeObject);
-  let config = require("../../config/config");
+export default function testApiRoute(
+  apiRoute: string,
+  routeObject: (app: express.Application) => void,
+  testReferenceObject: Record<string, unknown>,
+  referenceFieldName: string,
+  referenceFieldType: string,
+  entity: string
+) {
   config.user = "testRobot";
-
+  const inst = util.expressInstance();
+  routeObject(inst);
   describe("api test for: " + apiRoute, function () {
     //sometimes test for creation of objectId is being executed late and objectId becomes undefined
     before((done) => {
-      request(inst.app)
+      request(inst)
         .post(apiRoute)
         .send(testReferenceObject)
         .set("Accept", "application/json")
@@ -40,7 +42,7 @@ module.exports.testApiRoute = (
     });
 
     it(`1.1 incorrect '${referenceFieldName}' type, expected type is '${referenceFieldType}'`, (done) => {
-      let nObject = JSON.parse(JSON.stringify(testReferenceObject));
+      const nObject = JSON.parse(JSON.stringify(testReferenceObject));
       //assign incorrect value to reference field in order to have failed test
       switch (referenceFieldType) {
         case "string":
@@ -59,7 +61,7 @@ module.exports.testApiRoute = (
           nObject[referenceFieldName] = true;
           break;
       }
-      request(inst.app)
+      request(inst)
         .post(apiRoute)
         .send(nObject)
         .set("Accept", "application/json")
@@ -71,13 +73,14 @@ module.exports.testApiRoute = (
     });
 
     it("1.2 successful POST", (done) => {
-      request(inst.app)
+      request(inst)
         .post(apiRoute)
         .send(testReferenceObject)
         .set("Accept", "application/json")
         .end(function (err, res) {
           assert.equal(res.status, 201);
-          let testObject = res.body[entity];
+          const testObject = res.body[entity];
+          console.log(res.body);
           assert.equal(
             testObject[referenceFieldName],
             testReferenceObject[referenceFieldName]
@@ -87,7 +90,7 @@ module.exports.testApiRoute = (
         });
     });
     it("1.3 failed POST (405)", (done) => {
-      request(inst.app)
+      request(inst)
         .post(apiRoute + "/" + objectId)
         .send(testReferenceObject)
         .set("Accept", "application/json")
@@ -97,7 +100,7 @@ module.exports.testApiRoute = (
         });
     });
     it("1.4.1 successful count", (done) => {
-      request(inst.app)
+      request(inst)
         .get(apiRoute + "/count")
         .set("Accept", "application/json")
         .end(function (err, res) {
@@ -107,7 +110,7 @@ module.exports.testApiRoute = (
         });
     });
     it("1.4.2 empty count", (done) => {
-      request(inst.app)
+      request(inst)
         .get(apiRoute + "/count?filter=biteme")
         .set("Accept", "application/json")
         .end(function (err, res) {
@@ -117,7 +120,7 @@ module.exports.testApiRoute = (
         });
     });
     it("1.5 failed get (404)", (done) => {
-      request(inst.app)
+      request(inst)
         .get(apiRoute + "/0")
         .set("Accept", "application/json")
         .end(function (err, res) {
@@ -126,7 +129,7 @@ module.exports.testApiRoute = (
         });
     });
     it("1.6.1 successful list", (done) => {
-      request(inst.app)
+      request(inst)
         .get(apiRoute)
         .set("Accept", "application/json")
         .end(function (err, res) {
@@ -136,7 +139,7 @@ module.exports.testApiRoute = (
         });
     });
     it("1.6.2 successful list with params", (done) => {
-      request(inst.app)
+      request(inst)
         .get(`${apiRoute}?filter=o&sort=id|asc&page=1&perPage=1`)
         .set("Accept", "application/json")
         .end(function (err, res) {
@@ -146,7 +149,7 @@ module.exports.testApiRoute = (
         });
     });
     it('1.6.3 successful list with partial "sort" params', (done) => {
-      request(inst.app)
+      request(inst)
         .get(`${apiRoute}?filter=o&sort=id&page=1&perPage=1`)
         .set("Accept", "application/json")
         .end(function (err, res) {
@@ -156,18 +159,18 @@ module.exports.testApiRoute = (
         });
     });
     it("1.7 successful get", (done) => {
-      request(inst.app)
+      request(inst)
         .get(apiRoute + "/" + objectId)
         .set("Accept", "application/json")
         .end(function (err, res) {
           assert.equal(res.status, 200);
-          assert.isTrue(res.body.hasOwnProperty("id"));
+          assert.isTrue("id" in res.body);
           done();
         });
     });
 
     it("1.8 successful patch", (done) => {
-      let nObject = JSON.parse(JSON.stringify(testReferenceObject));
+      const nObject = JSON.parse(JSON.stringify(testReferenceObject));
       //assign correct value to reference field in order to have success patch test
       switch (referenceFieldType) {
         case "string":
@@ -186,7 +189,7 @@ module.exports.testApiRoute = (
           nObject[referenceFieldName] = {};
           break;
       }
-      request(inst.app)
+      request(inst)
         .patch(apiRoute + "/" + objectId)
         .send(nObject)
         .set("Accept", "application/json")
@@ -198,7 +201,7 @@ module.exports.testApiRoute = (
     });
 
     it("1.9 successful delete", (done) => {
-      request(inst.app)
+      request(inst)
         .delete(apiRoute + "/" + objectId)
         .set("Accept", "application/json")
         .end(function (err, res) {
@@ -208,4 +211,4 @@ module.exports.testApiRoute = (
         });
     });
   });
-};
+}

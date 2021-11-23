@@ -1,5 +1,5 @@
 /* istanbul ignore next */
-module.exports = (language = "en") => {
+export default (language = "en") => {
   return {
     job: {
       jobNotFound: "Job not found",

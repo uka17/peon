@@ -1,7 +1,13 @@
-const jwt = require("express-jwt");
-const config = require("../../config/config");
+import jwt from "express-jwt";
+import config from "../../config/config";
+import express from "express";
 
-const getTokenFromHeaders = (req) => {
+/**
+ * Extracts token from header
+ * @param {express.Request} req Request object
+ * @returns {null | string} Token or null
+ */
+const getTokenFromHeaders = (req: express.Request): null | string => {
   const {
     headers: { authorization },
   } = req;
@@ -12,7 +18,7 @@ const getTokenFromHeaders = (req) => {
   return null;
 };
 
-const auth = {
+export default {
   required: jwt({
     secret: config.JWT.secret,
     algorithms: ["HS256"],
@@ -27,5 +33,3 @@ const auth = {
     credentialsRequired: false,
   }),
 };
-
-module.exports = auth;

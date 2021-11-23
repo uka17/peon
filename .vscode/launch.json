@@ -13,18 +13,19 @@
             "sourceMaps": true,
             "smartStep": true,
             "internalConsoleOptions": "openOnSessionStart",
-            "console": "internalConsole"
+            "outputCapture": "std"
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Launch Server",
             "program": "${workspaceFolder}//dist/server.js",
+            "args": ["--trace-warnings"],
             "preLaunchTask": "npm: build",            
             "sourceMaps": true,
             "smartStep": true,
             "internalConsoleOptions": "openOnSessionStart",
-            "console": "internalConsole"
+            "outputCapture": "std"
         }             
     ]
 }

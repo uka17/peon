@@ -12,8 +12,9 @@ const stepEngine = require("../../app/engines/step");
 const schedulator = require("schedulator");
 const testData = require("../data/application");
 const config = require("../../config/config");
-const labels = require("../../config/message_labels")("en");
-const main = require("../../app/engines/main");
+import message_labels from "../../config/message_labels";
+const labels = message_labels("en");
+const main = require("../../app/engines/engine");
 const dbclient = require("../../app/tools/db");
 
 describe("1 job engine", function () {
