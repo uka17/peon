@@ -1,3 +1,5 @@
+//TODO didn't even started to do schedule - dummy file copied from step
+
 import { executeUserQuery } from "../tools/db";
 import Connection from "./connection";
 import pg from "pg";

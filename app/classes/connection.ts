@@ -8,6 +8,7 @@ import pg from "pg";
 import Dispatcher from "../../log/dispatcher";
 import config from "../../config/config";
 const log = Dispatcher.getInstance(config.enableDebugOutput, config.logLevel);
+import Validation from "../tools/validation";
 //TODO fix all function descriptions to proper one
 export default class Connection {
   public body?: ConnectionBody;
@@ -23,7 +24,11 @@ export default class Connection {
    * @param {ConnectionBody} body Body of new connetion with main attributes
    */
   constructor(body?: ConnectionBody) {
-    this.body = body;
+    if (body) {
+      const connectionValidationResult = Validation.validateConnection(body);
+      if (connectionValidationResult.isValid) this.body = body;
+      else throw new TypeError("Connection body is not valid json");
+    }
   }
 
   /**
@@ -129,36 +134,31 @@ export default class Connection {
    */
   public static get(id: number): Promise<null | Connection | Error> {
     return new Promise((resolve, reject) => {
-      try {
-        const query: pg.QueryConfig = {
-          "text": 'SELECT public."fnConnection_Select"($1) as connection',
-          "values": [id],
-        };
-        executeSysQuery(query, (err, result) => {
-          try {
+      const query: pg.QueryConfig = {
+        "text": 'SELECT public."fnConnection_Select"($1) as connection',
+        "values": [id],
+      };
+      executeSysQuery(query, (err, result) => {
+        try {
+          /* istanbul ignore if */
+          if (err) {
+            throw err;
+          } else {
             /* istanbul ignore if */
-            if (err) {
-              throw err;
-            } else {
-              /* istanbul ignore if */
-              const connection: unknown = (
-                result.rows[0] as unknown as Record<string, unknown>
-              ).connection;
-              if (connection == null) {
-                resolve(null);
-              } else resolve(connection as Connection);
-            }
-          } catch (e) /*istanbul ignore next*/ {
-            log.error(
-              `Failed to get connection with query ${query}. Stack: ${e}`
-            );
-            reject(e);
+            const connection: unknown = (
+              result.rows[0] as unknown as Record<string, unknown>
+            ).connection;
+            if (connection == null) {
+              resolve(null);
+            } else resolve(connection as Connection);
           }
-        });
-      } catch (err) {
-        log.error(`Parameters type mismatch. Stack: ${err}`);
-        reject(err);
-      }
+        } catch (e) /*istanbul ignore next*/ {
+          log.error(
+            `Failed to get connection with query ${query}. Stack: ${e}`
+          );
+          reject(e);
+        }
+      });
     });
   }
 
@@ -169,34 +169,30 @@ export default class Connection {
    */
   public save(createdBy: string): Promise<null | Connection | Error> {
     return new Promise((resolve, reject) => {
-      try {
-        const query: pg.QueryConfig = {
-          "text": 'SELECT public."fnConnection_Insert"($1, $2) as id',
-          "values": [this.body, createdBy],
-        };
-        executeSysQuery(query, async (err, result) => {
-          try {
-            /* istanbul ignore if */
-            if (err) {
-              throw err;
-            } else {
-              const newBornConnection: Connection = (await Connection.get(
-                (result.rows[0] as unknown as Record<string, unknown>)
-                  .id as number
-              )) as Connection;
-              resolve(newBornConnection);
-            }
-          } catch (e) /*istanbul ignore next*/ {
-            log.error(
-              `Failed to insert conneciton with query ${query}. Stack: ${e}`
-            );
-            reject(e);
+      const query: pg.QueryConfig = {
+        "text": 'SELECT public."fnConnection_Insert"($1, $2) as id',
+        "values": [this.body, createdBy],
+      };
+      executeSysQuery(query, async (err, result) => {
+        try {
+          /* istanbul ignore if */
+          if (err) {
+            throw err;
+          } else {
+            this.id = (result.rows[0] as unknown as Record<string, unknown>)
+              .id as number;
+            const newBornConnection: Connection = (await Connection.get(
+              this.id
+            )) as Connection;
+            resolve(newBornConnection);
           }
-        });
-      } catch (err) {
-        log.error(`Parameters type mismatch. Stack: ${err}`);
-        reject(err);
-      }
+        } catch (e) /*istanbul ignore next*/ {
+          log.error(
+            `Failed to insert conneciton with query ${query}. Stack: ${e}`
+          );
+          reject(e);
+        }
+      });
     });
   }
 

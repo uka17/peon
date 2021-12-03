@@ -121,6 +121,7 @@ export default function (app: express.Application) {
     async (req: express.Request, res: express.Response) => {
       //create new job
       try {
+        //TODO check if route provided proper body
         const job: Job = new Job({ body: req.body } as IJob);
         job.normalizeStepList();
         // schedule schema will be checked during execution of calculateNextRun()

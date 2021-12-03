@@ -1,11 +1,11 @@
 import uniTest from "./universal_route_test";
 import connectionRoute from "../../app/routes/connection_routes";
-const connectionTestObject = require("../data/application").connectionOK;
+import testObjects from "../data/application";
 
 uniTest(
   "/v1.0/connections",
   connectionRoute,
-  connectionTestObject,
+  testObjects.connectionOK,
   "host",
   "string",
   "connection"

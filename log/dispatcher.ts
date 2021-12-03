@@ -3,9 +3,9 @@ const { combine, timestamp, colorize, printf, logstash } = winston.format;
 import Transport from "winston-transport";
 
 enum LogMessageLevel {
-  "info",
-  "warn",
-  "error",
+  info = "info",
+  warn = "warn",
+  error = "error",
 }
 
 /* istanbul ignore next */

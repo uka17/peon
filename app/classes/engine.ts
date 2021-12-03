@@ -37,9 +37,9 @@ export default class Engine {
           } else {
             const result: Array<Job> = [];
             if (!queryResult.rows[0]) resolve(result);
-            const jobList = (
-              queryResult.rows[0] as unknown as Record<string, unknown>
-            ).jobs as Array<Record<string, unknown>>;
+            const jobList =
+              ((queryResult.rows[0] as unknown as Record<string, unknown>)
+                .jobs as Array<Record<string, unknown>>) ?? [];
             jobList.forEach((job) => {
               result.push(new Job(job as unknown as IJob));
             });
@@ -125,7 +125,7 @@ export default class Engine {
    * Reset all jobs statuses to `idle`
    * @return {Promise<number | Error>} Numbed of job for which statuses were reset
    */
-  public resetAllJobsStatuses(): Promise<number | Error> {
+  public static resetAllJobsStatuses(): Promise<number | Error> {
     return new Promise((resolve, reject) => {
       try {
         const query = {
@@ -159,7 +159,7 @@ export default class Engine {
    * @returns {Promise<number | null>} Number of updated jobs
    */
   // TODO change return type to number as in case of Error Pormise just rethrow an error, but not return Error (is it, dude?)
-  public updateOverdueJobs(): Promise<number | null> {
+  public static updateOverdueJobs(): Promise<number | null> {
     return new Promise((resolve, reject) => {
       try {
         //TODO Move it to Job class, creates set of methods for each DB interaction and exclude databaseRecord[] => Array<Job> method

@@ -1,25 +1,26 @@
 /* eslint-disable no-undef */
 
-const request = require("supertest");
-var assert = require("chai").assert;
-var labels = require("../../config/message_labels")("en");
-let config = require("../../config/config");
+import request from "supertest";
+import { assert } from "chai";
+import message from "../../config/message_labels";
+const labels = message("en");
+import config from "../../config/config";
 config.user = "testRobot";
-const user = require("../data/users");
-var app = require("../../app/init/setup").app;
-const Users = require("../../app/schemas/user");
+import user from "../data/users";
+import app from "../../app/init/setup";
+import Users from "../../app/classes/user";
+import { nanoid } from "nanoid";
 const registerUrl = "/v1.0/users";
 const loginUrl = "/v1.0/users/login";
 const currentUrl = "/v1.0/users/current";
-const { nanoid } = require("nanoid");
 
 function newUser() {
-  let clonedUser = JSON.parse(JSON.stringify(user.usersOK.mickey));
+  const clonedUser = JSON.parse(JSON.stringify(user.usersOK.mickey));
   clonedUser.email += nanoid();
   return clonedUser;
 }
 
-testUser = newUser();
+const testUser = newUser();
 
 describe("1 auth unit tests", function () {
   describe("sign up", function () {
@@ -37,7 +38,7 @@ describe("1 auth unit tests", function () {
     });
 
     it(`1.2 register new user, email already taken`, (done) => {
-      let duplicatedUser = newUser();
+      const duplicatedUser = newUser();
       //Register first time
       request(app)
         .post(registerUrl)
@@ -62,7 +63,7 @@ describe("1 auth unit tests", function () {
     });
 
     it(`1.3 register new user, no email`, (done) => {
-      let userNoEmail = newUser();
+      const userNoEmail = newUser();
       delete userNoEmail.email;
       request(app)
         .post(registerUrl)
@@ -77,7 +78,7 @@ describe("1 auth unit tests", function () {
     });
 
     it(`1.4 register new user, email format is incorrect`, (done) => {
-      let userIncorrectEmailFormat = newUser();
+      const userIncorrectEmailFormat = newUser();
       userIncorrectEmailFormat.email = "myemail";
       request(app)
         .post(registerUrl)
@@ -92,7 +93,7 @@ describe("1 auth unit tests", function () {
     });
 
     it(`1.5 register new user, password format is incorrect`, (done) => {
-      let userIncorrectPasswordFormat = newUser();
+      const userIncorrectPasswordFormat = newUser();
       userIncorrectPasswordFormat.password = "password";
       request(app)
         .post(registerUrl)
@@ -107,7 +108,7 @@ describe("1 auth unit tests", function () {
     });
 
     it(`1.6 register new user, no password`, (done) => {
-      let userNoPassword = newUser();
+      const userNoPassword = newUser();
       delete userNoPassword.password;
       request(app)
         .post(registerUrl)
@@ -123,7 +124,7 @@ describe("1 auth unit tests", function () {
   });
   describe("2 login", function () {
     it(`2.1 login user OK`, (done) => {
-      let userLoginOk = newUser();
+      const userLoginOk = newUser();
 
       //Register
       request(app)
@@ -149,7 +150,7 @@ describe("1 auth unit tests", function () {
     });
 
     it(`2.2 login user, no email`, (done) => {
-      let userNoEmail = newUser();
+      const userNoEmail = newUser();
       delete userNoEmail.email;
       request(app)
         .post(loginUrl)
@@ -164,7 +165,7 @@ describe("1 auth unit tests", function () {
     });
 
     it(`2.3 login user, email format is incorrect`, (done) => {
-      let userIncorrectEmailFormat = newUser();
+      const userIncorrectEmailFormat = newUser();
       userIncorrectEmailFormat.email = "myemail";
       request(app)
         .post(loginUrl)
@@ -179,7 +180,7 @@ describe("1 auth unit tests", function () {
     });
 
     it(`2.4 login new user, no password`, (done) => {
-      let userNoPassword = newUser();
+      const userNoPassword = newUser();
       delete userNoPassword.password;
       request(app)
         .post(loginUrl)
@@ -194,7 +195,7 @@ describe("1 auth unit tests", function () {
     });
 
     it(`2.5 login new user failed`, (done) => {
-      let userLoginFailed = newUser();
+      const userLoginFailed = newUser();
       //Register
       request(app)
         .post(registerUrl)
@@ -227,7 +228,7 @@ describe("1 auth unit tests", function () {
   });
   describe("3 current", function () {
     it(`3.1 get current user OK`, (done) => {
-      let currentUserOk = newUser();
+      const currentUserOk = newUser();
       //Register
       request(app)
         .post(registerUrl)
@@ -237,7 +238,7 @@ describe("1 auth unit tests", function () {
           assert.equal(res.status, 201);
           assert.equal(res.body.user.email, currentUserOk.email);
           assert.hasAllKeys(res.body.user, ["email", "id", "token"]);
-          let token = res.body.user.token;
+          const token = res.body.user.token;
           //Current
           request(app)
             .get(currentUrl)
@@ -252,7 +253,7 @@ describe("1 auth unit tests", function () {
         });
     });
     it(`3.2 get current user, token is incorrect`, (done) => {
-      let currentUserOk = newUser();
+      const currentUserOk = newUser();
       //Register
       request(app)
         .post(registerUrl)
@@ -262,7 +263,7 @@ describe("1 auth unit tests", function () {
           assert.equal(res.status, 201);
           assert.equal(res.body.user.email, currentUserOk.email);
           assert.hasAllKeys(res.body.user, ["email", "id", "token"]);
-          let token = "FBI";
+          const token = "FBI";
           //Current
           request(app)
             .get(currentUrl)
@@ -277,7 +278,8 @@ describe("1 auth unit tests", function () {
         });
     });
     it(`3.3 get current user, user no found`, (done) => {
-      const shadowUser = new Users({ email: "shadow", password: "shadow" });
+      const shadowUser = new Users("shadow");
+      shadowUser.setPassword("shadow");
       const token = shadowUser.generateJWT();
       //Current
       request(app)

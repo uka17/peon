@@ -10,10 +10,10 @@ import toJSON from "utils-error-to-json";
 /**
  * Puts log record into DB and returns `id` of this record
  * @param {unknown} e Error object
- * @param {string} createdBy Who triggered error
+ * @param {string} createdBy Optional. Who triggered error
  * @returns {Promise<number>} Resolves Promis with `logId` or 0 in case of failure. Shows error in console in case of DEV environment or log save failed
  */
-function logServerError(e: unknown, createdBy: string): Promise<number> {
+function logServerError(e: unknown, createdBy?: string): Promise<number> {
   /* istanbul ignore next */
   if (process.env.NODE_ENV !== "PROD") {
     log.error((e as Record<string, unknown>).stack);

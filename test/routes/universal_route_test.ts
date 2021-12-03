@@ -1,11 +1,11 @@
 /* eslint-disable no-undef */
 let objectId;
 import * as util from "../../app/tools/util";
-const request = require("supertest");
-const assert = require("chai").assert;
+import request from "supertest";
+import { assert } from "chai";
 import labels from "../../config/message_labels";
 const messageBox = labels("en");
-const config = require("../../config/config");
+import config from "../../config/config";
 import express from "express";
 
 /**
@@ -79,8 +79,7 @@ export default function testApiRoute(
         .set("Accept", "application/json")
         .end(function (err, res) {
           assert.equal(res.status, 201);
-          const testObject = res.body[entity];
-          console.log(res.body);
+          const testObject = res.body.body;
           assert.equal(
             testObject[referenceFieldName],
             testReferenceObject[referenceFieldName]

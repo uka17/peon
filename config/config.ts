@@ -27,7 +27,7 @@ export default {
   emergencyUser: "er",
   //===System settings
   logLevel: "info",
-  enableDebugOutput: true,
+  enableDebugOutput: false,
   skipLongTests: true,
   passwordRegExp: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/gm,
   emailRegExp: /.+@.+\..+/i,

@@ -3,9 +3,9 @@ import Connection from "./connection";
 import pg from "pg";
 
 export enum SimpleStepActionType {
-  "gotoNextStep",
-  "quitWithSuccess",
-  "quitWithFailure",
+  gotoNextStep = "gotoNextStep",
+  quitWithSuccess = "quitWithSuccess",
+  quitWithFailure = "quitWithFailure",
 }
 
 export type StepExecutionResult = {
@@ -23,6 +23,17 @@ export interface IRetryAttempts {
   interval: number;
 }
 
+export interface IStep {
+  name: string;
+  enabled: boolean;
+  order: number;
+  connection: number;
+  command: string;
+  onSucceed: SimpleStepActionType | IGotoStepAction;
+  onFailure: SimpleStepActionType | IGotoStepAction;
+  retryAttempts: IRetryAttempts;
+}
+
 export default class Step {
   public name = "";
   public enabled = true;
@@ -33,15 +44,15 @@ export default class Step {
   public onFailure: SimpleStepActionType | IGotoStepAction;
   public retryAttempts: IRetryAttempts;
 
-  constructor(value: Record<string, unknown>) {
-    this.name = value.name as string;
-    this.enabled = value.enabled as boolean;
-    this.order = value.order as number;
-    this.connection = value.connection as number;
-    this.command = value.command as string;
-    this.onSucceed = value.onSucceed as SimpleStepActionType | IGotoStepAction;
-    this.onFailure = value.onFailure as SimpleStepActionType | IGotoStepAction;
-    this.retryAttempts = value.retryAttempts as IRetryAttempts;
+  constructor(value: IStep) {
+    this.name = value.name;
+    this.enabled = value.enabled;
+    this.order = value.order;
+    this.connection = value.connection;
+    this.command = value.command;
+    this.onSucceed = value.onSucceed;
+    this.onFailure = value.onFailure;
+    this.retryAttempts = value.retryAttempts;
   }
 
   /**

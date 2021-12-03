@@ -3,7 +3,7 @@
 /* eslint-disable no-prototype-builtins */
 import JobBody from "./jobBody";
 import validation from "../tools/validation";
-import pg from "pg";
+import pg, { defaults } from "pg";
 //TODO implement gotoStep: %step_number%
 import schedulator from "schedulator";
 import * as util from "../tools/util";
@@ -15,6 +15,7 @@ import config from "../../config/config";
 const log = Dispatcher.getInstance(config.enableDebugOutput, config.logLevel);
 import message_labels from "../../config/message_labels";
 const labels = message_labels("en");
+import toJSON from "utils-error-to-json";
 
 type NextRunResult = {
   isValid: boolean;
@@ -57,9 +58,14 @@ export default class Job implements IJob {
    * @param {IJob} body Object with all or partial set of attributes
    */
   constructor(job?: IJob) {
-    if (job)
-      //this.body = job.body;
+    if (job) {
       util.copyProperties(this, job, true);
+      if (!Array.isArray(job.body.steps))
+        throw new Error("step list should have type Array");
+      job.body.steps = job.body.steps.map((value) => {
+        return new Step(value);
+      });
+    }
   }
 
   //TODO here and in connection change logic and type from Promise<null | number | Error> to Promise<number | Error>
@@ -161,34 +167,29 @@ export default class Job implements IJob {
    */
   public static get(jobId: number): Promise<null | Job | Error> {
     return new Promise((resolve, reject) => {
-      try {
-        const query = {
-          "text": 'SELECT public."fnJob_Select"($1) as job',
-          "values": [jobId],
-        };
-        executeSysQuery(query, (err, result) => {
-          try {
+      const query = {
+        "text": 'SELECT public."fnJob_Select"($1) as job',
+        "values": [jobId],
+      };
+      executeSysQuery(query, (err, result) => {
+        try {
+          /* istanbul ignore if */
+          if (err) {
+            throw err;
+          } else {
             /* istanbul ignore if */
-            if (err) {
-              throw err;
-            } else {
-              /* istanbul ignore if */
-              const job: unknown = (
-                result.rows[0] as unknown as Record<string, unknown>
-              ).job;
-              if (job == null) {
-                resolve(null);
-              } else resolve(new Job(job as Job));
-            }
-          } catch (e) /*istanbul ignore next*/ {
-            log.error(`Failed to get job with query ${query}. Stack: ${e}`);
-            reject(e);
+            const job: unknown = (
+              result.rows[0] as unknown as Record<string, unknown>
+            ).job;
+            if (job == null) {
+              resolve(null);
+            } else resolve(new Job(job as Job));
           }
-        });
-      } catch (err) {
-        log.error(`Parameters type mismatch. Stack: ${err}`);
-        reject(err);
-      }
+        } catch (e) /*istanbul ignore next*/ {
+          log.error(`Failed to get job with query ${query}. Stack: ${e}`);
+          reject(e);
+        }
+      });
     });
   }
 
@@ -200,6 +201,7 @@ export default class Job implements IJob {
   public save(createdBy: string): Promise<null | Job | Error> {
     return new Promise((resolve, reject) => {
       try {
+        //TODO here and in all classes - check for body
         const query = {
           "text": 'SELECT public."fnJob_Insert"($1, $2) as id',
           "values": [this.body, createdBy],
@@ -274,35 +276,30 @@ export default class Job implements IJob {
    */
   public delete(deletedBy: string): Promise<null | number | Error> {
     return new Promise((resolve, reject) => {
-      try {
-        if (!this.id)
-          throw new Error(
-            "Job was not changed at database level, save it before any changes"
-          );
-        const query: pg.QueryConfig = {
-          "text": 'SELECT public."fnJob_Delete"($1, $2) as count',
-          "values": [this.id, deletedBy],
-        };
-        executeSysQuery(query, async (err, result) => {
-          try {
-            /* istanbul ignore if */
-            if (err) {
-              throw err;
-            } else {
-              resolve(
-                (result.rows[0] as unknown as Record<string, unknown>)
-                  .count as number
-              );
-            }
-          } catch (e) /*istanbul ignore next*/ {
-            log.error(`Failed to delete job with query ${query}. Stack: ${e}`);
-            reject(e);
+      if (!this.id)
+        throw new Error(
+          "Job was not changed at database level, save it before any changes"
+        );
+      const query: pg.QueryConfig = {
+        "text": 'SELECT public."fnJob_Delete"($1, $2) as count',
+        "values": [this.id, deletedBy],
+      };
+      executeSysQuery(query, async (err, result) => {
+        try {
+          /* istanbul ignore if */
+          if (err) {
+            throw err;
+          } else {
+            resolve(
+              (result.rows[0] as unknown as Record<string, unknown>)
+                .count as number
+            );
           }
-        });
-      } catch (err) {
-        log.error(`Parameters type mismatch. Stack: ${err}`);
-        reject(err);
-      }
+        } catch (e) /*istanbul ignore next*/ {
+          log.error(`Failed to delete job with query ${query}. Stack: ${e}`);
+          reject(e);
+        }
+      });
     });
   }
 
@@ -410,7 +407,7 @@ export default class Job implements IJob {
           }
         });
       } catch (err) {
-        log.error(`Parameters type mismatch. Stack: ${err}`);
+        log.error(`Error while trying to update next run. Stack: ${err}`);
         reject(err);
       }
     });
@@ -448,7 +445,7 @@ export default class Job implements IJob {
           }
         });
       } catch (err) {
-        log.error(`Parameters type mismatch. Stack: ${err}`);
+        log.error(`Error while trying to update last run. Stack: ${err}`);
         reject(err);
       }
     });
@@ -466,7 +463,7 @@ export default class Job implements IJob {
             "Unable to update status as Job object doesn't have an ID"
           );
         if (status !== 1 && status !== 2)
-          throw new TypeError("status should be 1 or 2");
+          throw new TypeError("Status should be 1 or 2");
         const query = {
           "text": 'SELECT public."fnJob_UpdateStatus"($1, $2) as updated',
           "values": [this.id, status],
@@ -503,7 +500,7 @@ export default class Job implements IJob {
   public logHistory(
     message: Record<string, unknown>,
     createdBy: string,
-    uid?: string
+    uid: string | null = null
   ): Promise<boolean | Error> {
     return new Promise((resolve, reject) => {
       try {
@@ -511,12 +508,10 @@ export default class Job implements IJob {
           throw new Error(
             "Unable to log history as Job object doesn't have an ID"
           );
-        if (typeof createdBy !== "string")
-          throw new TypeError("createdBy should be a string");
         const query = {
           "text":
             'SELECT public."fnJobHistory_Insert"($1, $2, $3, $4) as updated',
-          "values": [message, uid ?? null, this.id, createdBy],
+          "values": [message, uid, this.id, createdBy],
         };
 
         log.info(
@@ -540,7 +535,7 @@ export default class Job implements IJob {
           }
         });
       } catch (err) {
-        log.error(`Parameters type mismatch. Stack: ${err}`);
+        log.error(`Error while trying to put log entry. Stack: ${err}`);
         reject(err);
       }
     });
@@ -550,9 +545,12 @@ export default class Job implements IJob {
   /**
    * Executes `Job` (including logging steps results, changing `Job` last run result and `date-time`, calculates next run `date-time`).
    * @param {string} executedBy User who is executing job
-   * @param {?string} uid Session id. Default is `null`
+   * @param {string | null} uid Session id. Default is `null`
    */
-  public async execute(executedBy: string, uid: string): Promise<void> {
+  public async execute(
+    executedBy: string,
+    uid: string | null = null
+  ): Promise<void> {
     try {
       if (this.body === undefined || this.id === undefined)
         throw new Error(
@@ -571,9 +569,7 @@ export default class Job implements IJob {
           stepIndex < this.body.steps.length;
           stepIndex++
         ) {
-          const step = new Step(
-            this.body.steps[stepIndex] as unknown as Record<string, unknown>
-          );
+          const step = this.body.steps[stepIndex];
           await this.logHistory(
             {
               message: labels.execution.executingStep(step.name),
@@ -680,7 +676,7 @@ export default class Job implements IJob {
               }
             }
             if (!repeatSucceeded) {
-              //all aditional attempts failed
+              //all additional attempts failed
               switch (step.onFailure) {
                 case SimpleStepActionType.gotoNextStep:
                   break;
@@ -690,6 +686,8 @@ export default class Job implements IJob {
                 case SimpleStepActionType.quitWithFailure:
                   jobExecutionResult = false;
                   break step_loop;
+                default:
+                  jobExecutionResult = false;
               }
             }
           }
@@ -711,7 +709,6 @@ export default class Job implements IJob {
       } else {
         await this.logHistory(
           { message: labels.execution.jobFailed, level: 0 },
-
           executedBy,
           uid
         );
@@ -725,10 +722,12 @@ export default class Job implements IJob {
       }
     } catch (e) {
       log.error(
-        `Error during execution of job (jobRecord=${this}). Stack: ${e}`
+        `Error during execution of job (jobRecord=${JSON.stringify(
+          this
+        )}). Stack: ${e}`
       );
     } finally {
-      if (this !== null && this !== undefined) this.updateStatus(1);
+      if (this.id) this.updateStatus(1);
     }
   }
 
@@ -737,14 +736,15 @@ export default class Job implements IJob {
    */
   public normalizeStepList(): void {
     if (!this.body?.steps)
-      throw new Error("Job doesn't contain step list to be normilized");
-    //sort steps in correct order
-    if (!Array.isArray(this.body?.steps))
-      throw new Error("stepList should have type Array");
+      throw new Error("Job doesn't contain step list to be normalized");
     this.body.steps.sort((a, b) => {
-      if (!a.hasOwnProperty("order") || !b.hasOwnProperty("order"))
+      if (
+        !a.hasOwnProperty("order") ||
+        !b.hasOwnProperty("order") ||
+        b.order == undefined
+      )
         throw new Error(
-          `All 'Step' objects in the list should have 'order' property`
+          `All 'Step' objects in the list should have 'order' property type number`
         );
 
       if (a.order < b.order) return -1;

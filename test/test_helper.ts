@@ -1,20 +1,21 @@
 // util/test_helpers.js
-var assert = require("chai").assert;
-var request = require("request");
-var messageBox = require("../config/message_labels")("en");
+import { assert } from "chai";
+import request from "request";
+import labels from "../config/message_labels";
+const messageBox = labels("en");
 
 /**
  * Creates instance of helper for unit testing
- * @param {object} object Initial object which should be tested. This object should not contain any errors in properties
- * @returns {object} Instance of helper
+ * @param {any} object Initial object which should be tested. This object should not contain any errors in properties
+ * @returns {any} Instance of helper
  */
-function testHelper(object) {
+export default function testHelper(object) {
   this._object = object;
   /**
    * Implement list of unit tests to compare each and every property of helper initial object and objectToCheck in a shallow mode (compares everything except objects)
    * @param {object} objectToCheck
    */
-  //TODO Realize object comarison
+  //TODO Realize object comparison
   this.compareObjects = (objectToCheck) => {
     Object.keys(this._object).forEach((elem) => {
       if (typeof this._object[elem] != "object")
@@ -26,7 +27,7 @@ function testHelper(object) {
    * @param {string} url URL for sending POST request
    */
   this.createFromList = (url) => {
-    var id;
+    let id;
     this._object.forEach((element) => {
       it("creating element, checking and deleting at " + url, function (done) {
         //creation
@@ -61,4 +62,3 @@ function testHelper(object) {
     });
   };
 }
-module.exports = testHelper;
