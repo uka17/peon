@@ -80,6 +80,7 @@ export default class Engine {
    * Main function for `Job` list processing. Searches for a `Jobs` which should be executed and runs them
    */
   public async run(): Promise<void> {
+    //TODO change Enging to singleton
     let currentExecutableJobId = 0;
     try {
       if (this._executionLock) return;
@@ -88,7 +89,7 @@ export default class Engine {
       if (jobList !== null) {
         const uid = uuidv4();
         log.info(
-          `${jobList.length} job(s) in tolerance ${this._tolerance} ms scope to process`
+          `${jobList.length} job(s) in tolerance ${this._tolerance} minute(s) scope to process`
         );
         for (let i = 0; i < jobList.length; i++) {
           const job = jobList[i];
@@ -127,30 +128,25 @@ export default class Engine {
    */
   public static resetAllJobsStatuses(): Promise<number | Error> {
     return new Promise((resolve, reject) => {
-      try {
-        const query = {
-          "text": 'SELECT public."fnJob_ResetAll"() as count',
-        };
-        executeSysQuery(query, async (err, result) => {
-          try {
-            /*istanbul ignore if*/
-            if (err) {
-              throw err;
-            } else {
-              resolve(
-                (result.rows[0] as unknown as Record<string, unknown>)
-                  .count as number
-              );
-            }
-          } catch (err) {
-            log.error(`Reset job list database query failed. Stack: ${err}`);
-            reject(err);
+      const query = {
+        "text": 'SELECT public."fnJob_ResetAll"() as count',
+      };
+      executeSysQuery(query, async (err, result) => {
+        try {
+          /*istanbul ignore if*/
+          if (err) {
+            throw err;
+          } else {
+            resolve(
+              (result.rows[0] as unknown as Record<string, unknown>)
+                .count as number
+            );
           }
-        });
-      } catch (err) {
-        log.error(`Reset job list statuses failed. Stack: ${err}`);
-        reject(err);
-      }
+        } catch (err) {
+          log.error(`Reset job list database query failed. Stack: ${err}`);
+          reject(err);
+        }
+      });
     });
   }
 
@@ -158,7 +154,7 @@ export default class Engine {
    * Finds all active jobs (not in `Executing` state, enabled and not deleted) and calculates next run date-time for them
    * @returns {Promise<number | null>} Number of updated jobs
    */
-  // TODO change return type to number as in case of Error Pormise just rethrow an error, but not return Error (is it, dude?)
+  // TODO change return type to number as in case of Error Promise just rethrow an error, but not return Error (is it, dude?)
   public static updateOverdueJobs(): Promise<number | null> {
     return new Promise((resolve, reject) => {
       try {

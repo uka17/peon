@@ -77,15 +77,6 @@ export default class User {
   public save(createdBy: string): Promise<User | Error> {
     return new Promise((resolve, reject) => {
       try {
-        //TODO regexp for all string types
-        if (typeof this.email !== "string")
-          throw new TypeError("email should be a string");
-        if (typeof this.hash !== "string")
-          throw new TypeError("hash should be a string");
-        if (typeof this.salt !== "string")
-          throw new TypeError("salt should be a string");
-        if (typeof createdBy !== "string")
-          throw new TypeError("createdBy should be a string");
         const query: pg.QueryConfig = {
           "text": 'SELECT public."fnUser_Insert"($1, $2, $3, $4) as id',
           "values": [this.email, this.hash, this.salt, createdBy],
@@ -170,8 +161,6 @@ export default class User {
   public static getByEmail(email: string): Promise<User | null | Error> {
     return new Promise((resolve, reject) => {
       try {
-        if (typeof email !== "string")
-          throw new TypeError("email should be a string");
         const query: pg.QueryConfig = {
           "text": 'SELECT public."fnUser_SelectByEmail"($1) as user',
           "values": [email],

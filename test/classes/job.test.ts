@@ -11,16 +11,13 @@ import config from "../../config/config";
 const log = Dispatcher.getInstance(config.enableDebugOutput, config.logLevel);
 import Job, { IJob } from "../../app/classes/job";
 import { nanoid } from "nanoid";
-import testHelper from "../test_helper";
 import Connection from "../../app/classes/connection";
-import Step, { SimpleStepActionType } from "../../app/classes/step";
-import schedulator from "schedulator";
+import { SimpleStepActionType } from "../../app/classes/step";
 import testData from "../data/application";
 import message_labels from "../../config/message_labels";
 const labels = message_labels("en");
 import Engine from "../../app/classes/engine";
 import { executeSysQuery } from "../../app/tools/db";
-import JobBody from "../../app/classes/jobBody";
 import ConnectionBody from "../../app/classes/connectionBody";
 
 describe("1 job class", function () {
@@ -39,6 +36,22 @@ describe("1 job class", function () {
   after(() => {
     //restore initial debug output
     config.enableDebugOutput = enableDebugOutput;
+  });
+
+  it("1.0.1 step list should have type Array. Fail", (done) => {
+    const nslJobTemplate = JSON.parse(JSON.stringify(testData.jobBodyOK));
+    nslJobTemplate.steps = "a";
+    try {
+      new Job({ body: nslJobTemplate } as unknown as IJob);
+    } catch (e) {
+      assert.include((e as Error).message, "step list should have type Array");
+      done();
+    }
+  });
+
+  it("1.0.2 list. Empty result", async () => {
+    const res = await Job.list(nanoid());
+    assert.isNull(res);
   });
 
   it("1.1.1 normalizeStepList. Success 1", (done) => {
@@ -97,7 +110,7 @@ describe("1 job class", function () {
     const uJob = new Job({
       body: JSON.parse(JSON.stringify(testData.jobBodyOK)),
     } as unknown as IJob);
-    assert.isRejected(
+    return assert.isRejected(
       uJob.update(config.testUser),
       `save it before any changes`
     );
@@ -107,9 +120,9 @@ describe("1 job class", function () {
     const dJob = new Job({
       body: JSON.parse(JSON.stringify(testData.jobBodyOK)),
     });
-    assert.isRejected(
+    return assert.isRejected(
       dJob.delete(config.testUser),
-      `save it before any changes`
+      `Job was not changed at database level, save it before any changes`
     );
   });
 
@@ -143,10 +156,52 @@ describe("1 job class", function () {
     assert.include(result.errorList, labels.schedule.scheduleNoName);
   });
 
+  it("1.5.3 calculateNextRun. schema is incorrect", async () => {
+    const testJob = new Job({
+      body: JSON.parse(JSON.stringify(testData.jobBodyOK)),
+    } as unknown as IJob);
+    testJob.body.schedules = [
+      {
+        name: "weird",
+        enabled: true,
+        iAmNotASchedule: 1,
+      },
+    ];
+    const tJob: Job = new Job(testJob);
+    const result = tJob.calculateNextRun();
+    assert.include(result.errorList, "schema is incorrect");
+  });
+
+  it("1.5.4 calculateNextRun. Next run can not be calculated - no active schedules", async () => {
+    const testJob = new Job({
+      body: JSON.parse(JSON.stringify(testData.jobBodyOK)),
+    } as unknown as IJob);
+    testJob.body.schedules = [
+      {
+        enabled: false,
+      },
+    ];
+    const tJob: Job = new Job(testJob);
+    const result = tJob.calculateNextRun();
+    assert.include(result.errorList, labels.schedule.nextRunCanNotBeCalculated);
+  });
+
   it("1.6.1 updateNextRun. Type mismatch `nextRun`", async () => {
     const testJob = JSON.parse(JSON.stringify(testData.jobBodyOK));
     const tJob: Job = new Job({ body: testJob });
-    assert.isRejected(tJob.updateNextRun("a"), `nextRun should be a date`);
+    return assert.isRejected(
+      tJob.updateNextRun("a"),
+      `Unable to calculate next run as Job object is not composed properly`
+    );
+  });
+
+  it("1.6.2 updateNextRun. Type mismatch `nextRun`", async () => {
+    const testJob = JSON.parse(JSON.stringify(testData.jobBodyOK));
+    const tJob: Job = new Job({ body: testJob });
+    return assert.isRejected(
+      tJob.updateNextRun(null),
+      `Unable to calculate next run as Job object is not composed properly`
+    );
   });
 
   it("1.6.2 updateNextRun. Job not composed properly", async () => {
@@ -186,16 +241,10 @@ describe("1 job class", function () {
   });
 
   it("1.8.2 updateStatus. Incorrect status", async () => {
-    try {
-      const testJob = JSON.parse(JSON.stringify(testData.jobBodyOK));
-      const tJob: Job = new Job({ body: testJob });
-      tJob.updateStatus(3);
-    } catch (e) {
-      assert.include(
-        (e as unknown as Record<string, unknown>).stack,
-        "Status should be 1 or 2"
-      );
-    }
+    const testJob = JSON.parse(JSON.stringify(testData.jobBodyOK));
+    const tJob: Job = new Job({ body: testJob });
+    tJob.id = 1;
+    return assert.isRejected(tJob.updateStatus(3), "Status should be 1 or 2");
   });
 
   it("1.9.1 logHistory. No id", async () => {
@@ -212,49 +261,64 @@ describe("1 job class", function () {
 
   it("1.10.1 execute. Job not composed properly", async () => {
     const dJob = new Job();
-    assert.isRejected(dJob.execute(config.testUser), "not composed properly");
+    const result = await dJob.execute(config.testUser);
+    assert.isFalse(result.success);
+    assert.include((result.error as Error).message, "is not composed properly");
   });
 
   it("1.10.2 execute. Step 1 success, quitWithSuccess", async () => {
+    const eJob = new Job({
+      body: JSON.parse(JSON.stringify(testData.jobBodyOK)),
+    } as unknown as IJob);
+    await eJob.save(config.testUser);
+
     const stub = sinon
-      .stub(job.body.steps[0], "execute")
+      .stub(eJob.body.steps[0], "execute")
       .resolves({ result: true, affected: 1 });
     try {
-      job.body.steps[0].onSucceed = SimpleStepActionType.quitWithSuccess;
-      await job.execute(config.testUser);
-      const jobRecord = (await Job.get(job.id as number)) as Job;
+      eJob.body.steps[0].onSucceed = SimpleStepActionType.quitWithSuccess;
+      await eJob.execute(config.testUser);
+      const jobRecord = (await Job.get(eJob.id as number)) as Job;
       assert.isTrue(jobRecord.lastRunResult);
     } finally {
       stub.restore();
     }
   });
 
-  it("1.10.2 execute. Step 1 success, quitWithFailure", async () => {
+  it("1.10.2.1 execute. Step 1 success, quitWithFailure", async () => {
+    const eJob = new Job({
+      body: JSON.parse(JSON.stringify(testData.jobBodyOK)),
+    } as unknown as IJob);
+    await eJob.save(config.testUser);
     const stub = sinon
-      .stub(job.body.steps[0], "execute")
+      .stub(eJob.body.steps[0], "execute")
       .resolves({ result: true, affected: 1 });
     try {
-      job.body.steps[0].onSucceed = SimpleStepActionType.quitWithFailure;
-      await job.execute(config.testUser);
-      const jobRecord = (await Job.get(job.id as number)) as Job;
+      eJob.body.steps[0].onSucceed = SimpleStepActionType.quitWithFailure;
+      await eJob.execute(config.testUser);
+      const jobRecord = (await Job.get(eJob.id as number)) as Job;
       assert.isFalse(jobRecord.lastRunResult);
     } finally {
       stub.restore();
     }
   });
   it("1.10.3 execute. Step 1 success, gotoNextStep, failed to repeat step 2, quitWithFailure finally", async () => {
+    const eJob = new Job({
+      body: JSON.parse(JSON.stringify(testData.jobBodyOK)),
+    } as unknown as IJob);
+    await eJob.save(config.testUser);
     const stub0 = sinon
-      .stub(job.body.steps[0], "execute")
+      .stub(eJob.body.steps[0], "execute")
       .resolves({ result: true, affected: 1 });
     const stub1 = sinon
-      .stub(job.body.steps[1], "execute")
+      .stub(eJob.body.steps[1], "execute")
       .resolves({ result: false, error: "execute_error" });
     const stub2 = sinon
-      .stub(job.body.steps[1], "delayedExecute")
+      .stub(eJob.body.steps[1], "delayedExecute")
       .resolves({ result: false, error: "attemp_error" });
     try {
-      await job.execute(config.testUser);
-      const jobRecord = (await Job.get(job.id as number)) as Job;
+      await eJob.execute(config.testUser);
+      const jobRecord = (await Job.get(eJob.id as number)) as Job;
       assert.isFalse(jobRecord.lastRunResult);
     } finally {
       stub0.restore();
@@ -264,20 +328,24 @@ describe("1 job class", function () {
   });
 
   it("1.10.4 execute. Step 1 success, gotoNextStep, failed to repeat step 2, quitWithSuccess finally", async () => {
+    const eJob = new Job({
+      body: JSON.parse(JSON.stringify(testData.jobBodyOK)),
+    } as unknown as IJob);
+    await eJob.save(config.testUser);
     const stub0 = sinon
-      .stub(job.body.steps[0], "execute")
+      .stub(eJob.body.steps[0], "execute")
       .resolves({ result: true, affected: 1 });
-    job.body.steps[0].onSucceed = SimpleStepActionType.gotoNextStep;
+    eJob.body.steps[0].onSucceed = SimpleStepActionType.gotoNextStep;
     const stub1 = sinon
-      .stub(job.body.steps[1], "execute")
+      .stub(eJob.body.steps[1], "execute")
       .resolves({ result: false, error: "execute_error" });
     const stub2 = sinon
-      .stub(job.body.steps[1], "delayedExecute")
+      .stub(eJob.body.steps[1], "delayedExecute")
       .resolves({ result: false, error: "attemp_error" });
     try {
-      job.body.steps[1].onFailure = SimpleStepActionType.quitWithSuccess;
-      await job.execute(config.testUser);
-      const jobRecord = (await Job.get(job.id as number)) as Job;
+      eJob.body.steps[1].onFailure = SimpleStepActionType.quitWithSuccess;
+      await eJob.execute(config.testUser);
+      const jobRecord = (await Job.get(eJob.id as number)) as Job;
       assert.isTrue(jobRecord.lastRunResult);
     } finally {
       stub0.restore();
@@ -287,19 +355,23 @@ describe("1 job class", function () {
   });
 
   it("1.10.5 execute. Step 1 success, gotoNextStep, failed to repeat step 2, quitWithSuccess finally", async () => {
+    const eJob = new Job({
+      body: JSON.parse(JSON.stringify(testData.jobBodyOK)),
+    } as unknown as IJob);
+    await eJob.save(config.testUser);
     const stub0 = sinon
-      .stub(job.body.steps[0], "execute")
+      .stub(eJob.body.steps[0], "execute")
       .resolves({ result: true, affected: 1 });
     const stub1 = sinon
-      .stub(job.body.steps[1], "execute")
+      .stub(eJob.body.steps[1], "execute")
       .resolves({ result: false, error: "execute_error" });
     const stub2 = sinon
-      .stub(job.body.steps[1], "delayedExecute")
+      .stub(eJob.body.steps[1], "delayedExecute")
       .resolves({ result: false, error: "attemp_error" });
     try {
-      job.body.steps[1].onFailure = SimpleStepActionType.gotoNextStep;
-      await job.execute(config.testUser);
-      const jobRecord = (await Job.get(job.id as number)) as Job;
+      eJob.body.steps[1].onFailure = SimpleStepActionType.gotoNextStep;
+      await eJob.execute(config.testUser);
+      const jobRecord = (await Job.get(eJob.id as number)) as Job;
       assert.isTrue(jobRecord.lastRunResult);
     } finally {
       stub0.restore();
@@ -309,19 +381,23 @@ describe("1 job class", function () {
   });
 
   it("1.10.6 execute. Step 1 success, gotoNextStep, success on repeating, gotoNextStep finally", async () => {
+    const eJob = new Job({
+      body: JSON.parse(JSON.stringify(testData.jobBodyOK)),
+    } as unknown as IJob);
+    await eJob.save(config.testUser);
     const stub0 = sinon
-      .stub(job.body.steps[0], "execute")
+      .stub(eJob.body.steps[0], "execute")
       .resolves({ result: true, affected: 1 });
     const stub1 = sinon
-      .stub(job.body.steps[1], "execute")
+      .stub(eJob.body.steps[1], "execute")
       .resolves({ result: false, error: "execute_error" });
     const stub2 = sinon
-      .stub(job.body.steps[1], "delayedExecute")
+      .stub(eJob.body.steps[1], "delayedExecute")
       .resolves({ result: true, error: "attemp_error" });
     try {
-      job.body.steps[1].onSucceed = SimpleStepActionType.gotoNextStep;
-      await job.execute(config.testUser);
-      const jobRecord = (await Job.get(job.id as number)) as Job;
+      eJob.body.steps[1].onSucceed = SimpleStepActionType.gotoNextStep;
+      await eJob.execute(config.testUser);
+      const jobRecord = (await Job.get(eJob.id as number)) as Job;
       assert.isTrue(jobRecord.lastRunResult);
     } finally {
       stub0.restore();
@@ -331,19 +407,23 @@ describe("1 job class", function () {
   });
 
   it("1.10.7 execute. Step 1 success, gotoNextStep, success on repeating, quitWithSuccess finally", async () => {
+    const eJob = new Job({
+      body: JSON.parse(JSON.stringify(testData.jobBodyOK)),
+    } as unknown as IJob);
+    await eJob.save(config.testUser);
     const stub0 = sinon
-      .stub(job.body.steps[0], "execute")
+      .stub(eJob.body.steps[0], "execute")
       .resolves({ result: true, affected: 1 });
     const stub1 = sinon
-      .stub(job.body.steps[1], "execute")
+      .stub(eJob.body.steps[1], "execute")
       .resolves({ result: false, error: "execute_error" });
     const stub2 = sinon
-      .stub(job.body.steps[1], "delayedExecute")
-      .resolves({ result: true, error: "attemp_error" });
+      .stub(eJob.body.steps[1], "delayedExecute")
+      .resolves({ result: true, affected: 1 });
     try {
-      job.body.steps[1].onSucceed = SimpleStepActionType.quitWithSuccess;
-      await job.execute(config.testUser);
-      const jobRecord = (await Job.get(job.id as number)) as Job;
+      eJob.body.steps[1].onSucceed = SimpleStepActionType.quitWithSuccess;
+      await eJob.execute(config.testUser);
+      const jobRecord = (await Job.get(eJob.id as number)) as Job;
       assert.isTrue(jobRecord.lastRunResult);
     } finally {
       stub0.restore();
@@ -353,19 +433,23 @@ describe("1 job class", function () {
   });
 
   it("1.10.8 execute. Step 1 success, gotoNextStep, success on repeating, quitWithFailure finally", async () => {
+    const eJob = new Job({
+      body: JSON.parse(JSON.stringify(testData.jobBodyOK)),
+    } as unknown as IJob);
+    await eJob.save(config.testUser);
     const stub0 = sinon
-      .stub(job.body.steps[0], "execute")
+      .stub(eJob.body.steps[0], "execute")
       .resolves({ result: true, affected: 1 });
     const stub1 = sinon
-      .stub(job.body.steps[1], "execute")
+      .stub(eJob.body.steps[1], "execute")
       .resolves({ result: false, error: "execute_error" });
     const stub2 = sinon
-      .stub(job.body.steps[1], "delayedExecute")
+      .stub(eJob.body.steps[1], "delayedExecute")
       .resolves({ result: true, error: "attemp_error" });
     try {
-      job.body.steps[1].onSucceed = SimpleStepActionType.quitWithFailure;
-      await job.execute(config.testUser);
-      const jobRecord = (await Job.get(job.id as number)) as Job;
+      eJob.body.steps[1].onSucceed = SimpleStepActionType.quitWithFailure;
+      await eJob.execute(config.testUser);
+      const jobRecord = (await Job.get(eJob.id as number)) as Job;
       assert.isFalse(jobRecord.lastRunResult);
     } finally {
       stub0.restore();
@@ -446,4 +530,15 @@ describe("1 job class", function () {
       assert.equal(rowCount, numberOfJobs * minutes);
     }
   }).timeout(305000);
+
+  it("1.11.1 run. Error while trying execute run", async () => {
+    const context = new Engine(0);
+    const spy = sinon.spy(log, "error");
+    try {
+      assert.doesNotThrow(context.run);
+      assert.include(spy.args[0][0], "Cannot read property");
+    } finally {
+      spy.restore();
+    }
+  });
 });

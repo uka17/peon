@@ -23,6 +23,11 @@ type NextRunResult = {
   nextRun?: Date;
 };
 
+type ExecutionResult = {
+  success: boolean;
+  error?: unknown;
+};
+
 export interface IJob {
   id?: number;
   body: JobBody;
@@ -116,11 +121,11 @@ export default class Job implements IJob {
    * @returns {Promise<null | number | Error>} Promise which resolves with list of `Job` objects in case of success, `null` if `Job` list is empty and rejects with error in case of failure
    */
   public static list(
-    filter: string,
-    sortColumn: string,
-    sortOrder: string,
-    perPage: number,
-    page: number
+    filter = "",
+    sortColumn = "id",
+    sortOrder = "asc",
+    perPage = 10,
+    page = 1
   ): Promise<null | unknown | Error> {
     return new Promise((resolve, reject) => {
       try {
@@ -216,6 +221,7 @@ export default class Job implements IJob {
                 (result.rows[0] as unknown as Record<string, unknown>)
                   .id as number
               )) as Job;
+              util.copyProperties(this, newBornJob, true);
               resolve(newBornJob);
             }
           } catch (e) /*istanbul ignore next*/ {
@@ -385,7 +391,7 @@ export default class Job implements IJob {
           throw new Error(
             "Unable to calculate next run as Job object is not composed properly"
           );
-        if (!(util.parseDateTime(nextRun!) instanceof Date) && nextRun === null)
+        if (!(util.parseDateTime(nextRun!) instanceof Date))
           throw new TypeError("nextRun should be a date-time or null");
         const query = {
           "text": 'SELECT public."fnJob_UpdateNextRun"($1, $2) as count',
@@ -546,11 +552,12 @@ export default class Job implements IJob {
    * Executes `Job` (including logging steps results, changing `Job` last run result and `date-time`, calculates next run `date-time`).
    * @param {string} executedBy User who is executing job
    * @param {string | null} uid Session id. Default is `null`
+   * @returns {Promise<ExecutionResult>} Returns Promise execution result. Promise do not rejects even in case of error (in this case success=`false`)
    */
   public async execute(
     executedBy: string,
     uid: string | null = null
-  ): Promise<void> {
+  ): Promise<ExecutionResult> {
     try {
       if (this.body === undefined || this.id === undefined)
         throw new Error(
@@ -720,12 +727,14 @@ export default class Job implements IJob {
       } else {
         await this.updateNextRun(jobAssesmentResult.nextRun!.toUTCString());
       }
+      return { success: true };
     } catch (e) {
       log.error(
         `Error during execution of job (jobRecord=${JSON.stringify(
           this
         )}). Stack: ${e}`
       );
+      return { success: false, error: e };
     } finally {
       if (this.id) this.updateStatus(1);
     }
