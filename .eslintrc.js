@@ -22,8 +22,8 @@ module.exports = {
   "plugins": ["@typescript-eslint", "prettier"],
   "rules": {
     "prettier/prettier": "error",
-    "indent": ["warn", 2, { "SwitchCase": 1 }],
-    "linebreak-style": ["error", "unix"],
+    "indent": ["warn", 2],
+    "linebreak-style": ["error", "unix", "windows"],
     "semi": ["warn", "always"],
     "@typescript-eslint/no-var-requires": 0,
   },
