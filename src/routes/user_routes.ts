@@ -2,10 +2,10 @@
 import User from "../classes/user";
 import passport from "passport";
 import auth from "../tools/auth";
-import config from "../../config/config";
+import config from "../config/config";
 import * as util from "../tools/util";
 //TODO change to proper TS structure
-import message_labels from "../../config/message_labels";
+import message_labels from "../config/message_labels";
 const labels = message_labels("en");
 import express from "express";
 const ver = "/v1.0";

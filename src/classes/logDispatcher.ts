@@ -1,6 +1,7 @@
 import winston from "winston";
 const { combine, timestamp, colorize, printf, logstash } = winston.format;
 import Transport from "winston-transport";
+import config from "../config/config";
 
 enum LogMessageLevel {
   info = "info",
@@ -27,8 +28,8 @@ class peonDBTransport extends Transport {
   }
 }
 
-export default class Dispatcher {
-  private static instance: Dispatcher;
+export default class LogDispatcher {
+  private static instance: LogDispatcher;
   private _debug = false;
   private _logLevel = "info";
 
@@ -69,7 +70,7 @@ export default class Dispatcher {
       ),
       transports: [
         new winston.transports.File({
-          filename: "./log/app.log",
+          filename: config.logDir,
           maxFiles: 10,
           maxsize: 1024,
           tailable: true,
@@ -110,17 +111,17 @@ export default class Dispatcher {
    * Returns singleton instance of debug dispatcher. `debug` and `logLevel` will be reset to new values if provided
    * @param {boolean} debug Should instance show debug information or not
    * @param {string} logLevel Log level to be included into scope (see https://github.com/winstonjs/winston#logging-levels)
-   * @returns {Dispatcher} Dispatcher log instacne
+   * @returns {LogDispatcher} Dispatcher log instacne
    */
-  public static getInstance(debug?: boolean, logLevel?: string): Dispatcher {
-    if (!Dispatcher.instance) {
-      Dispatcher.instance = new Dispatcher(debug, logLevel);
+  public static getInstance(debug?: boolean, logLevel?: string): LogDispatcher {
+    if (!LogDispatcher.instance) {
+      LogDispatcher.instance = new LogDispatcher(debug, logLevel);
     }
 
-    Dispatcher.instance._debug = debug ?? false;
-    Dispatcher.instance._logLevel = logLevel ?? "info";
+    LogDispatcher.instance._debug = debug ?? false;
+    LogDispatcher.instance._logLevel = logLevel ?? "info";
 
-    return Dispatcher.instance;
+    return LogDispatcher.instance;
   }
 
   /* istanbul ignore next */

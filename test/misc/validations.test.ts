@@ -1,10 +1,10 @@
 /* eslint-disable no-undef */
 //validation unit tests
 import { assert } from "chai";
-import validation from "../../app/tools/validation";
+import validation from "../../src/tools/validation";
 import testData from "../data/application";
-import ConnectionBody from "../../app/classes/connectionBody";
-import JobBody from "../../app/classes/jobBody";
+import ConnectionBody from "../../src/classes/connectionBody";
+import JobBody from "../../src/classes/jobBody";
 
 describe("validation", function () {
   describe("1 validateConnection", function () {

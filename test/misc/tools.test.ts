@@ -4,11 +4,11 @@ import chai from "chai";
 chai.use(require("chai-datetime"));
 const assert = chai.assert;
 
-import * as util from "../../app/tools/util";
-import config from "../../config/config";
+import * as util from "../../src/tools/util";
+import config from "../../src/config/config";
 let enableDebugOutput;
 
-import * as dbclient from "../../app/tools/db";
+import * as dbclient from "../../src/tools/db";
 
 describe("util", function () {
   before(() => {
@@ -81,9 +81,9 @@ describe("util", function () {
       done();
     });
     it("4.4 isNumber", function (done) {
-      assert.equal(util.isNumber(4, 5), 4);
+      assert.equal(util.isNumber("4", 5), 4);
       assert.equal(util.isNumber(null, 1), 1);
-      assert.equal(util.isNumber("3", 1), 1);
+      assert.equal(util.isNumber("3", 1), 3);
       assert.equal(util.isNumber("test", 1), 1);
       assert.equal(util.isNumber(undefined, 7), 7);
       done();

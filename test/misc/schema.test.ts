@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 import { assert } from "chai";
 import Ajv from "ajv";
-import schema from "../../app/schemas/app_models.json";
+import schema from "../../src/schemas/app_models.json";
 import testData from "../data/application";
 
 //test data preparation

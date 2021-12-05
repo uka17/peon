@@ -18,7 +18,6 @@ export default {
   test_host: "http://localhost:8080/v1.0",
   runTolerance: 1, //minutes
   cors: { origin: "http://localhost:9000" },
-  //ms
   runInterval: 1000, //milliseconds
   //===Service users
   user: "dummy",
@@ -27,7 +26,8 @@ export default {
   emergencyUser: "er",
   //===System settings
   logLevel: "info",
-  enableDebugOutput: false,
+  logDir: "../log/app.log",
+  enableDebugOutput: true,
   skipLongTests: true,
   passwordRegExp: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/gm,
   emailRegExp: /.+@.+\..+/i,

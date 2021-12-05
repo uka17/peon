@@ -1,9 +1,9 @@
 /* istanbul ignore file */
 import * as util from "../tools/util";
-import config from "../../config/config";
+import config from "../config/config";
 import Job from "../classes/job";
 import express from "express";
-import message_labels from "../../config/message_labels";
+import message_labels from "../config/message_labels";
 const labels = message_labels("en");
 
 export default function (app: express.Application) {

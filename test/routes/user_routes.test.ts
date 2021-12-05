@@ -2,13 +2,13 @@
 
 import request from "supertest";
 import { assert } from "chai";
-import message from "../../config/message_labels";
+import message from "../../src/config/message_labels";
 const labels = message("en");
-import config from "../../config/config";
+import config from "../../src/config/config";
 config.user = "testRobot";
 import user from "../data/users";
-import app from "../../app/init/setup";
-import Users from "../../app/classes/user";
+import app from "../../src/init/setup";
+import Users from "../../src/classes/user";
 import { nanoid } from "nanoid";
 const registerUrl = "/v1.0/users";
 const loginUrl = "/v1.0/users/login";

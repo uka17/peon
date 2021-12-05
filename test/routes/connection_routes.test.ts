@@ -1,5 +1,5 @@
 import uniTest from "./universal_route_test";
-import connectionRoute from "../../app/routes/connection_routes";
+import connectionRoute from "../../src/routes/connection_routes";
 import testObjects from "../data/application";
 
 uniTest(

@@ -1,7 +1,10 @@
 import { executeSysQuery } from "./db";
-import Dispatcher from "../../log/dispatcher";
-import config from "../../config/config";
-const log = Dispatcher.getInstance(config.enableDebugOutput, config.logLevel);
+import LogDispatcher from "../classes/logDispatcher";
+import config from "../config/config";
+const log = LogDispatcher.getInstance(
+  config.enableDebugOutput,
+  config.logLevel
+);
 import bodyParser from "body-parser";
 import express from "express";
 
@@ -109,11 +112,13 @@ function expressInstance(): express.Application {
 
 /**
  * Checks if `value` is a number. Returns `defaultNumber` otherwise.
- * @param {unknown} value Number which should be checked
+ * @param {string} value Number which should be checked
  * @param {number} defaultNumber Number which will be returned in case if `value` is not a number
+ * @returns {number} Returns value or default number
  */
-function isNumber(value: unknown, defaultNumber: number) {
-  return typeof value === "number" ? value : defaultNumber;
+function isNumber(value: string, defaultNumber: number): number {
+  const res = parseInt(value);
+  return isNaN(res) ? defaultNumber : (res as number);
 }
 
 type PaginationResult = {

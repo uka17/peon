@@ -1,14 +1,14 @@
 // routes/connection_routes.js
 import Validation from "../tools/validation";
 import Connection from "../classes/connection";
-import restConfig from "../../config/rest_config";
-import config from "../../config/config";
+import restConfig from "../config/rest_config";
+import config from "../config/config";
 import * as util from "../tools/util";
-import message_labels from "../../config/message_labels";
+import message_labels from "../config/message_labels";
 const labels = message_labels("en");
 import express from "express";
 import ConnectionBody from "../classes/connectionBody";
-import ver from "../../config/api_version";
+import ver from "../config/api_version";
 
 //TODO here and everywhere - change to export default
 export default function (app: express.Application) {
@@ -56,10 +56,10 @@ export default function (app: express.Application) {
         else filter = "";
 
         const perPage: number = util.isNumber(
-          req.query.per_page,
+          req.query.per_page as string,
           restConfig.defaultPerPage
         ) as number;
-        const page: number = util.isNumber(req.query.page, 1);
+        const page: number = util.isNumber(req.query.page as string, 1);
 
         const result: unknown = await Connection.list(
           filter,

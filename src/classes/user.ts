@@ -1,10 +1,13 @@
 // engines/user.js
 import * as crypto from "crypto";
 import * as jwt from "jsonwebtoken";
-import config from "../../config/config";
+import config from "../config/config";
 import { executeSysQuery } from "../tools/db";
-import Dispatcher from "../../log/dispatcher";
-const log = Dispatcher.getInstance(config.enableDebugOutput, config.logLevel);
+import LogDispatcher from "./logDispatcher";
+const log = LogDispatcher.getInstance(
+  config.enableDebugOutput,
+  config.logLevel
+);
 import pg from "pg";
 import * as util from "../tools/util";
 export default class User {

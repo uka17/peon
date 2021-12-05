@@ -1,11 +1,11 @@
 /* eslint-disable no-undef */
 let objectId;
-import * as util from "../../app/tools/util";
+import * as util from "../../src/tools/util";
 import request from "supertest";
 import { assert } from "chai";
-import labels from "../../config/message_labels";
+import labels from "../../src/config/message_labels";
 const messageBox = labels("en");
-import config from "../../config/config";
+import config from "../../src/config/config";
 import express from "express";
 
 /**

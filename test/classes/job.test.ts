@@ -6,19 +6,22 @@ import chaiAsPromised from "chai-as-promised";
 chai.use(chaiAsPromised);
 import sinon from "sinon";
 let enableDebugOutput;
-import Dispatcher from "../../log/dispatcher";
-import config from "../../config/config";
-const log = Dispatcher.getInstance(config.enableDebugOutput, config.logLevel);
-import Job, { IJob } from "../../app/classes/job";
+import LogDispatcher from "../../src/classes/logDispatcher";
+import config from "../../src/config/config";
+const log = LogDispatcher.getInstance(
+  config.enableDebugOutput,
+  config.logLevel
+);
+import Job, { IJob } from "../../src/classes/job";
 import { nanoid } from "nanoid";
-import Connection from "../../app/classes/connection";
-import { SimpleStepActionType } from "../../app/classes/step";
+import Connection from "../../src/classes/connection";
+import { SimpleStepActionType } from "../../src/classes/step";
 import testData from "../data/application";
-import message_labels from "../../config/message_labels";
+import message_labels from "../../src/config/message_labels";
 const labels = message_labels("en");
-import Engine from "../../app/classes/engine";
-import { executeSysQuery } from "../../app/tools/db";
-import ConnectionBody from "../../app/classes/connectionBody";
+import Engine from "../../src/classes/engine";
+import { executeSysQuery } from "../../src/tools/db";
+import ConnectionBody from "../../src/classes/connectionBody";
 
 describe("1 job class", function () {
   this.timeout(100000);

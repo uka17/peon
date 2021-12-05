@@ -5,9 +5,12 @@
 import { executeSysQuery } from "../tools/db";
 import ConnectionBody from "./connectionBody";
 import pg from "pg";
-import Dispatcher from "../../log/dispatcher";
-import config from "../../config/config";
-const log = Dispatcher.getInstance(config.enableDebugOutput, config.logLevel);
+import LogDispatcher from "./logDispatcher";
+import config from "../config/config";
+const log = LogDispatcher.getInstance(
+  config.enableDebugOutput,
+  config.logLevel
+);
 import Validation from "../tools/validation";
 //TODO fix all function descriptions to proper one
 export default class Connection {

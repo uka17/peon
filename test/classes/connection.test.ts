@@ -2,9 +2,9 @@
 import testData from "../data/application";
 import { assert } from "chai";
 let enableDebugOutput;
-import Connection from "../../app/classes/connection";
-import ConnectionBody from "../../app/classes/connectionBody";
-import config from "../../config/config";
+import Connection from "../../src/classes/connection";
+import ConnectionBody from "../../src/classes/connectionBody";
+import config from "../../src/config/config";
 let conn: Connection;
 
 describe("1 Connection", function () {
@@ -27,7 +27,10 @@ describe("1 Connection", function () {
     try {
       await Connection.list("a", "id", "zzz", 1, 10);
     } catch (e) {
-      assert.include(e.stack, "sortOrder should have value `asc` or `desc`");
+      assert.include(
+        (e as Error).stack,
+        "sortOrder should have value `asc` or `desc`"
+      );
     }
   });
 
@@ -35,7 +38,10 @@ describe("1 Connection", function () {
     try {
       await Connection.list("ghost-connection", "id", "asc", 1, 10);
     } catch (e) {
-      assert.include(e.stack, "sortOrder should have value `asc` or `desc`");
+      assert.include(
+        (e as Error).stack,
+        "sortOrder should have value `asc` or `desc`"
+      );
     }
   });
 
@@ -44,7 +50,7 @@ describe("1 Connection", function () {
       const updConn = new Connection(testData.connectionOK as ConnectionBody);
       await updConn.update(config.testUser);
     } catch (e) {
-      assert.include(e.stack, "save it before any changes");
+      assert.include((e as Error).stack, "save it before any changes");
     }
   });
 
@@ -53,7 +59,7 @@ describe("1 Connection", function () {
       const delConn = new Connection(testData.connectionOK as ConnectionBody);
       await delConn.delete(config.testUser);
     } catch (e) {
-      assert.include(e.stack, "save it before any changes");
+      assert.include((e as Error).stack, "save it before any changes");
     }
   });
 
@@ -64,7 +70,7 @@ describe("1 Connection", function () {
       );
       await delConn.save(config.testUser);
     } catch (e) {
-      assert.include(e.stack, "Connection body is not valid json");
+      assert.include((e as Error).stack, "Connection body is not valid json");
     }
   });
 });

@@ -1,7 +1,7 @@
 //most of the code covered by user_routes.test.ts
-import User from "../../app/classes/user";
+import User from "../../src/classes/user";
 import { nanoid } from "nanoid";
-import config from "../../config/config";
+import config from "../../src/config/config";
 import sinon from "sinon";
 import { assert } from "chai";
 import chaiAsPromised from "chai-as-promised";

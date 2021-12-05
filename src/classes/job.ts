@@ -10,10 +10,13 @@ import * as util from "../tools/util";
 import { executeSysQuery } from "../tools/db";
 import Step from "./step";
 import { SimpleStepActionType } from "./step";
-import Dispatcher from "../../log/dispatcher";
-import config from "../../config/config";
-const log = Dispatcher.getInstance(config.enableDebugOutput, config.logLevel);
-import message_labels from "../../config/message_labels";
+import LogDispatcher from "./logDispatcher";
+import config from "../config/config";
+const log = LogDispatcher.getInstance(
+  config.enableDebugOutput,
+  config.logLevel
+);
+import message_labels from "../config/message_labels";
 const labels = message_labels("en");
 import toJSON from "utils-error-to-json";
 

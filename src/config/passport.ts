@@ -1,7 +1,7 @@
 import passport from "passport";
 import local from "passport-local";
-import User from "../app/classes/user";
-import message_labels from "../config/message_labels";
+import User from "../classes/user";
+import message_labels from "./message_labels";
 const labels = message_labels("en");
 
 export default function () {

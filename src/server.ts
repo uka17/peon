@@ -1,6 +1,6 @@
 // Heart of job execution engine
 import config from "./config/config";
-import Engine from "./app/classes/engine";
+import Engine from "./classes/engine";
 
 //Main loop
 const context: Engine = new Engine(config.runTolerance);
@@ -9,5 +9,5 @@ setInterval(function () {
 }, config.runInterval);
 
 //Startup actions
-context.updateOverdueJobs();
-context.resetAllJobsStatuses();
+Engine.updateOverdueJobs();
+Engine.resetAllJobsStatuses();

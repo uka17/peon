@@ -1,10 +1,10 @@
 import * as util from "../tools/util";
 import Job, { IJob } from "../classes/job";
-import config from "../../config/config";
-import restConfig from "../../config/rest_config";
-import message_labels from "../../config/message_labels";
+import config from "../config/config";
+import restConfig from "../config/rest_config";
+import message_labels from "../config/message_labels";
 const labels = message_labels("en");
-import ver from "../../config/api_version";
+import ver from "../config/api_version";
 import express from "express";
 
 //TODO check parameters comming from user, here and everywhere
@@ -54,10 +54,10 @@ export default function (app: express.Application) {
         else filter = "";
 
         const perPage: number = util.isNumber(
-          req.query.per_page,
+          req.query.per_page as string,
           restConfig.defaultPerPage
         ) as number;
-        const page: number = util.isNumber(req.query.page, 1);
+        const page: number = util.isNumber(req.query.page as string, 1);
 
         const result = await Job.list(
           filter,

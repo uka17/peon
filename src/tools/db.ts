@@ -1,8 +1,11 @@
 // tools/db.js
-import config from "../../config/config";
+import config from "../config/config";
 import pg from "pg";
-import Dispatcher from "../../log/dispatcher";
-const log = Dispatcher.getInstance(config.enableDebugOutput, config.logLevel);
+import LogDispatcher from "../classes/logDispatcher";
+const log = LogDispatcher.getInstance(
+  config.enableDebugOutput,
+  config.logLevel
+);
 
 //configure data type mapping postgres-node due to convert postgres data type to correct one at node side
 pg.types.setTypeParser(20, function (val) {

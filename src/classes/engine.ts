@@ -1,10 +1,13 @@
-import config from "../../config/config";
+import config from "../config/config";
 import { executeSysQuery } from "../tools/db";
-import Dispatcher from "../../log/dispatcher";
-const log = Dispatcher.getInstance(config.enableDebugOutput, config.logLevel);
+import LogDispatcher from "./logDispatcher";
+const log = LogDispatcher.getInstance(
+  config.enableDebugOutput,
+  config.logLevel
+);
 import { v4 as uuidv4 } from "uuid";
 import Job, { IJob } from "./job";
-import message_labels from "../../config/message_labels";
+import message_labels from "../config/message_labels";
 const labels = message_labels("en");
 
 export default class Engine {

@@ -4,11 +4,14 @@ import userRoutes from "./user_routes";
 import jobRoutes from "./job_routes";
 import connectionRoutes from "./connection_routes";
 import express from "express";
-import message_labels from "../../config/message_labels";
+import message_labels from "../config/message_labels";
 const labels = message_labels("en");
-import Dispatcher from "../../log/dispatcher";
-import config from "../../config/config";
-const log = Dispatcher.getInstance(config.enableDebugOutput, config.logLevel);
+import LogDispatcher from "../classes/logDispatcher";
+import config from "../config/config";
+const log = LogDispatcher.getInstance(
+  config.enableDebugOutput,
+  config.logLevel
+);
 
 /**
  * Main router

@@ -7,8 +7,8 @@
     "test": "nyc --reporter=html --reporter=text ts-mocha './test/**/*test.ts'",
     "mtest": "mocha --recursive",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "dev-srv": "nodemon server.js",
-    "dev-api": "nodemon api.js",
+    "dev-srv": "npm run build && nodemon app/server.js",
+    "dev-api": "npm run build && nodemon app/api.js",
     "format": "prettier --write .",
     "build": "tsc"
   },
