@@ -89,7 +89,7 @@ export default class Engine {
       if (this._executionLock) return;
       this._executionLock = true;
       const jobList = (await this.getListToRun()) as Array<Job>;
-      if (jobList !== null) {
+      if (jobList !== null && jobList.length > 0) {
         const uid = uuidv4();
         log.info(
           `${jobList.length} job(s) in tolerance ${this._tolerance} minute(s) scope to process`
@@ -174,9 +174,9 @@ export default class Engine {
               /* istanbul ignore if */
               const jobList: Array<Job> = [];
               if (!queryResult.rows[0]) resolve(null);
-              const databaseRecordList = (
-                queryResult.rows[0] as unknown as Record<string, unknown>
-              ).jobs as Array<Record<string, unknown>>;
+              const databaseRecordList =
+                ((queryResult.rows[0] as unknown as Record<string, unknown>)
+                  .jobs as Array<Record<string, unknown>>) ?? [];
               databaseRecordList.forEach((job) => {
                 jobList.push(new Job(job as unknown as IJob));
               });
