@@ -14,12 +14,12 @@ jobs:
       matrix:
         node-version: [14.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-    container: node:10.18-jessie
+    container: node:latest
     services:
       # Label used to access the service container
       postgres:
         # Docker Hub image
-        image: postgres
+        image: postgres:latest
         # Provide the password for postgres
         env:
           POSTGRES_PASSWORD: test
@@ -32,11 +32,11 @@ jobs:
     steps:
     - name: Install PostgreSQL client
       run: |
-        sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt focal-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
-        wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc 
-        apt-key add ACCC4CF8.asc        
+        # sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt focal-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+        # wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc 
+        # apt-key add ACCC4CF8.asc        
         apt-get update
-        apt-get install --yes postgresql-client-14
+        apt-get install --yes postgresql-client
     - uses: actions/checkout@v2
     - name: Create peon DB
       run: psql -h postgres -p 5432 -U postgres -c 'create database peon' 
