@@ -37,6 +37,8 @@ jobs:
     - uses: actions/checkout@v2
     - name: Create peon DB
       run: psql -h postgres -p 5432 -U postgres -c 'create database peon' 
+      env:
+          PGPASSWORD: test
     - name: Structure of peon DB
       run: psql -h postgres -p 5432 -U postgres -d peon -f "./dev_scripts/peon.sql"
     - name: Populate refs of peon DB
