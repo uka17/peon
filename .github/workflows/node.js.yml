@@ -40,11 +40,11 @@ jobs:
       env:
           PGPASSWORD: test
     - name: Structure of peon DB
-      run: psql -h postgres -p 5432 -U postgres -d peon -f "./dev_scripts/peon.sql"
+      run: psql -h postgres -p 5432 -U postgres -d peon -f "${GITHUB_WORKSPACE}/dev_scripts/peon.sql"
       env:
           PGPASSWORD: test      
     - name: Populate refs of peon DB
-      run: psql -h postgres -p 5432 -U postgres -d peon -f "./dev_scripts/refsCreation.sql"      
+      run: psql -h postgres -p 5432 -U postgres -d peon -f "${GITHUB_WORKSPACE}/dev_scripts/refsCreation.sql"      
       env:
           PGPASSWORD: test      
     - name: Use Node.js ${{ matrix.node-version }}
