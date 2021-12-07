@@ -2,10 +2,10 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 13.2 (Debian 13.2-1.pgdg100+1)
--- Dumped by pg_dump version 13.3 (Ubuntu 13.3-1.pgdg20.04+1)
+-- Dumped from database version 13.3 (Debian 13.3-1.pgdg100+1)
+-- Dumped by pg_dump version 14.1 (Ubuntu 14.1-2.pgdg20.04+1)
 
--- Started on 2021-06-16 21:50:20 MSK
+-- Started on 2021-12-07 00:36:49 MSK
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -19,7 +19,7 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- TOC entry 248 (class 1255 OID 16577)
+-- TOC entry 216 (class 1255 OID 16385)
 -- Name: _fnWipe(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -42,7 +42,7 @@ $$;
 
 
 --
--- TOC entry 214 (class 1255 OID 16385)
+-- TOC entry 250 (class 1255 OID 16386)
 -- Name: fnConnection_Count(text); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -56,17 +56,17 @@ CREATE FUNCTION public."fnConnection_Count"(_filtertext text) RETURNS bigint
 	where
 		nullif("isDeleted", false) is null
 		and (
-			j.connection::json->>'name' like '%' || regexp_replace(_filtertext, '[^\w]+','') || '%'
-			or j.connection::json->>'host' like '%' || regexp_replace(_filtertext, '[^\w]+','') || '%'
-			or j.connection::json->>'port' like '%' || regexp_replace(_filtertext, '[^\w]+','') || '%'
-			or j.connection::json->>'login' like '%' || regexp_replace(_filtertext, '[^\w]+','') || '%'
-			or j.connection::json->>'type' like '%' || regexp_replace(_filtertext, '[^\w]+','') || '%'
+			j.body::json->>'name' like '%' || regexp_replace(_filtertext, '[^\w]+','') || '%'
+			or j.body::json->>'host' like '%' || regexp_replace(_filtertext, '[^\w]+','') || '%'
+			or j.body::json->>'port' like '%' || regexp_replace(_filtertext, '[^\w]+','') || '%'
+			or j.body::json->>'login' like '%' || regexp_replace(_filtertext, '[^\w]+','') || '%'
+			or j.body::json->>'type' like '%' || regexp_replace(_filtertext, '[^\w]+','') || '%'
 		) 
 $$;
 
 
 --
--- TOC entry 215 (class 1255 OID 16386)
+-- TOC entry 218 (class 1255 OID 16387)
 -- Name: fnConnection_Delete(integer, text); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -87,19 +87,19 @@ $$;
 
 
 --
--- TOC entry 216 (class 1255 OID 16387)
+-- TOC entry 247 (class 1255 OID 33362)
 -- Name: fnConnection_Insert(json, text); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public."fnConnection_Insert"(connection json, created_by text) RETURNS integer
+CREATE FUNCTION public."fnConnection_Insert"(body json, created_by text) RETURNS integer
     LANGUAGE sql
     AS $$
-    INSERT INTO public."tblConnection"("connection", "modifiedBy", "createdBy") VALUES (connection, created_by, created_by) RETURNING "id"
+    INSERT INTO public."tblConnection"("body", "modifiedBy", "createdBy") VALUES (body, created_by, created_by) RETURNING "id"
 $$;
 
 
 --
--- TOC entry 217 (class 1255 OID 16388)
+-- TOC entry 219 (class 1255 OID 16389)
 -- Name: fnConnection_Select(integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -113,7 +113,7 @@ $$;
 
 
 --
--- TOC entry 244 (class 1255 OID 16389)
+-- TOC entry 248 (class 1255 OID 16390)
 -- Name: fnConnection_SelectAll(text, text, text, integer, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -125,12 +125,12 @@ declare
 begin 	
 	sort_expression :=	
 	case regexp_replace(_sortcolumn, '[^\w]+','')
-		when 'name' then 'j.connection::json->>''name'''
-		when 'host' then 'j.connection::json->>''host'''
-		when 'port' then 'j.connection::json->>''port'''
-		when 'enabled' then 'j.connection::json->>''enabled'''
-		when 'login' then 'j.connection::json->>''login'''
-		when 'type' then 'j.connection::json->>''type'''
+		when 'name' then 'j.body::json->>''name'''
+		when 'host' then 'j.body::json->>''host'''
+		when 'port' then 'j.body::json->>''port'''
+		when 'enabled' then 'j.body::json->>''enabled'''
+		when 'login' then 'j.body::json->>''login'''
+		when 'type' then 'j.body::json->>''type'''
 		else 'j.id'
 	end;
 	
@@ -141,13 +141,13 @@ begin
 		(
 		select
 			j.id,
-			j.connection::json->>''name'' as name,
-			j.connection::json->>''host'' as host,
-			CAST(j.connection::json->>''enabled'' as bool) as enabled,
-			CAST(j.connection::json->>''port'' as integer) as port,
-			j.connection::json->>''login'' as login,
-			j.connection::json->>''password'' as password,
-			j.connection::json->>''type'' as type,
+			j.body::json->>''name'' as name,
+			j.body::json->>''host'' as host,
+			CAST(j.body::json->>''enabled'' as bool) as enabled,
+			CAST(j.body::json->>''port'' as integer) as port,
+			j.body::json->>''login'' as login,
+			j.body::json->>''password'' as password,
+			j.body::json->>''type'' as type,
 			j."createdOn" as created_on,
 			j."createdBy" as created_by,
 			j."modifiedOn" as modified_on,
@@ -157,11 +157,11 @@ begin
 		where
 			nullif(j."isDeleted", false) is null
 			and (
-				j.connection::json->>''name'' like ''%' || regexp_replace($1, '[^\w\s\,\-_]+','') || '%''
-				or j.connection::json->>''host'' like ''%' || regexp_replace($1, '[^\w\.\-_]+','') || '%''
-				or j.connection::json->>''port'' like ''%' || regexp_replace($1, '[^\w]+','') || '%''
-				or j.connection::json->>''login'' like ''%' || regexp_replace($1, '[^\w]+','') || '%''
-				or j.connection::json->>''type'' like ''%' || regexp_replace($1, '[^\w\.\-_]+','') || '%''
+				j.body::json->>''name'' like ''%' || regexp_replace($1, '[^\w\s\,\-_]+','') || '%''
+				or j.body::json->>''host'' like ''%' || regexp_replace($1, '[^\w\.\-_]+','') || '%''
+				or j.body::json->>''port'' like ''%' || regexp_replace($1, '[^\w]+','') || '%''
+				or j.body::json->>''login'' like ''%' || regexp_replace($1, '[^\w]+','') || '%''
+				or j.body::json->>''type'' like ''%' || regexp_replace($1, '[^\w\.\-_]+','') || '%''
 			)
 		order by ' || sort_expression || ' ' || regexp_replace($3, '[^\w]+','') ||
 		' limit ' || $4 || ' offset ' || ($5-1)*$4 || ') t;'
@@ -172,7 +172,7 @@ $_$;
 
 
 --
--- TOC entry 218 (class 1255 OID 16390)
+-- TOC entry 249 (class 1255 OID 16391)
 -- Name: fnConnection_Update(integer, json, text); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -183,7 +183,7 @@ DECLARE
 	affected integer;
 BEGIN
     UPDATE public."tblConnection" j SET 
-		"connection" = connection_body,
+		"body" = connection_body,
 		"modifiedBy" = modified_by,
 		"modifiedOn" = NOW()
 	WHERE "id" = connection_id AND NULLIF("isDeleted", false) IS NULL;
@@ -194,17 +194,19 @@ $$;
 
 
 --
--- TOC entry 219 (class 1255 OID 16391)
+-- TOC entry 256 (class 1255 OID 16392)
 -- Name: fnGetJobStatusId(text); Type: FUNCTION; Schema: public; Owner: -
 --
 
 CREATE FUNCTION public."fnGetJobStatusId"(status text) RETURNS integer
     LANGUAGE sql
-    AS $$SELECT Id FROM public."refJobStatus" r where r.status = status$$;
+    AS $_$
+SELECT Id FROM public."refJobStatus" r where r.status = $1
+$_$;
 
 
 --
--- TOC entry 220 (class 1255 OID 16392)
+-- TOC entry 220 (class 1255 OID 16393)
 -- Name: fnJobHistory_Insert(json, uuid, integer, text); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -214,7 +216,7 @@ CREATE FUNCTION public."fnJobHistory_Insert"(message json, session_id uuid, job_
 
 
 --
--- TOC entry 221 (class 1255 OID 16393)
+-- TOC entry 251 (class 1255 OID 16394)
 -- Name: fnJob_Count(text); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -228,14 +230,14 @@ CREATE FUNCTION public."fnJob_Count"(_filtertext text) RETURNS bigint
 	where
 		nullif("isDeleted", false) is null
 		and (
-			j.job::json->>'name' like '%' || regexp_replace(_filtertext, '[^\w]+','') || '%'
-			or j.job::json->>'description' like '%' || regexp_replace(_filtertext, '[^\w]+','') || '%'
+			j.body::json->>'name' like '%' || regexp_replace(_filtertext, '[^\w]+','') || '%'
+			or j.body::json->>'description' like '%' || regexp_replace(_filtertext, '[^\w]+','') || '%'
 		) 
 $$;
 
 
 --
--- TOC entry 222 (class 1255 OID 16394)
+-- TOC entry 221 (class 1255 OID 16395)
 -- Name: fnJob_Delete(integer, text); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -256,19 +258,19 @@ $$;
 
 
 --
--- TOC entry 223 (class 1255 OID 16395)
+-- TOC entry 252 (class 1255 OID 33363)
 -- Name: fnJob_Insert(json, text); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public."fnJob_Insert"(job json, created_by text) RETURNS integer
+CREATE FUNCTION public."fnJob_Insert"(body json, created_by text) RETURNS integer
     LANGUAGE sql
     AS $$
-    INSERT INTO public."tblJob"("job", "modifiedBy", "createdBy") VALUES (job, created_by, created_by) RETURNING "id"
+    INSERT INTO public."tblJob"("body", "modifiedBy", "createdBy") VALUES (body, created_by, created_by) RETURNING "id"
 $$;
 
 
 --
--- TOC entry 243 (class 1255 OID 16865)
+-- TOC entry 222 (class 1255 OID 16397)
 -- Name: fnJob_ResetAll(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -287,7 +289,7 @@ $$;
 
 
 --
--- TOC entry 224 (class 1255 OID 16396)
+-- TOC entry 223 (class 1255 OID 16398)
 -- Name: fnJob_Select(integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -301,7 +303,7 @@ $$;
 
 
 --
--- TOC entry 245 (class 1255 OID 16397)
+-- TOC entry 253 (class 1255 OID 16399)
 -- Name: fnJob_SelectAll(text, text, text, integer, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -313,9 +315,9 @@ declare
 begin 	
 	sort_expression :=	
 	case regexp_replace(_sortcolumn, '[^\w]+','')
-		when 'name' then 'j.job::json->>''name'''
-		when 'description' then 'j.job::json->>''description'''
-		when 'enabled' then 'j.job::json->>''enabled'''
+		when 'name' then 'j.body::json->>''name'''
+		when 'description' then 'j.body::json->>''description'''
+		when 'enabled' then 'j.body::json->>''enabled'''
 		else 'j.id'
 	end;
 	
@@ -327,12 +329,12 @@ begin
 		(
 		select
 			j.id,
-			j.job::json->>''name'' as name,
-			j.job::json->>''description'' as description,
-			CAST(j.job::json->>''enabled'' as bool) as enabled,
+			j.body::json->>''name'' as name,
+			j.body::json->>''description'' as description,
+			CAST(j.body::json->>''enabled'' as bool) as enabled,
 			js.status as status,
-			json_array_length(j.job::json#>''{steps}'') as step_count,
-			json_array_length(j.job::json#>''{schedules}'') as schedule_count,
+			json_array_length(j.body::json#>''{steps}'') as step_count,
+			json_array_length(j.body::json#>''{schedules}'') as schedule_count,
 			j."lastRunResult" as last_run_result,
 			j."lastRunOn" as last_run_on,
 			j."nextRun" as next_run,
@@ -346,8 +348,8 @@ begin
 		where
 			nullif(j."isDeleted", false) is null
 			and (
-				j.job::json->>''name'' like ''%' || regexp_replace($1, '[^\w\s\,\-_]+','') || '%''
-				or j.job::json->>''description'' like ''%' || regexp_replace($1, '[^\w\s\,\-_]+','') || '%''
+				j.body::json->>''name'' like ''%' || regexp_replace($1, '[^\w\s\,\-_]+','') || '%''
+				or j.body::json->>''description'' like ''%' || regexp_replace($1, '[^\w\s\,\-_]+','') || '%''
 			)
 		order by ' || sort_expression || ' ' || regexp_replace($3, '[^\w]+','') ||
 		' limit ' || $4 || ' offset ' || ($5-1)*$4 || ') t;'
@@ -358,7 +360,7 @@ $_$;
 
 
 --
--- TOC entry 247 (class 1255 OID 16860)
+-- TOC entry 254 (class 1255 OID 16400)
 -- Name: fnJob_SelectAllOverdue(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -371,21 +373,21 @@ CREATE FUNCTION public."fnJob_SelectAllOverdue"() RETURNS SETOF json
 		(
 		select
 			j.id,
-			j.job,
+			j.body,
 			j."nextRun" 
 		from
 			"tblJob" j
 			inner join "refJobStatus" js on j."statusId" = js.id
 		where
 			nullif(j."isDeleted", false) is null
-			and CAST(j.job::json->>'enabled' as bool) = true
+			and CAST(j.body::json->>'enabled' as bool) = true
 			and (j."nextRun" < now() or j."nextRun" is null)
 		order by j.id) t;
 $$;
 
 
 --
--- TOC entry 242 (class 1255 OID 16398)
+-- TOC entry 224 (class 1255 OID 16401)
 -- Name: fnJob_ToRun(integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -405,7 +407,7 @@ $$;
 
 
 --
--- TOC entry 225 (class 1255 OID 16399)
+-- TOC entry 243 (class 1255 OID 16402)
 -- Name: fnJob_Update(integer, json, text); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -416,7 +418,7 @@ DECLARE
 	affected integer;
 BEGIN
     UPDATE public."tblJob" j SET 
-		"job" = job_body,
+		"body" = job_body,
 		"modifiedBy" = modified_by,
 		"modifiedOn" = NOW()
 	WHERE "id" = job_id AND NULLIF("isDeleted", false) IS NULL;
@@ -427,7 +429,7 @@ $$;
 
 
 --
--- TOC entry 237 (class 1255 OID 16400)
+-- TOC entry 255 (class 1255 OID 16403)
 -- Name: fnJob_Update(integer, json, timestamp without time zone, text); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -438,7 +440,7 @@ DECLARE
 	affected integer;
 BEGIN
     UPDATE public."tblJob" j SET 
-		"job" = job_body,
+		"body" = job_body,
 		"nextRun" = next_run,
 		"modifiedBy" = modified_by,
 		"modifiedOn" = NOW()
@@ -450,7 +452,7 @@ $$;
 
 
 --
--- TOC entry 249 (class 1255 OID 17242)
+-- TOC entry 236 (class 1255 OID 16404)
 -- Name: fnJob_UpdateLastRun(integer, boolean); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -471,7 +473,7 @@ $$;
 
 
 --
--- TOC entry 238 (class 1255 OID 16401)
+-- TOC entry 237 (class 1255 OID 16405)
 -- Name: fnJob_UpdateLastRun(integer, boolean, text); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -494,7 +496,7 @@ $$;
 
 
 --
--- TOC entry 246 (class 1255 OID 16861)
+-- TOC entry 238 (class 1255 OID 16406)
 -- Name: fnJob_UpdateNextRun(integer, timestamp without time zone); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -514,7 +516,7 @@ $$;
 
 
 --
--- TOC entry 250 (class 1255 OID 17243)
+-- TOC entry 239 (class 1255 OID 16407)
 -- Name: fnJob_UpdateStatus(integer, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -534,7 +536,7 @@ $$;
 
 
 --
--- TOC entry 239 (class 1255 OID 16403)
+-- TOC entry 240 (class 1255 OID 16408)
 -- Name: fnJob_UpdateStatus(integer, integer, text); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -556,7 +558,7 @@ $$;
 
 
 --
--- TOC entry 240 (class 1255 OID 16404)
+-- TOC entry 241 (class 1255 OID 16409)
 -- Name: fnLog_Insert(integer, text, text); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -566,7 +568,7 @@ CREATE FUNCTION public."fnLog_Insert"(type integer, message text, createdby text
 
 
 --
--- TOC entry 241 (class 1255 OID 16405)
+-- TOC entry 242 (class 1255 OID 16410)
 -- Name: fnRunHistory_Insert(text, uuid, text); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -575,12 +577,64 @@ CREATE FUNCTION public."fnRunHistory_Insert"(message text, session_id uuid, crea
     AS $$INSERT INTO public."tblRunHistory"("message", "session", "createdBy") VALUES (message, session_id, createdBy) RETURNING "id" $$;
 
 
+--
+-- TOC entry 217 (class 1255 OID 33350)
+-- Name: fnUser_Insert(text, text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public."fnUser_Insert"(email text, created_by text) RETURNS integer
+    LANGUAGE sql
+    AS $$
+    INSERT INTO public."tblUser"("email", "modifiedBy", "createdBy") VALUES (email, created_by, created_by) RETURNING "id"
+$$;
+
+
+--
+-- TOC entry 244 (class 1255 OID 33360)
+-- Name: fnUser_Insert(text, text, text, text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public."fnUser_Insert"(email text, hash text, salt text, created_by text) RETURNS integer
+    LANGUAGE sql
+    AS $$
+    INSERT INTO public."tblUser"("email", "hash", "salt", "modifiedBy", "createdBy") VALUES (email, hash, salt, created_by, created_by) RETURNING "id"
+$$;
+
+
+--
+-- TOC entry 246 (class 1255 OID 33351)
+-- Name: fnUser_SelectByEmail(text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public."fnUser_SelectByEmail"(email text) RETURNS json
+    LANGUAGE sql
+    AS $_$
+	SELECT row_to_json("tblUser") 
+	FROM "tblUser" 
+	WHERE "email" = $1 AND NULLIF("isDeleted", false) IS NULL;
+$_$;
+
+
+--
+-- TOC entry 245 (class 1255 OID 33352)
+-- Name: fnUser_SelectById(integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public."fnUser_SelectById"(id integer) RETURNS json
+    LANGUAGE sql
+    AS $_$
+	SELECT row_to_json("tblUser") 
+	FROM "tblUser" 
+	WHERE "id" = $1 AND NULLIF("isDeleted", false) IS NULL;
+$_$;
+
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
 
 --
--- TOC entry 213 (class 1259 OID 17189)
+-- TOC entry 200 (class 1259 OID 16411)
 -- Name: sysAbyss; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -594,7 +648,7 @@ CREATE TABLE public."sysAbyss" (
 
 
 --
--- TOC entry 212 (class 1259 OID 17187)
+-- TOC entry 201 (class 1259 OID 16418)
 -- Name: abyss_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -609,7 +663,7 @@ ALTER TABLE public."sysAbyss" ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
--- TOC entry 200 (class 1259 OID 16406)
+-- TOC entry 202 (class 1259 OID 16420)
 -- Name: refJobStatus; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -625,7 +679,7 @@ CREATE TABLE public."refJobStatus" (
 
 
 --
--- TOC entry 201 (class 1259 OID 16414)
+-- TOC entry 203 (class 1259 OID 16428)
 -- Name: refJobStatus_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -639,8 +693,8 @@ CREATE SEQUENCE public."refJobStatus_id_seq"
 
 
 --
--- TOC entry 3040 (class 0 OID 0)
--- Dependencies: 201
+-- TOC entry 3055 (class 0 OID 0)
+-- Dependencies: 203
 -- Name: refJobStatus_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
@@ -648,13 +702,13 @@ ALTER SEQUENCE public."refJobStatus_id_seq" OWNED BY public."refJobStatus".id;
 
 
 --
--- TOC entry 202 (class 1259 OID 16416)
+-- TOC entry 204 (class 1259 OID 16430)
 -- Name: tblConnection; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public."tblConnection" (
     id integer NOT NULL,
-    connection json,
+    body json,
     "modifiedOn" timestamp without time zone DEFAULT now() NOT NULL,
     "modifiedBy" text NOT NULL,
     "createdOn" timestamp without time zone DEFAULT now() NOT NULL,
@@ -664,7 +718,7 @@ CREATE TABLE public."tblConnection" (
 
 
 --
--- TOC entry 203 (class 1259 OID 16424)
+-- TOC entry 205 (class 1259 OID 16438)
 -- Name: tblConnection_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -678,8 +732,8 @@ CREATE SEQUENCE public."tblConnection_id_seq"
 
 
 --
--- TOC entry 3041 (class 0 OID 0)
--- Dependencies: 203
+-- TOC entry 3056 (class 0 OID 0)
+-- Dependencies: 205
 -- Name: tblConnection_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
@@ -687,13 +741,13 @@ ALTER SEQUENCE public."tblConnection_id_seq" OWNED BY public."tblConnection".id;
 
 
 --
--- TOC entry 204 (class 1259 OID 16426)
+-- TOC entry 206 (class 1259 OID 16440)
 -- Name: tblJob; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public."tblJob" (
     id integer NOT NULL,
-    job json,
+    body json,
     "modifiedOn" timestamp without time zone DEFAULT now() NOT NULL,
     "modifiedBy" text NOT NULL,
     "createdOn" timestamp without time zone DEFAULT now() NOT NULL,
@@ -707,7 +761,7 @@ CREATE TABLE public."tblJob" (
 
 
 --
--- TOC entry 205 (class 1259 OID 16435)
+-- TOC entry 207 (class 1259 OID 16449)
 -- Name: tblJobHistory; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -722,7 +776,7 @@ CREATE TABLE public."tblJobHistory" (
 
 
 --
--- TOC entry 206 (class 1259 OID 16442)
+-- TOC entry 208 (class 1259 OID 16456)
 -- Name: tblJobHistory_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -736,8 +790,8 @@ CREATE SEQUENCE public."tblJobHistory_id_seq"
 
 
 --
--- TOC entry 3042 (class 0 OID 0)
--- Dependencies: 206
+-- TOC entry 3057 (class 0 OID 0)
+-- Dependencies: 208
 -- Name: tblJobHistory_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
@@ -745,7 +799,7 @@ ALTER SEQUENCE public."tblJobHistory_id_seq" OWNED BY public."tblJobHistory".id;
 
 
 --
--- TOC entry 207 (class 1259 OID 16444)
+-- TOC entry 209 (class 1259 OID 16458)
 -- Name: tblJob_Id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -759,8 +813,8 @@ CREATE SEQUENCE public."tblJob_Id_seq"
 
 
 --
--- TOC entry 3043 (class 0 OID 0)
--- Dependencies: 207
+-- TOC entry 3058 (class 0 OID 0)
+-- Dependencies: 209
 -- Name: tblJob_Id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
@@ -768,7 +822,7 @@ ALTER SEQUENCE public."tblJob_Id_seq" OWNED BY public."tblJob".id;
 
 
 --
--- TOC entry 208 (class 1259 OID 16446)
+-- TOC entry 210 (class 1259 OID 16460)
 -- Name: tblLog; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -782,7 +836,7 @@ CREATE TABLE public."tblLog" (
 
 
 --
--- TOC entry 209 (class 1259 OID 16453)
+-- TOC entry 211 (class 1259 OID 16467)
 -- Name: tblLog_Id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -796,8 +850,8 @@ CREATE SEQUENCE public."tblLog_Id_seq"
 
 
 --
--- TOC entry 3044 (class 0 OID 0)
--- Dependencies: 209
+-- TOC entry 3059 (class 0 OID 0)
+-- Dependencies: 211
 -- Name: tblLog_Id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
@@ -805,7 +859,7 @@ ALTER SEQUENCE public."tblLog_Id_seq" OWNED BY public."tblLog".id;
 
 
 --
--- TOC entry 210 (class 1259 OID 16455)
+-- TOC entry 212 (class 1259 OID 16469)
 -- Name: tblRunHistory; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -819,7 +873,7 @@ CREATE TABLE public."tblRunHistory" (
 
 
 --
--- TOC entry 211 (class 1259 OID 16462)
+-- TOC entry 213 (class 1259 OID 16476)
 -- Name: tblRunHistory_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -833,8 +887,8 @@ CREATE SEQUENCE public."tblRunHistory_id_seq"
 
 
 --
--- TOC entry 3045 (class 0 OID 0)
--- Dependencies: 211
+-- TOC entry 3060 (class 0 OID 0)
+-- Dependencies: 213
 -- Name: tblRunHistory_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
@@ -842,7 +896,47 @@ ALTER SEQUENCE public."tblRunHistory_id_seq" OWNED BY public."tblRunHistory".id;
 
 
 --
--- TOC entry 2874 (class 2604 OID 16464)
+-- TOC entry 215 (class 1259 OID 33338)
+-- Name: tblUser; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public."tblUser" (
+    id integer NOT NULL,
+    email text NOT NULL,
+    salt text NOT NULL,
+    "modifiedBy" text NOT NULL,
+    "createdOn" timestamp without time zone DEFAULT now() NOT NULL,
+    "createdBy" text NOT NULL,
+    "isDeleted" boolean,
+    hash text NOT NULL
+);
+
+
+--
+-- TOC entry 214 (class 1259 OID 33336)
+-- Name: tblUsers_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public."tblUsers_id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- TOC entry 3061 (class 0 OID 0)
+-- Dependencies: 214
+-- Name: tblUsers_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public."tblUsers_id_seq" OWNED BY public."tblUser".id;
+
+
+--
+-- TOC entry 2886 (class 2604 OID 16478)
 -- Name: refJobStatus id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -850,7 +944,7 @@ ALTER TABLE ONLY public."refJobStatus" ALTER COLUMN id SET DEFAULT nextval('publ
 
 
 --
--- TOC entry 2877 (class 2604 OID 16465)
+-- TOC entry 2889 (class 2604 OID 16479)
 -- Name: tblConnection id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -858,7 +952,7 @@ ALTER TABLE ONLY public."tblConnection" ALTER COLUMN id SET DEFAULT nextval('pub
 
 
 --
--- TOC entry 2881 (class 2604 OID 16466)
+-- TOC entry 2893 (class 2604 OID 16480)
 -- Name: tblJob id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -866,7 +960,7 @@ ALTER TABLE ONLY public."tblJob" ALTER COLUMN id SET DEFAULT nextval('public."tb
 
 
 --
--- TOC entry 2883 (class 2604 OID 16467)
+-- TOC entry 2895 (class 2604 OID 16481)
 -- Name: tblJobHistory id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -874,7 +968,7 @@ ALTER TABLE ONLY public."tblJobHistory" ALTER COLUMN id SET DEFAULT nextval('pub
 
 
 --
--- TOC entry 2885 (class 2604 OID 16468)
+-- TOC entry 2897 (class 2604 OID 16482)
 -- Name: tblLog id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -882,7 +976,7 @@ ALTER TABLE ONLY public."tblLog" ALTER COLUMN id SET DEFAULT nextval('public."tb
 
 
 --
--- TOC entry 2887 (class 2604 OID 16469)
+-- TOC entry 2899 (class 2604 OID 16483)
 -- Name: tblRunHistory id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -890,7 +984,15 @@ ALTER TABLE ONLY public."tblRunHistory" ALTER COLUMN id SET DEFAULT nextval('pub
 
 
 --
--- TOC entry 2902 (class 2606 OID 17197)
+-- TOC entry 2900 (class 2604 OID 33341)
+-- Name: tblUser id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."tblUser" ALTER COLUMN id SET DEFAULT nextval('public."tblUsers_id_seq"'::regclass);
+
+
+--
+-- TOC entry 2903 (class 2606 OID 16485)
 -- Name: sysAbyss abyss_pk; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -899,7 +1001,7 @@ ALTER TABLE ONLY public."sysAbyss"
 
 
 --
--- TOC entry 2890 (class 2606 OID 16471)
+-- TOC entry 2905 (class 2606 OID 16487)
 -- Name: refJobStatus refJobStatus_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -908,7 +1010,7 @@ ALTER TABLE ONLY public."refJobStatus"
 
 
 --
--- TOC entry 2892 (class 2606 OID 16473)
+-- TOC entry 2907 (class 2606 OID 16489)
 -- Name: tblConnection tblConnection_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -917,7 +1019,7 @@ ALTER TABLE ONLY public."tblConnection"
 
 
 --
--- TOC entry 2900 (class 2606 OID 16475)
+-- TOC entry 2915 (class 2606 OID 16491)
 -- Name: tblRunHistory tblHistory_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -926,7 +1028,7 @@ ALTER TABLE ONLY public."tblRunHistory"
 
 
 --
--- TOC entry 2896 (class 2606 OID 16477)
+-- TOC entry 2911 (class 2606 OID 16493)
 -- Name: tblJobHistory tblJobHistory_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -935,7 +1037,7 @@ ALTER TABLE ONLY public."tblJobHistory"
 
 
 --
--- TOC entry 2894 (class 2606 OID 16479)
+-- TOC entry 2909 (class 2606 OID 16495)
 -- Name: tblJob tblJob_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -944,7 +1046,7 @@ ALTER TABLE ONLY public."tblJob"
 
 
 --
--- TOC entry 2898 (class 2606 OID 16481)
+-- TOC entry 2913 (class 2606 OID 16497)
 -- Name: tblLog tblLog_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -953,7 +1055,16 @@ ALTER TABLE ONLY public."tblLog"
 
 
 --
--- TOC entry 2903 (class 2606 OID 16482)
+-- TOC entry 2917 (class 2606 OID 33347)
+-- Name: tblUser tblUsers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."tblUser"
+    ADD CONSTRAINT "tblUsers_pkey" PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2918 (class 2606 OID 16498)
 -- Name: tblJob tbljob_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -962,7 +1073,7 @@ ALTER TABLE ONLY public."tblJob"
 
 
 --
--- TOC entry 2904 (class 2606 OID 16487)
+-- TOC entry 2919 (class 2606 OID 16503)
 -- Name: tblJobHistory tbljobhistory_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -970,7 +1081,7 @@ ALTER TABLE ONLY public."tblJobHistory"
     ADD CONSTRAINT tbljobhistory_fk FOREIGN KEY ("jobId") REFERENCES public."tblJob"(id) ON UPDATE RESTRICT ON DELETE RESTRICT;
 
 
--- Completed on 2021-06-16 21:50:23 MSK
+-- Completed on 2021-12-07 00:36:56 MSK
 
 --
 -- PostgreSQL database dump complete
