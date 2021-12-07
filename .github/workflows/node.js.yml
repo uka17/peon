@@ -40,9 +40,9 @@ jobs:
       env:
           PGPASSWORD: test
     - name: test
-      run: echo $GITHUB_WORKSPACE
+      run: ls $GITHUB_WORKSPACE
     - name: Structure of peon DB
-      run: psql -h postgres -p 5432 -U postgres -d peon -f "{$GITHUB_WORKSPACE}/peon/dev_scripts/peon.sql"
+      run: psql -h postgres -p 5432 -U postgres -d peon -f "$GITHUB_WORKSPACE/dev_scripts/peon.sql"
       env:
           PGPASSWORD: test      
     - name: Populate refs of peon DB
