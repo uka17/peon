@@ -14,12 +14,12 @@ describe("util", function () {
   before(() => {
     //temporary disable debug output due to have clear test output
     enableDebugOutput = Boolean(config.enableDebugOutput);
-    Boolean(config.enableDebugOutput) = false;
+    config.enableDebugOutput = false;
   });
 
   after(() => {
     //restore initial debug output
-    Boolean(config.enableDebugOutput) = enableDebugOutput;
+    config.enableDebugOutput = enableDebugOutput;
   });
 
   describe("1 errors handling", function () {

@@ -13,14 +13,14 @@ describe("1 Connection", function () {
   before(async () => {
     //temporary disable debug output due to have clear test output
     enableDebugOutput = Boolean(config.enableDebugOutput);
-    Boolean(config.enableDebugOutput) = false;
+    config.enableDebugOutput = false;
     conn = new Connection(testData.connectionOK as ConnectionBody);
     await conn.save(config.testUser);
   });
 
   after(() => {
     //restore initial debug output
-    Boolean(config.enableDebugOutput) = enableDebugOutput;
+    config.enableDebugOutput = enableDebugOutput;
   });
 
   it("1.1 list. Incorrect sorting parameter", async () => {

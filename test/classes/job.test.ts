@@ -29,7 +29,7 @@ describe("1 job class", function () {
   before(async () => {
     //temporary disable debug output due to have clear test output
     enableDebugOutput = Boolean(config.enableDebugOutput);
-    Boolean(config.enableDebugOutput) = false;
+    config.enableDebugOutput = false;
     const newJob: Job = new Job({
       body: testData.jobBodyOK,
     } as unknown as IJob);
@@ -38,7 +38,7 @@ describe("1 job class", function () {
 
   after(() => {
     //restore initial debug output
-    Boolean(config.enableDebugOutput) = enableDebugOutput;
+    config.enableDebugOutput = enableDebugOutput;
   });
 
   it("1.0.1 step list should have type Array. Fail", (done) => {
