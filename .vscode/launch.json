@@ -13,7 +13,12 @@
             "sourceMaps": true,
             "smartStep": true,
             "internalConsoleOptions": "openOnSessionStart",
-            "outputCapture": "std"
+            "outputCapture": "std",
+            "env": {
+                "DB_CONNECTION": "postgresql://postgres:255320@172.18.0.2:5432/peon",
+                "PORT": "8080",
+                "DEBUG": "true"
+            }
         },
         {
             "type": "node",
@@ -25,7 +30,12 @@
             "sourceMaps": true,
             "smartStep": true,
             "internalConsoleOptions": "openOnSessionStart",
-            "outputCapture": "std"
+            "outputCapture": "std",
+            "env": {
+                "DB_CONNECTION": "postgresql://postgres:255320@172.18.0.2:5432/peon",
+                "PORT": "8080",
+                "DEBUG": "true"
+            }            
         },
         {
             "type": "node",
@@ -36,7 +46,12 @@
                 "${file}"
             ],
             "internalConsoleOptions": "openOnSessionStart",
-            "outputCapture": "std"
+            "outputCapture": "std",
+            "env": {
+                "DB_CONNECTION": "postgresql://postgres:255320@172.18.0.2:5432/peon",
+                "PORT": "8080",
+                "DEBUG": "true"
+            }            
         }                   
     ]
 }

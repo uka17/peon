@@ -9,7 +9,7 @@ let enableDebugOutput;
 import LogDispatcher from "../../src/classes/logDispatcher";
 import config from "../../src/config/config";
 const log = LogDispatcher.getInstance(
-  config.enableDebugOutput,
+  Boolean(config.enableDebugOutput),
   config.logLevel
 );
 import Job, { IJob } from "../../src/classes/job";
@@ -28,8 +28,8 @@ describe("1 job class", function () {
 
   before(async () => {
     //temporary disable debug output due to have clear test output
-    enableDebugOutput = config.enableDebugOutput;
-    config.enableDebugOutput = false;
+    enableDebugOutput = Boolean(config.enableDebugOutput);
+    Boolean(config.enableDebugOutput) = false;
     const newJob: Job = new Job({
       body: testData.jobBodyOK,
     } as unknown as IJob);
@@ -38,7 +38,7 @@ describe("1 job class", function () {
 
   after(() => {
     //restore initial debug output
-    config.enableDebugOutput = enableDebugOutput;
+    Boolean(config.enableDebugOutput) = enableDebugOutput;
   });
 
   it("1.0.1 step list should have type Array. Fail", (done) => {

@@ -13,13 +13,13 @@ import * as dbclient from "../../src/tools/db";
 describe("util", function () {
   before(() => {
     //temporary disable debug output due to have clear test output
-    enableDebugOutput = config.enableDebugOutput;
-    config.enableDebugOutput = false;
+    enableDebugOutput = Boolean(config.enableDebugOutput);
+    Boolean(config.enableDebugOutput) = false;
   });
 
   after(() => {
     //restore initial debug output
-    config.enableDebugOutput = enableDebugOutput;
+    Boolean(config.enableDebugOutput) = enableDebugOutput;
   });
 
   describe("1 errors handling", function () {

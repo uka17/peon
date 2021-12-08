@@ -3,7 +3,7 @@ import config from "./config/config";
 import Engine from "./classes/engine";
 import LogDispatcher from "./classes/logDispatcher";
 const log = LogDispatcher.getInstance(
-  config.enableDebugOutput,
+  Boolean(config.enableDebugOutput),
   config.logLevel
 );
 

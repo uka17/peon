@@ -13,7 +13,7 @@ import { SimpleStepActionType } from "./step";
 import LogDispatcher from "./logDispatcher";
 import config from "../config/config";
 const log = LogDispatcher.getInstance(
-  config.enableDebugOutput,
+  Boolean(config.enableDebugOutput),
   config.logLevel
 );
 import message_labels from "../config/message_labels";
