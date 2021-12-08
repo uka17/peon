@@ -57,3 +57,7 @@ jobs:
     - run: npm test
       env:
         DATABASE_URL: "postgresql://postgres:test@postgres:5432/peon"
+    - name: Coveralls
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: "MKbaC4FIRBG87qjXKHgApViMlMurW5MuK"        
