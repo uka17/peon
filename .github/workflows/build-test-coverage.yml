@@ -55,6 +55,7 @@ jobs:
     - run: npm ci
     - run: npm run build --if-present
     - run: npm test
+    - run: npm run coverage
       env:
         DATABASE_URL: "postgresql://postgres:test@postgres:5432/peon"
     - name: Coveralls
