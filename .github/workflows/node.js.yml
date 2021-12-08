@@ -60,4 +60,5 @@ jobs:
     - name: Coveralls
       uses: coverallsapp/github-action@master
       with:
-        github-token: "MKbaC4FIRBG87qjXKHgApViMlMurW5MuK"        
+        github-token: "MKbaC4FIRBG87qjXKHgApViMlMurW5MuK"
+        base-path: "$GITHUB_WORKSPACE"
