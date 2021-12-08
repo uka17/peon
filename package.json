@@ -6,7 +6,7 @@
   "scripts": {
     "test": "nyc --reporter=html --reporter=text ts-mocha './test/**/*test.ts'",
     "mtest": "mocha --recursive",
-    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "coverage": "nyc report --reporter=text-lcov > ./coverage/lcov.info",
     "dev-srv": "npm run build && nodemon app/server.js",
     "dev-api": "npm run build && nodemon app/api.js",
     "format": "prettier --write .",

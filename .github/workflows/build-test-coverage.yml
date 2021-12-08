@@ -61,4 +61,4 @@ jobs:
       uses: coverallsapp/github-action@master
       with:
         github-token: "MKbaC4FIRBG87qjXKHgApViMlMurW5MuK"
-        base-path: "$GITHUB_WORKSPACE"
+        base-path: "$GITHUB_WORKSPACE/coverage/lcov.info"
