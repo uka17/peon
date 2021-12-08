@@ -17,7 +17,7 @@
             "env": {
                 "DB_CONNECTION": "postgresql://postgres:255320@172.18.0.2:5432/peon",
                 "PORT": "8080",
-                "DEBUG_MODE": "true"
+                "APP_ENV": "qa"
             }
         },
         {
@@ -34,7 +34,7 @@
             "env": {
                 "DB_CONNECTION": "postgresql://postgres:255320@172.18.0.2:5432/peon",
                 "PORT": "8080",
-                "DEBUG_MODE": "true"
+                "APP_ENV": "qa"
             }            
         },
         {
@@ -50,7 +50,8 @@
             "env": {
                 "DB_CONNECTION": "postgresql://postgres:255320@172.18.0.2:5432/peon",
                 "PORT": "8080",
-                "DEBUG_MODE": "true"
+                "APP_ENV": "qa",
+                "TEST_MODE": "quick"
             }            
         }                   
     ]

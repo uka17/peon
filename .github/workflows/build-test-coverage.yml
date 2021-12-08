@@ -58,14 +58,12 @@ jobs:
       env:
         DB_CONNECTION: "postgresql://postgres:test@postgres:5432/peon"  
         PORT: 8080  
-        DEBUG_MODE: true
-        SKIP_LONG: false
+        APP_ENV: "qa"
     - run: npm run coverage
       env:
         DB_CONNECTION: "postgresql://postgres:test@postgres:5432/peon"  
         PORT: 8080  
-        DEBUG_MODE: true
-        SKIP_LONG: false
+        APP_ENV: "qa"
     - name: Coveralls
       uses: coverallsapp/github-action@1.1.3
       with:
