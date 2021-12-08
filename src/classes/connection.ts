@@ -8,7 +8,7 @@ import pg from "pg";
 import LogDispatcher from "./logDispatcher";
 import config from "../config/config";
 const log = LogDispatcher.getInstance(
-  Boolean(config.enableDebugOutput),
+  config.enableDebugOutput,
   config.logLevel
 );
 import Validation from "../tools/validation";

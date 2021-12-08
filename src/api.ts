@@ -4,7 +4,7 @@ import config from "./config/config";
 import app from "./init/setup";
 import LogDispatcher from "./classes/logDispatcher";
 const log = LogDispatcher.getInstance(
-  Boolean(config.enableDebugOutput),
+  config.enableDebugOutput,
   config.logLevel
 );
 

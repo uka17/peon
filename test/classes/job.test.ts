@@ -9,7 +9,7 @@ let enableDebugOutput;
 import LogDispatcher from "../../src/classes/logDispatcher";
 import config from "../../src/config/config";
 const log = LogDispatcher.getInstance(
-  Boolean(config.enableDebugOutput),
+  config.enableDebugOutput,
   config.logLevel
 );
 import Job, { IJob } from "../../src/classes/job";
@@ -28,7 +28,7 @@ describe("1 job class", function () {
 
   before(async () => {
     //temporary disable debug output due to have clear test output
-    enableDebugOutput = Boolean(config.enableDebugOutput);
+    enableDebugOutput = config.enableDebugOutput;
     config.enableDebugOutput = false;
     const newJob: Job = new Job({
       body: testData.jobBodyOK,

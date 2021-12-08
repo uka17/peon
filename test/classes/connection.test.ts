@@ -12,7 +12,7 @@ describe("1 Connection", function () {
 
   before(async () => {
     //temporary disable debug output due to have clear test output
-    enableDebugOutput = Boolean(config.enableDebugOutput);
+    enableDebugOutput = config.enableDebugOutput;
     config.enableDebugOutput = false;
     conn = new Connection(testData.connectionOK as ConnectionBody);
     await conn.save(config.testUser);

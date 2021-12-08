@@ -2,7 +2,7 @@ import { executeSysQuery } from "./db";
 import LogDispatcher from "../classes/logDispatcher";
 import config from "../config/config";
 const log = LogDispatcher.getInstance(
-  Boolean(config.enableDebugOutput),
+  config.enableDebugOutput,
   config.logLevel
 );
 import bodyParser from "body-parser";

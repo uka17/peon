@@ -2,7 +2,7 @@ import config from "../config/config";
 import { executeSysQuery } from "../tools/db";
 import LogDispatcher from "./logDispatcher";
 const log = LogDispatcher.getInstance(
-  Boolean(config.enableDebugOutput),
+  config.enableDebugOutput,
   config.logLevel
 );
 import { v4 as uuidv4 } from "uuid";

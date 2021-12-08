@@ -5,7 +5,7 @@ import config from "../config/config";
 import { executeSysQuery } from "../tools/db";
 import LogDispatcher from "./logDispatcher";
 const log = LogDispatcher.getInstance(
-  Boolean(config.enableDebugOutput),
+  config.enableDebugOutput,
   config.logLevel
 );
 import pg from "pg";
