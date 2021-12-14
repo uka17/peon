@@ -476,14 +476,14 @@ describe("1 job class", function () {
   });
   it("1.11.1 1-minute execution test. Create connection, create 21 jobs, wait 1 minutes, check if records were created in DB", async function () {
     //config.skipLongTests = false;
-    if (process.env.SKIP_LONG) {
+    if (config.skipLongTests) {
       this.skip();
     } else {
       const numberOfJobs = 20;
       const minutes = 1;
-
+      let connBody = process.env.APP_ENV === "qa" ? testData.execution.connectionQa : testData.execution.connectionLocal;
       const connection = new Connection(
-        testData.execution.connection as ConnectionBody
+         connBody as ConnectionBody
       );
       await connection.save(config.testUser);
 
@@ -521,6 +521,7 @@ describe("1 job class", function () {
           "text": `SELECT count(id) FROM public."sysAbyss" where "text" like '%${uid}%'`,
         };
         executeSysQuery(query, (err, result) => {
+          console.log(err, result)
           if (result.rows)
             resolve(
               (result.rows[0] as unknown as Record<string, unknown>)
