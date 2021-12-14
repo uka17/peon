@@ -25,8 +25,8 @@ export default {
   //===System settings
   logLevel: "info",
   logDir: "../log/app.log",
-  enableDebugOutput: process.env.APP_ENV === "test",
-  skipLongTests: process.env.TEST_MODE !== "quick",
+  enableDebugOutput: process.env.APP_ENV === "qa",
+  skipLongTests: process.env.TEST_MODE === "quick",
   passwordRegExp: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/gm,
   emailRegExp: /.+@.+\..+/i,
   //===Cookie and session
