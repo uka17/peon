@@ -87,4 +87,17 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         base-path: ./peon        
-        path-to-lcov: ${{ github.workspace }}/coverage/lcov.info
+        path-to-lcov: ${{ github.workspace }}/peon/coverage/lcov.info
+    - name: Launch peon-api
+      run: npm run dev-srv &
+      working-directory: ./peon
+      env:
+        DB_CONNECTION: "postgresql://postgres:test@postgres:5432/peon"  
+        PORT: 8080  
+        APP_ENV: "qa"
+    - name: Launch web-peon
+      run: npm run start &
+      working-directory: ./peon-web
+    - name: E2E tests
+      run: npm run ntest
+      working-directory: ./peon-web      
