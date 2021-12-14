@@ -58,7 +58,7 @@ jobs:
       env:
           PGPASSWORD: test      
     - name: Switch to peon
-      run: cd peon   
+      run: cd peon/peon
     - run: ls
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v2
