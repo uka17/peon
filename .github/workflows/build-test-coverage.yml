@@ -1,4 +1,4 @@
-name: Build-test
+name: build-test
 
 on:
   push:
@@ -63,7 +63,8 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
         cache-dependency-path: peon/package-lock.json
-    - run: npm ci
+    - name: Install, build and test peon
+      run: npm ci
       working-directory: ./peon
     - run: npm run build --if-present
       working-directory: ./peon
@@ -80,14 +81,15 @@ jobs:
         DB_CONNECTION: "postgresql://postgres:test@postgres:5432/peon"  
         PORT: 8080  
         APP_ENV: "qa"
-    - run: cat lcov.info
-      working-directory: ./peon/coverage    
     - name: Coveralls
       uses: coverallsapp/github-action@1.1.3
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         base-path: ./peon        
         path-to-lcov: ${{ github.workspace }}/peon/coverage/lcov.info
+    - name: Install, build and test web-peon
+      run: npm ci
+      working-directory: ./peon-web    
     - name: Launch peon-api
       run: npm run dev-srv &
       working-directory: ./peon
