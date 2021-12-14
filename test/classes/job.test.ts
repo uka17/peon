@@ -476,7 +476,7 @@ describe("1 job class", function () {
   });
   it("1.11.1 1-minute execution test. Create connection, create 21 jobs, wait 1 minutes, check if records were created in DB", async function () {
     //config.skipLongTests = false;
-    if (process.env.SKIP_LONG) {
+    if (config.skipLongTests) {
       this.skip();
     } else {
       const numberOfJobs = 20;
