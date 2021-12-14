@@ -481,9 +481,9 @@ describe("1 job class", function () {
     } else {
       const numberOfJobs = 20;
       const minutes = 1;
-
+      let connBody = process.env.APP_ENV === "qa" ? config.testData.execution.connectionQa : config.testData.execution.connectionLocal;
       const connection = new Connection(
-        testData.execution.connection as ConnectionBody
+         connBody as ConnectionBody
       );
       await connection.save(config.testUser);
 
