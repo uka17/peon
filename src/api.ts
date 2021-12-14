@@ -10,5 +10,5 @@ const log = LogDispatcher.getInstance(
 
 //Startup
 app.listen(config.port, () => {
-  log.info(`Service is live on ${config.port}.`);
+  log.console(`Service is live on ${config.port}.`);
 });

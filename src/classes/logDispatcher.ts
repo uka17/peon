@@ -157,4 +157,12 @@ export default class LogDispatcher {
     if (this._debug) this.putDebugMessage(message, LogMessageLevel.info);
     this.putLogstashMessage(message, LogMessageLevel.error);
   };
+  /* istanbul ignore next */
+  /**
+   * Outputs log message
+   * @param {any} message Object to be logged
+   */
+  public console = (message: any) => {
+    this.putDebugMessage(message, LogMessageLevel.info);
+  };
 }

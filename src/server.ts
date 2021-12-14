@@ -13,12 +13,12 @@ setInterval(function () {
   return context.run();
 }, config.runInterval);
 
-log.info(
+log.console(
   `Service started with job search scope in ${config.runTolerance} minute tolerance`
 );
 
 //Startup actions
-log.info("Resetting job statuses and updating overdue jobs...");
+log.console("Resetting job statuses and updating overdue jobs...");
 Engine.updateOverdueJobs();
 Engine.resetAllJobsStatuses();
-log.info("Up and running 🚀");
+log.console("Up and running 🚀");
