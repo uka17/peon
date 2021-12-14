@@ -80,7 +80,7 @@ jobs:
         DB_CONNECTION: "postgresql://postgres:test@postgres:5432/peon"  
         PORT: 8080  
         APP_ENV: "qa"
-    - run: ls
+    - run: cat lcov.info
       working-directory: ./peon/coverage    
     - name: Coveralls
       uses: coverallsapp/github-action@1.1.3
