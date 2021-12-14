@@ -87,6 +87,7 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         base-path: ./peon        
         path-to-lcov: ${{ github.workspace }}/peon/coverage/lcov.info
+    - run: npm install node-sass --save-dev --unsafe-perm=true
     - name: Install, build and test web-peon
       run: npm ci
       working-directory: ./peon-web    
