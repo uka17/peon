@@ -73,7 +73,7 @@ jobs:
         DB_CONNECTION: "postgresql://postgres:test@postgres:5432/peon"  
         PORT: 8080  
         APP_ENV: "qa"
-        #TEST_MODE: "quick"
+        TEST_MODE: "quick"
     - run: npm run coverage
       working-directory: ./peon
       env:
@@ -87,3 +87,4 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         base-path: ./peon
+        path-to-lcov: ${{ github.workspace }}/peon/coverage/lcov.info
