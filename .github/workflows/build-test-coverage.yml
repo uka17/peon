@@ -73,6 +73,7 @@ jobs:
         DB_CONNECTION: "postgresql://postgres:test@postgres:5432/peon"  
         PORT: 8080  
         APP_ENV: "qa"
+        TEST_MODE: "quick"
     - run: npm run coverage
       working-directory: ./peon
       env:
