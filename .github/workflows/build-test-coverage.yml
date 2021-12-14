@@ -57,22 +57,23 @@ jobs:
       run: psql -h postgres -p 5432 -U postgres -d peon -f "$GITHUB_WORKSPACE/peon/dev_scripts/refsCreation.sql"      
       env:
           PGPASSWORD: test      
-    - run: cd peon
-    - run: cd peon
-    - run: ls
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - run: npm ci
+      working-directory: ./peon
     - run: npm run build --if-present
+      working-directory: ./peon
     - run: npm test
+      working-directory: ./peon
       env:
         DB_CONNECTION: "postgresql://postgres:test@postgres:5432/peon"  
         PORT: 8080  
         APP_ENV: "qa"
     - run: npm run coverage
+      working-directory: ./peon
       env:
         DB_CONNECTION: "postgresql://postgres:test@postgres:5432/peon"  
         PORT: 8080  
@@ -81,4 +82,4 @@ jobs:
       uses: coverallsapp/github-action@1.1.3
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        path-to-lcov: ${{ github.workspace }}/coverage/lcov.info
+        path-to-lcov: ${{ github.workspace }}/peon/coverage/lcov.info
