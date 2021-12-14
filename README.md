@@ -1,6 +1,6 @@
 Web based SQL job executor
 
-[![Coverage Status](https://coveralls.io/repos/github/uka17/peon/badge.svg?)](https://coveralls.io/github/uka17/peon)
+![Coverage Status](https://coveralls.io/repos/github/uka17/peon/badge.svg?)
 ![Build Status](https://github.com/uka17/peon/actions/workflows/build-test-coverage.yml/badge.svg)
 
 ## SQL job executor tool
