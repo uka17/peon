@@ -521,7 +521,6 @@ describe("1 job class", function () {
           "text": `SELECT count(id) FROM public."sysAbyss" where "text" like '%${uid}%'`,
         };
         executeSysQuery(query, (err, result) => {
-          console.log(err, result)
           if (result.rows)
             resolve(
               (result.rows[0] as unknown as Record<string, unknown>)
